@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misi Rahasia Google Sheets</title>
+    <style>
+        :root {
+            --primary: #0F9D58;
+            --primary-dark: #0B8043;
+            --bg-color: #f1f3f4;
+            --text-main: #202124;
+            --text-light: #5f6368;
+            --grid-border: #dadce0;
+            --danger: #d93025;
+            --warning: #f29900;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            background-color: white;
+            width: 90%;
+            max-width: 1000px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: 20px 0;
+        }
+
+        .header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .timer {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 30px;
+            gap: 30px;
+        }
+
+        .left-panel {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--grid-border);
+        }
+
+        .right-panel {
+            flex: 1.5;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Spreadsheet Grid Styles */
+        table.sheet-grid {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            text-align: center;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .sheet-grid th, .sheet-grid td {
+            border: 1px solid var(--grid-border);
+            padding: 15px;
+        }
+
+        .sheet-grid th {
+            background-color: #f1f3f4;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .sheet-grid td {
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        /* Question Styles */
+        .question-card {
+            background: white;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .level-badge {
+            background: var(--warning);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .formula-box {
+            background: #e8eaed;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: var(--primary-dark);
+            display: inline-block;
+            margin: 5px 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        /* Inputs and Buttons */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        input[type="number"], input[type="text"] {
+            padding: 12px;
+            font-size: 1.2rem;
+            border: 2px solid var(--grid-border);
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus, input[type="text"]:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .mcq-btn {
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            background: white;
+            border: 2px solid var(--grid-border);
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+
+        .mcq-btn:hover {
+            border-color: var(--primary);
+            background: #e6f4ea;
+        }
+
+        .submit-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+            align-self: flex-start;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Feedback Area */
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            display: block;
+            background-color: #e6f4ea;
+            color: var(--primary-dark);
+            border: 1px solid var(--primary);
+        }
+
+        .feedback.wrong {
+            display: block;
+            background-color: #fce8e6;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .explanation {
+            font-weight: normal;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        /* End Screen */
+        .end-screen {
+            display: none;
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .end-screen h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .final-score {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: var(--text-main);
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="header">
+        <h1>Misi Rahasia Google Sheets</h1>
+        <div class="status-bar">
+            <div>Level: <span id="level-display">1</span>/20</div>
+            <div class="timer" id="timer">30:00</div>
+        </div>
+    </div>
+
+    <div class="main-content" id="game-area">
+        <div class="left-panel">
+            <h3>Tabel Data</h3>
+            <p style="font-size: 0.9rem; color: #5f6368;">Gunakan data pada tabel ini untuk memecahkan kode!</p>
+            <table class="sheet-grid">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>1</th>
+                        <td>12</td>
+                        <td>4</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <th>2</th>
+                        <td>9</td>
+                        <td>3</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <th>3</th>
+                        <td>16</td>
+                        <td>8</td>
+                        <td>10</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #fff3e0; border-radius: 8px; border: 1px solid #ffe0b2;">
+                <h4 style="margin-top:0; color: #e65100;">⚠️ Aturan KABATAKU:</h4>
+                <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                    <li><b>Kurung</b> () kerjakan duluan</li>
+                    <li><b>Pangkat/Akar</b> (^, SQRT) selanjutnya</li>
+                    <li><b>Kali/Bagi</b> (*, /) setelahnya</li>
+                    <li><b>Tambah/Kurang</b> (+, -) terakhir</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="question-card">
+                <div class="level-badge" id="difficulty-badge">Pemanasan</div>
+                <div class="question-text" id="question-text">
+                    Loading question...
+                </div>
+                
+                <div id="input-area" class="input-group">
+                </div>
+
+                <button class="submit-btn" id="submit-btn" onclick="checkAnswer()" style="display: none;">Cek Jawaban</button>
+                <button class="submit-btn" id="next-btn" onclick="nextQuestion()" style="display: none; background-color: var(--warning);">Lanjut ➔</button>
+
+                <div class="feedback" id="feedback-box">
+                    <span id="feedback-title"></span>
+                    <div class="explanation" id="feedback-explanation"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="end-screen" id="end-screen">
+        <h2>Misi Selesai!</h2>
+        <p>Kamu telah menyelesaikan ujian logika Google Sheets kelas 6 (20 Pertanyaan).</p>
+        <div class="final-score" id="final-score-display">100</div>
+        <p id="final-message" style="font-size: 1.2rem;"></p>
+        <button class="submit-btn" onclick="location.reload()" style="margin-top: 20px;">Main Lagi</button>
+    </div>
+</div>
+
+<script>
+    // Game Data - Expanded to 20 Questions
+    const questions = [
+        {
+            level: "Misi 1: Pemanasan", type: "input",
+            q: "Mari kita mulai! Berapakah hasil dari rumus berikut ini?<br><div class='formula-box'>=A1 + B1</div>",
+            answer: "16", explanation: "Nilai A1 adalah 12 dan B1 adalah 4. Maka 12 + 4 = 16."
+        },
+        {
+            level: "Misi 2: Pemanasan", type: "input",
+            q: "Sekarang coba pengurangan:<br><div class='formula-box'>=A3 - A2</div>",
+            answer: "7", explanation: "Nilai A3 adalah 16 dan A2 adalah 9. Maka 16 - 9 = 7."
+        },
+        {
+            level: "Misi 3: Awas KABATAKU!", type: "input",
+            q: "Berapakah hasil dari rumus ini?<br><div class='formula-box'>=A1 + B1 * C1</div>",
+            answer: "20", explanation: "Sesuai aturan KABATAKU, perkalian dikerjakan lebih dulu! B1*C1 (4*2 = 8). Baru ditambahkan A1 (12 + 8 = 20)."
+        },
+        {
+            level: "Misi 4: Kurung Penyelamat", type: "input",
+            q: "Sekarang ada tanda kurung. Berapa hasilnya?<br><div class='formula-box'>=(A2 + B2) / C1</div>",
+            answer: "6", explanation: "Kerjakan di dalam kurung dulu: A2+B2 (9+3 = 12). Lalu bagi dengan C1 (12 / 2 = 6)."
+        },
+        {
+            level: "Misi 5: Menengah", type: "input",
+            q: "Hitung urutan ini dari kiri ke kanan:<br><div class='formula-box'>=A1 * C1 / B1</div>",
+            answer: "6", explanation: "Kali dan bagi setara, kerjakan dari kiri. A1*C1 (12*2 = 24). Lalu dibagi B1 (24 / 4 = 6)."
+        },
+        {
+            level: "Misi 6: Menengah", type: "input",
+            q: "Gabungan bagi dan tambah:<br><div class='formula-box'>=B3 / B1 + A2</div>",
+            answer: "11", explanation: "Pembagian dikerjakan dahulu. B3/B1 (8/4 = 2). Kemudian ditambah A2 (2 + 9 = 11)."
+        },
+        {
+            level: "Misi 7: Logika Dasar", type: "mcq",
+            q: "Budi ingin <b>menjumlahkan</b> A1 dan A2, lalu hasilnya <b>dikalikan</b> dengan C1. Manakah penulisan rumus yang paling tepat?",
+            options: ["=A1 + A2 * C1", "=(A1 + A2) * C1", "=A1 + (A2 * C1)", "=(A1 * C1) + A2"],
+            answer: "=(A1 + A2) * C1", explanation: "Kita harus menggunakan tanda kurung pada penjumlahan (A1 + A2) agar dikerjakan lebih dulu."
+        },
+        {
+            level: "Misi 8: Jebakan", type: "mcq",
+            q: "Di antara rumus-rumus di bawah ini, manakah yang menghasilkan nilai <b>10</b>?",
+            options: ["=C2 * C1", "=A1 - C1", "=B3 + C1", "Semua benar"],
+            answer: "Semua benar", explanation: "C2*C1 (5*2=10), A1-C1 (12-2=10), dan B3+C1 (8+2=10). Jadi semuanya bernilai 10!"
+        },
+        {
+            level: "Misi 9: Akar Kuadrat", type: "input",
+            q: "Mengenal SQRT (Akar Kuadrat):<br><div class='formula-box'>=SQRT(A3) + C1 ^ 3</div>",
+            answer: "12", explanation: "SQRT(A3) adalah akar dari 16 = 4. C1 pangkat 3 adalah 2^3 = 8. Maka 4 + 8 = 12."
+        },
+        {
+            level: "Misi 10: Kombinasi Akar", type: "input",
+            q: "Berapa hasilnya?<br><div class='formula-box'>=SQRT(A2) * C2</div>",
+            answer: "15", explanation: "Akar dari A2 (9) adalah 3. Lalu dikalikan C2 (5). Maka 3 * 5 = 15."
+        },
+        {
+            level: "Misi 11: Pangkat", type: "mcq",
+            q: "Jika kamu menuliskan rumus <div class='formula-box'>=A2 ^ (B1/C1)</div> berapakah hasilnya?",
+            options: ["18", "81", "4.5", "36"],
+            answer: "81", explanation: "Kerjakan kurung dulu (B1/C1 = 4/2 = 2). Kemudian hitung pangkatnya: A2^2 (9^2 = 81)."
+        },
+        {
+            level: "Misi 12: Level Sulit", type: "input",
+            q: "Tantangan Logika Panjang! Hitung pelan-pelan:<br><div class='formula-box'>=A3 - B3 / C1 + C2</div>",
+            answer: "17", explanation: "Pembagian dulu: B3/C1 (8/2 = 4). Rumus menjadi 16 - 4 + 5. Kerjakan dari kiri: 12 + 5 = 17."
+        },
+        {
+            level: "Misi 13: Kurung Bersarang", type: "input",
+            q: "Ayo lebih teliti lagi:<br><div class='formula-box'>=A1 / (B1 - C1) + A3</div>",
+            answer: "22", explanation: "Dalam kurung: (4 - 2) = 2. Kemudian bagi: 12 / 2 = 6. Terakhir tambah: 6 + 16 = 22."
+        },
+        {
+            level: "Misi 14: Logika Mundur", type: "mcq",
+            q: "Sebuah sel rahasia <b>X</b> ditambahkan dengan B1, lalu dikali C1 hasilnya adalah <b>24</b>. Rumusnya <div class='formula-box'>=X + B1 * C1</div> menghasilkan 24. Manakah sel X tersebut?",
+            options: ["A1", "A2", "A3", "B3"],
+            answer: "A3", explanation: "X + (4 * 2) = 24. Maka X + 8 = 24. Berarti X = 16. Sel yang bernilai 16 adalah A3."
+        },
+        {
+            level: "Misi 15: Error Hunter", type: "mcq",
+            q: "Jika ditulis di Google Sheets, rumus mana yang akan menghasilkan nilai <b>tak terhingga / error (DIV/0)</b> karena dibagi nol?",
+            options: ["=A1 / (B1 - C1^2)", "=A1 / C1", "=B3 / C1", "=A3 / B1"],
+            answer: "=A1 / (B1 - C1^2)", explanation: "C1 pangkat 2 adalah 4. B1 juga 4. Jadi (B1 - C1^2) = (4-4) = 0. Angka tidak bisa dibagi 0!"
+        },
+        {
+            level: "Misi 16: Boss Pertama", type: "input",
+            q: "Berapa hasil akhir dari:<br><div class='formula-box'>=(A3 - B1) * (C3 / C2) ^ C1</div>",
+            answer: "48", explanation: "(16 - 4) * (10 / 5) ^ 2 ➔ (12) * (2) ^ 2 ➔ 12 * 4 = 48."
+        },
+        {
+            level: "Misi 17: Sangat Sulit", type: "input",
+            q: "Buktikan kamu teliti:<br><div class='formula-box'>=C3 ^ C1 - A3 * C2</div>",
+            answer: "20", explanation: "C3^C1 adalah 10^2 = 100. A3*C2 adalah 16*5 = 80. Pengurangan: 100 - 80 = 20."
+        },
+        {
+            level: "Misi 18: Akar Logika", type: "input",
+            q: "Selesaikan akar ini:<br><div class='formula-box'>=SQRT(B3 * C1) + A1</div>",
+            answer: "16", explanation: "B3*C1 adalah 8*2=16. SQRT(16) adalah 4. Lalu 4 + A1 (12) = 16."
+        },
+        {
+            level: "Misi 19: Boss Kedua", type: "input",
+            q: "Hampir selesai!<br><div class='formula-box'>=(A2 + A3) / C2 + B3 * C1</div>",
+            answer: "21", explanation: "Dalam kurung: 9+16=25. Bagi: 25/5 = 5. Kali: 8*2 = 16. Tambah: 5 + 16 = 21."
+        },
+        {
+            level: "Misi 20: Final Boss", type: "input",
+            q: "Ujian Logika Terakhir! Jangan sampai salah langkah:<br><div class='formula-box'>=SQRT(C3^2 - B3^2) * C1</div>",
+            answer: "12", explanation: "C3^2 = 100. B3^2 = 64. 100-64 = 36. Akar dari 36 adalah 6. Terakhir 6 * 2 = 12. Sempurna!"
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timeRemaining = 30 * 60; // 30 minutes in seconds
+    let timerInterval;
+
+    // Elements
+    const qText = document.getElementById("question-text");
+    const inputArea = document.getElementById("input-area");
+    const diffBadge = document.getElementById("difficulty-badge");
+    const levelDisplay = document.getElementById("level-display");
+    const submitBtn = document.getElementById("submit-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const feedbackBox = document.getElementById("feedback-box");
+    const feedbackTitle = document.getElementById("feedback-title");
+    const feedbackExp = document.getElementById("feedback-explanation");
+    const timerDisplay = document.getElementById("timer");
+
+    // Initialize Game
+    function startGame() {
+        renderQuestion();
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            endGame();
+            return;
+        }
+        timeRemaining--;
+        let minutes = Math.floor(timeRemaining / 60);
+        let seconds = timeRemaining % 60;
+        timerDisplay.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        if(timeRemaining < 300) {
+            timerDisplay.style.color = "#ffcccc";
+            timerDisplay.style.backgroundColor = "var(--danger)";
+        }
+    }
+
+    function renderQuestion() {
+        const q = questions[currentQuestionIndex];
+        levelDisplay.innerText = currentQuestionIndex + 1;
+        diffBadge.innerText = q.level;
+        qText.innerHTML = q.q;
+        
+        inputArea.innerHTML = "";
+        feedbackBox.className = "feedback";
+        feedbackBox.style.display = "none";
+        nextBtn.style.display = "none";
+
+        if (q.type === "input") {
+            const input = document.createElement("input");
+            input.type = "number";
+            input.id = "answer-input";
+            input.placeholder = "Ketik jawaban berupa angka...";
+            input.onkeypress = function(e) {
+                if (e.key === 'Enter') checkAnswer();
+            }
+            inputArea.appendChild(input);
+            submitBtn.style.display = "inline-block";
+            setTimeout(() => input.focus(), 100);
+        } else if (q.type === "mcq") {
+            submitBtn.style.display = "none";
+            q.options.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.className = "mcq-btn";
+                btn.innerHTML = opt;
+                btn.onclick = () => checkMcqAnswer(opt, btn);
+                inputArea.appendChild(btn);
+            });
+        }
+    }
+
+    function checkAnswer() {
+        const q = questions[currentQuestionIndex];
+        const inputEl = document.getElementById("answer-input");
+        const userAns = inputEl.value.trim();
+
+        if (userAns === "") {
+            alert("Harap masukkan jawaban terlebih dahulu!");
+            return;
+        }
+
+        processResult(userAns === q.answer);
+    }
+
+    function checkMcqAnswer(selectedOpt, btnElement) {
+        const q = questions[currentQuestionIndex];
+        const allBtns = document.querySelectorAll(".mcq-btn");
+        allBtns.forEach(b => {
+            b.disabled = true;
+            b.style.cursor = "not-allowed";
+        });
+
+        const isCorrect = (selectedOpt === q.answer);
+        
+        if (isCorrect) {
+            btnElement.style.backgroundColor = "#e6f4ea";
+            btnElement.style.borderColor = "var(--primary)";
+        } else {
+            btnElement.style.backgroundColor = "#fce8e6";
+            btnElement.style.borderColor = "var(--danger)";
+        }
+
+        processResult(isCorrect);
+    }
+
+    function processResult(isCorrect) {
+        const q = questions[currentQuestionIndex];
+        submitBtn.style.display = "none";
+        nextBtn.style.display = "inline-block";
+        feedbackBox.style.display = "block";
+
+        if (isCorrect) {
+            score += 5; // 20 questions * 5 points = 100
+            feedbackBox.className = "feedback correct";
+            feedbackTitle.innerHTML = "✅ Benar Sekali!";
+        } else {
+            feedbackBox.className = "feedback wrong";
+            feedbackTitle.innerHTML = `❌ Salah. Jawaban yang tepat: <b>${q.answer}</b>`;
+            document.querySelector('.question-card').classList.add('shake');
+            setTimeout(() => document.querySelector('.question-card').classList.remove('shake'), 400);
+        }
+        
+        feedbackExp.innerHTML = q.explanation;
+        
+        if (currentQuestionIndex === questions.length - 1) {
+            nextBtn.innerHTML = "Selesaikan Misi ➔";
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            renderQuestion();
+        } else {
+            endGame();
+        }
+    }
+
+    function endGame() {
+        clearInterval(timerInterval);
+        document.getElementById("game-area").style.display = "none";
+        document.querySelector(".status-bar").style.display = "none";
+        const endScreen = document.getElementById("end-screen");
+        endScreen.style.display = "block";
+        
+        document.getElementById("final-score-display").innerText = score;
+        
+        let msg = "";
+        if (score === 100) msg = "Luar Biasa! Kamu adalah Master Google Sheets sejati! 🏆";
+        else if (score >= 80) msg = "Hebat! Logika matematikamu sudah sangat baik. Terus berlatih! 🌟";
+        else if (score >= 50) msg = "Lumayan! Jangan lupa selalu perhatikan aturan KABATAKU ya! 👍";
+        else msg = "Jangan menyerah! Coba main lagi dan pelajari penjelasannya pelan-pelan. 💪";
+        
+        document.getElementById("final-message").innerText = msg;
+    }
+
+    window.onload = startGame;
+</script>
+</body>
+</html>
