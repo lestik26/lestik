@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misi Agen Data: Peretasan Spreadsheet</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #39d353;
+            --alert-color: #ff5252;
+            --table-border: #238636;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            color: #8b949e;
+        }
+
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border: 1px solid var(--table-border);
+            border-radius: 5px;
+            background-color: #161b22;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--alert-color);
+            text-shadow: 0 0 5px var(--alert-color);
+        }
+
+        .level-indicator {
+            font-size: 1.5em;
+        }
+
+        .grid-container {
+            background-color: #161b22;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--table-border);
+            margin-bottom: 20px;
+            overflow-x: auto;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            text-align: center;
+        }
+
+        th, td {
+            border: 1px solid var(--table-border);
+            padding: 10px;
+        }
+
+        th {
+            background-color: #238636;
+            color: white;
+        }
+
+        .row-header {
+            background-color: #1f2428;
+            font-weight: bold;
+            width: 30px;
+        }
+
+        .mission-box {
+            width: 100%;
+            max-width: 800px;
+            background-color: #161b22;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--table-border);
+            box-sizing: border-box;
+        }
+
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            background-color: #0d1117;
+            border: 1px solid var(--table-border);
+            color: var(--text-color);
+            padding: 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2em;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--table-border);
+        }
+
+        button {
+            background-color: var(--table-border);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2ea043;
+            box-shadow: 0 0 10px #2ea043;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-size: 1.1em;
+            height: 25px;
+        }
+
+        .correct { color: var(--text-color); }
+        .wrong { color: var(--alert-color); animation: shake 0.5s; }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .hint-btn {
+            background-color: transparent;
+            border: 1px solid #8b949e;
+            color: #8b949e;
+            font-size: 0.9em;
+            padding: 5px 10px;
+            margin-top: 10px;
+        }
+
+        .hint-btn:hover {
+            background-color: #8b949e;
+            color: var(--bg-color);
+        }
+        
+        .game-over {
+            text-align: center;
+            font-size: 2em;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>AGEN DATA: LEVEL 6</h1>
+    <div class="subtitle">Misi: Kembalikan data sekolah dengan meretas formula Google Sheets! (Jangan lupa awali dengan tanda "=")</div>
+
+    <div class="dashboard" id="dashboard">
+        <div class="level-indicator">Level: <span id="level-text">1</span>/8</div>
+        <div class="timer" id="timer">30:00</div>
+    </div>
+
+    <div class="grid-container" id="grid-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="row-header"></th>
+                    <th>A (Nama)</th>
+                    <th>B (Matematika)</th>
+                    <th>C (IPA)</th>
+                    <th>D (B. Inggris)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="row-header">1</td>
+                    <td><b>Nama Siswa</b></td>
+                    <td><b>Matematika</b></td>
+                    <td><b>IPA</b></td>
+                    <td><b>B. Inggris</b></td>
+                </tr>
+                <tr>
+                    <td class="row-header">2</td>
+                    <td>Budi</td>
+                    <td>80</td>
+                    <td>90</td>
+                    <td>75</td>
+                </tr>
+                <tr>
+                    <td class="row-header">3</td>
+                    <td>Siti</td>
+                    <td>95</td>
+                    <td>85</td>
+                    <td>90</td>
+                </tr>
+                <tr>
+                    <td class="row-header">4</td>
+                    <td>Andi</td>
+                    <td>60</td>
+                    <td>70</td>
+                    <td>65</td>
+                </tr>
+                <tr>
+                    <td class="row-header">5</td>
+                    <td>Rina</td>
+                    <td>85</td>
+                    <td>95</td>
+                    <td>80</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mission-box" id="mission-box">
+        <div class="question" id="question-text">Memuat misi...</div>
+        <div class="input-group">
+            <input type="text" id="answer-input" placeholder="Ketik rumus di sini... cth: =SUM(A1:A5)" autocomplete="off" spellcheck="false">
+            <button onclick="checkAnswer()">EKSEKUSI</button>
+        </div>
+        <div class="feedback" id="feedback-text"></div>
+        <button class="hint-btn" onclick="showHint()">Bantuan Sandi (Hint)</button>
+    </div>
+
+    <script>
+        const levels = [
+            {
+                q: "Misi 1: Berapa Total Nilai Matematika seluruh siswa? Tuliskan rumus yang paling tepat untuk menjumlahkannya!",
+                a: ["=SUM(B2:B5)", "=SUM(B2:B5)"],
+                hint: "Gunakan fungsi SUM untuk menjumlahkan. Kolom Matematika ada di B, baris datanya dari 2 sampai 5."
+            },
+            {
+                q: "Misi 2: Hacker menyembunyikan siapa siswa yang paling pintar di pelajaran Bahasa Inggris. Tuliskan rumus untuk mencari NILAI TERTINGGI dari pelajaran B. Inggris!",
+                a: ["=MAX(D2:D5)", "=MAX(D2:D5)"],
+                hint: "Fungsi untuk nilai tertinggi adalah MAX. Cek kolom D."
+            },
+            {
+                q: "Misi 3: Kita perlu mengevaluasi Andi. Tuliskan rumus untuk mencari RATA-RATA dari seluruh nilai yang didapatkan oleh Andi!",
+                a: ["=AVERAGE(B4:D4)", "=AVERAGE(B4:D4)"],
+                hint: "Fungsi rata-rata adalah AVERAGE. Ingat, data Andi menyamping dari kiri ke kanan di baris ke-4."
+            },
+            {
+                q: "Misi 4: Cari tahu NILAI TERENDAH pada pelajaran IPA agar guru bisa memberikan kelas tambahan. Apa rumusnya?",
+                a: ["=MIN(C2:C5)", "=MIN(C2:C5)"],
+                hint: "Gunakan MIN untuk mencari nilai paling kecil pada rentang kolom C."
+            },
+            {
+                q: "Misi 5: Ada berapa BANYAKNYA SISWA yang mengikuti ujian Matematika? Gunakan rumus yang menghitung BANYAKNYA DATA ANGKA pada kolom Matematika!",
+                a: ["=COUNT(B2:B5)", "=COUNT(B2:B5)"],
+                hint: "Gunakan fungsi COUNT (bukan SUM). COUNT menghitung berapa banyak sel yang berisi angka."
+            },
+            {
+                q: "Misi 6 (Logika Sulit): Kepala sekolah hanya ingin menjumlahkan nilai Matematika milik Siti dan Rina saja. Tuliskan rumus matematikanya menggunakan tanda tambah (+)! ",
+                a: ["=B3+B5", "=B5+B3", "=SUM(B3,B5)", "=SUM(B3;B5)"],
+                hint: "Lihat sel nilai MTK Siti dan sel nilai MTK Rina. Cukup gunakan sel1 + sel2."
+            },
+            {
+                q: "Misi 7 (Agen Elit): Berapa SELISIH antara nilai IPA tertinggi dengan nilai IPA terendah? Gabungkan dua rumus menggunakan tanda kurang (-).",
+                a: ["=MAX(C2:C5)-MIN(C2:C5)", "=MAX(C2:C5)-MIN(C2:C5)"],
+                hint: "Gunakan rumus =MAX(...) dikurangi MIN(...). Perhatikan rentang selnya harus sama!"
+            },
+            {
+                q: "Misi 8 (Boss Akhir): Hitunglah RATA-RATA nilai Matematika, lalu DITAMBAH dengan RATA-RATA nilai B. Inggris seluruh siswa!",
+                a: ["=AVERAGE(B2:B5)+AVERAGE(D2:D5)", "=AVERAGE(D2:D5)+AVERAGE(B2:B5)"],
+                hint: "Gunakan dua fungsi AVERAGE yang dijumlahkan dengan tanda '+'. Perhatikan rentang masing-masing pelajaran."
+            }
+        ];
+
+        let currentLevel = 0;
+        let timeLeft = 30 * 60; // 30 minutes in seconds
+        let timerInterval;
+
+        const questionEl = document.getElementById('question-text');
+        const answerInput = document.getElementById('answer-input');
+        const feedbackEl = document.getElementById('feedback-text');
+        const levelText = document.getElementById('level-text');
+        const timerEl = document.getElementById('timer');
+
+        function startGame() {
+            loadLevel();
+            timerInterval = setInterval(updateTimer, 1000);
+            
+            // Allow Enter key to submit
+            answerInput.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    checkAnswer();
+                }
+            });
+        }
+
+        function updateTimer() {
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                gameOver(false);
+                return;
+            }
+            timeLeft--;
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft < 300) {
+                timerEl.style.color = "#ff0000";
+                timerEl.style.animation = "shake 1s infinite";
+            }
+        }
+
+        function loadLevel() {
+            questionEl.textContent = levels[currentLevel].q;
+            answerInput.value = '';
+            feedbackEl.textContent = '';
+            feedbackEl.className = 'feedback';
+            levelText.textContent = currentLevel + 1;
+            answerInput.focus();
+        }
+
+        function checkAnswer() {
+            // Clean up the user input: remove spaces, change to uppercase
+            let userAnswer = answerInput.value.replace(/\s+/g, '').toUpperCase();
+            
+            // Allow semicolon or comma for regional settings
+            userAnswer = userAnswer.replace(/;/g, ',');
+
+            let isCorrect = false;
+            
+            for(let i=0; i<levels[currentLevel].a.length; i++){
+                let correctAns = levels[currentLevel].a[i].replace(/\s+/g, '').toUpperCase().replace(/;/g, ',');
+                if(userAnswer === correctAns) {
+                    isCorrect = true;
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                feedbackEl.textContent = "AKSES DITERIMA. Rumus Valid!";
+                feedbackEl.className = 'feedback correct';
+                currentLevel++;
+                
+                if (currentLevel >= levels.length) {
+                    setTimeout(() => gameOver(true), 1500);
+                } else {
+                    setTimeout(loadLevel, 1500);
+                }
+            } else {
+                feedbackEl.textContent = "AKSES DITOLAK! Rumus salah atau format tidak tepat.";
+                feedbackEl.className = 'feedback wrong';
+                // Reset animation
+                feedbackEl.style.animation = 'none';
+                feedbackEl.offsetHeight; /* trigger reflow */
+                feedbackEl.style.animation = null;
+            }
+        }
+
+        function showHint() {
+            feedbackEl.textContent = "Sandi Bantuan: " + levels[currentLevel].hint;
+            feedbackEl.className = 'feedback correct';
+            feedbackEl.style.color = "#ffca28";
+        }
+
+        function gameOver(isWin) {
+            clearInterval(timerInterval);
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('grid-container').style.display = 'none';
+            const missionBox = document.getElementById('mission-box');
+            
+            if (isWin) {
+                missionBox.innerHTML = `
+                    <div class="game-over correct">
+                        <h2>MISI SELESAI!</h2>
+                        <p>Selamat Agen! Kamu berhasil meretas dan memulihkan seluruh data sekolah dalam waktu tersisa ${timerEl.textContent}.</p>
+                        <p>Kamu adalah Master Google Sheets!</p>
+                        <button onclick="location.reload()">Main Lagi</button>
+                    </div>
+                `;
+            } else {
+                missionBox.innerHTML = `
+                    <div class="game-over wrong">
+                        <h2>SISTEM TERKUNCI!</h2>
+                        <p>Waktu habis. Data gagal diselamatkan.</p>
+                        <button onclick="location.reload()">Coba Lagi</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Start the game on load
+        window.onload = startGame;
+    </script>
+</body>
+</html>
