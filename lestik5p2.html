@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Belajar Mengetik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles untuk editor dan teks referensi agar terlihat mirip */
+        .text-content {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .editor-area {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            border: 1px solid #ccc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            resize: none;
+            outline: none;
+        }
+        
+        .editor-area:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+
+    <header class="bg-blue-600 text-white p-6 shadow-md">
+        <div class="container mx-auto max-w-6xl">
+            <h1 class="text-3xl font-bold text-center">Latihan Mengetik Interaktif</h1>
+            <p class="text-center mt-2 text-blue-100">Ketik ulang teks di sebelah kiri ke dalam kotak di sebelah kanan dengan tepat.</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto max-w-7xl p-4 mt-6">
+        <div class="flex flex-col md:flex-row gap-6 h-full">
+            
+            <!-- Kolom Kiri: Teks Referensi -->
+            <div class="w-full md:w-1/2 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Teks Acuan (Baca dan Ketik)
+                    </h2>
+                </div>
+                
+                <div class="p-6 overflow-y-auto flex-grow" id="reference-text">
+                    <div class="text-content text-justify">
+                        <p class="mb-4">
+                            <b>Sejarah Komputer</b> bermula jauh sebelum era digital modern yang kita kenal sekarang. Konsep awal komputasi dapat ditelusuri kembali ke perangkat mekanis sederhana seperti <i>abacus</i>, yang digunakan untuk membantu perhitungan dasar. Namun, lompatan besar terjadi pada abad ke-19 ketika Charles Babbage mengusulkan desain <u class="underline">Mesin Analitis</u>, yang sering dianggap sebagai konsep pertama untuk komputer tujuan umum yang dapat diprogram.
+                        </p>
+                        
+                        <p class="mb-4">
+                            Perkembangan pesat terjadi selama dan setelah Perang Dunia II. Komputer elektronik pertama, seperti ENIAC (Electronic Numerical Integrator and Computer), berukuran sangat <b>besar dan kompleks</b>. Mesin-mesin awal ini menggunakan tabung vakum yang <i>sangat rapuh</i>, membutuhkan daya listrik yang besar, dan menghasilkan panas yang luar biasa, sehingga sering kali <u class="underline">membutuhkan ruangan khusus ber-AC</u> untuk mendinginkannya.
+                        </p>
+                        
+                        <p class="mb-4">
+                            Penemuan <b>transistor</b> pada akhir 1940-an merevolusi industri komputer. Transistor lebih kecil, lebih murah, lebih handal, dan mengonsumsi daya jauh lebih sedikit daripada tabung vakum. Era ini menandai perpindahan dari komputer generasi pertama ke generasi kedua, di mana mesin menjadi lebih ringkas dan mulai <i>dapat diakses oleh kalangan bisnis besar</i>. Bahasa pemrograman tingkat tinggi seperti <u class="underline">COBOL dan FORTRAN</u> juga mulai dikembangkan pada masa ini.
+                        </p>
+                        
+                        <p>
+                            Saat ini, kita berada di era <b>mikroprosesor</b>. Komputer telah berevolusi dari mesin raksasa menjadi perangkat kecil yang muat di saku kita. Kehadiran <i>internet</i> telah menghubungkan jaringan komputer global, memungkinkan pertukaran informasi dalam sekejap. Di masa depan, teknologi seperti <u class="underline">komputasi kuantum</u> dan kecerdasan buatan diprediksi akan membawa transformasi yang lebih menakjubkan dalam cara kita berinteraksi dengan dunia.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Area Ketik Siswa -->
+            <div class="w-full md:w-1/2 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                <div class="bg-gray-50 border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Lembar Kerja Siswa
+                    </h2>
+                    
+                    <!-- Toolbar Sederhana untuk Format Teks (Opsional, agar mirip teks referensi jika diperlukan) -->
+                    <div class="flex space-x-2 hidden" id="format-toolbar">
+                        <button class="p-1 hover:bg-gray-200 rounded font-bold" title="Bold (Ctrl+B)">B</button>
+                        <button class="p-1 hover:bg-gray-200 rounded italic" title="Italic (Ctrl+I)">I</button>
+                        <button class="p-1 hover:bg-gray-200 rounded underline" title="Underline (Ctrl+U)">U</button>
+                    </div>
+                </div>
+                
+                <div class="p-6 flex-grow flex flex-col h-full">
+                    <!-- Textarea biasa tidak mendukung rich text secara langsung,
+                         kita akan menggunakan ContentEditable div agar siswa bisa mengetik dengan format -->
+                    <div id="student-editor" class="editor-area overflow-y-auto" contenteditable="true" placeholder="Mulai ketik di sini..."></div>
+                    
+                    <div class="mt-4 flex justify-end gap-3">
+                        <button id="btn-reset" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition duration-200 focus:outline-none">
+                            Bersihkan
+                        </button>
+                        <button id="btn-submit" class="px-6 py-2 bg-blue-600 rounded-lg text-white font-semibold hover:bg-blue-700 shadow-md transition duration-200 focus:outline-none flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            Submit & Nilai
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+    <!-- Modal Hasil Evaluasi -->
+    <div id="result-modal" class="modal">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
+            <div class="text-center">
+                <div id="result-icon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                    <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2" id="result-title">Hasil Evaluasi</h3>
+                
+                <div class="py-4">
+                    <div class="text-6xl font-extrabold text-blue-600 mb-2" id="score-display">0%</div>
+                    <p class="text-gray-600 font-medium">Tingkat Kecocokan</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4 text-left text-sm text-gray-700 mb-6 border border-gray-200">
+                    <ul class="space-y-2">
+                        <li class="flex justify-between"><span>Jumlah Kata Acuan:</span> <span id="stat-ref-words" class="font-bold">0</span></li>
+                        <li class="flex justify-between"><span>Jumlah Kata Siswa:</span> <span id="stat-stu-words" class="font-bold">0</span></li>
+                        <li class="flex justify-between text-green-600"><span>Kata Sesuai:</span> <span id="stat-match-words" class="font-bold">0</span></li>
+                        <li class="flex justify-between text-red-600"><span>Kesalahan Pengetikan/Format:</span> <span id="stat-diff-words" class="font-bold">0</span></li>
+                    </ul>
+                </div>
+                
+                <p class="text-sm text-gray-500 mb-6 italic">*Penilaian memperhatikan huruf besar/kecil, tanda baca, serta format (tebal, miring, garis bawah).</p>
+                
+                <button id="btn-close-modal" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-3 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">
+                    Tutup & Lanjutkan Latihan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const editor = document.getElementById('student-editor');
+            const submitBtn = document.getElementById('btn-submit');
+            const resetBtn = document.getElementById('btn-reset');
+            const modal = document.getElementById('result-modal');
+            const closeModalBtn = document.getElementById('btn-close-modal');
+            
+            // Elemen referensi
+            const refTextContainer = document.getElementById('reference-text');
+            
+            // Atur placeholder untuk div contenteditable
+            editor.addEventListener('focus', function() {
+                if(this.innerHTML.trim() === '<span style="color: gray;">Mulai ketik di sini...</span>') {
+                    this.innerHTML = '';
+                }
+            });
+
+            editor.addEventListener('blur', function() {
+                if(this.innerHTML.trim() === '') {
+                    this.innerHTML = '<span style="color: gray;">Mulai ketik di sini...</span>';
+                }
+            });
+            
+            // Inisialisasi placeholder
+            if(editor.innerHTML.trim() === '') {
+                 editor.innerHTML = '<span style="color: gray;">Mulai ketik di sini...</span>';
+            }
+
+            // Fungsi untuk membersihkan editor
+            resetBtn.addEventListener('click', function() {
+                editor.innerHTML = '<span style="color: gray;">Mulai ketik di sini...</span>';
+            });
+
+            // Tutup modal
+            closeModalBtn.addEventListener('click', function() {
+                modal.classList.remove('show');
+            });
+
+            // Klik di luar modal untuk menutup
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+
+            // Fungsi untuk menghitung nilai kemiripan
+            submitBtn.addEventListener('click', function() {
+                // Jangan hitung jika isinya cuma placeholder
+                if(editor.innerHTML.trim() === '<span style="color: gray;">Mulai ketik di sini...</span>') {
+                    alert("Silakan ketik sesuatu terlebih dahulu.");
+                    return;
+                }
+
+                // Ambil HTML dari teks acuan dan buang spasi berlebih antar tag
+                let refHtml = refTextContainer.querySelector('.text-content').innerHTML;
+                let stuHtml = editor.innerHTML;
+
+                // Fungsi untuk membersihkan HTML agar mudah dibandingkan
+                function normalizeHTML(html) {
+                    // Buang komentar HTML
+                    let clean = html.replace(/<!--[\s\S]*?-->/g, '');
+                    // Ganti multiple spaces/newlines dengan single space
+                    clean = clean.replace(/\s+/g, ' ').trim();
+                    // Standarisasi tag: ubah <b/>, <strong> ke <b> dst. (Penyederhanaan untuk latihan ini)
+                    clean = clean.replace(/<strong>/gi, '<b>').replace(/<\/strong>/gi, '</b>');
+                    clean = clean.replace(/<em>/gi, '<i>').replace(/<\/em>/gi, '</i>');
+                    clean = clean.replace(/<u class="underline">/gi, '<u>'); // Sesuaikan dengan class tailwind di ref
+                    clean = clean.replace(/<span style="text-decoration: underline;">/gi, '<u>'); 
+                    
+                    // Ekstrak teks bersama tag penting (b, i, u)
+                    // Kita akan membandingkan "token" berupa kata atau tag.
+                    return clean;
+                }
+
+                const normRef = normalizeHTML(refHtml);
+                const normStu = normalizeHTML(stuHtml);
+
+                // Ekstrak token (kata-kata dan tag dasar)
+                function getTokens(htmlString) {
+                    // Buang tag paragraf dan bungkus lainnya yang tidak esensial untuk penilaian kata-per-kata
+                    let text = htmlString.replace(/<p[^>]*>/gi, ' ').replace(/<\/p>/gi, ' ');
+                    text = text.replace(/<div[^>]*>/gi, ' ').replace(/<\/div>/gi, ' ');
+                    text = text.replace(/<br\s*\/?>/gi, ' ');
+                    
+                    // Pertahankan tag b, i, u untuk dicek formatnya
+                    // Tokenisasi berdasarkan spasi, tetapi pertahankan tag sebagai token tersendiri atau bagian dari kata
+                    
+                    // Cara sederhana: ambil textContent murni untuk hitung kata, 
+                    // dan hitung HTML string utuh untuk hitung keakuratan format.
+                    
+                    // Untuk evaluasi sederhana namun komprehensif, kita bandingkan karakter per karakter
+                    // atau kata per kata setelah dibersihkan
+                    return text.trim().split(/\s+/).filter(word => word.length > 0);
+                }
+
+                const refTokens = getTokens(normRef);
+                const stuTokens = getTokens(normStu);
+
+                let matchCount = 0;
+                let loopLimit = Math.min(refTokens.length, stuTokens.length);
+
+                // Perbandingan sederhana token demi token
+                for (let i = 0; i < loopLimit; i++) {
+                    // Bandingkan kata beserta format tag-nya jika menempel
+                    if (refTokens[i] === stuTokens[i]) {
+                        matchCount++;
+                    } else {
+                        // Toleransi jika beda urutan tag html (misal <b><i> vs <i><b>) sangat kompleks,
+                        // Untuk latihan ini, kita mengharapkan hasil ketikan semirip mungkin.
+                        // Hapus tag untuk mengecek apakah kata dasarnya benar tapi salah format
+                        let refWordPure = refTokens[i].replace(/<[^>]*>/g, '');
+                        let stuWordPure = stuTokens[i].replace(/<[^>]*>/g, '');
+                        
+                        if(refWordPure === stuWordPure && refWordPure !== "") {
+                            // Kata benar tapi salah format (diberi setengah nilai dari bobot token ini)
+                            matchCount += 0.5;
+                        }
+                    }
+                }
+
+                const refWordCount = refTokens.length;
+                const stuWordCount = stuTokens.length;
+                
+                // Hitung skor (persentase)
+                let score = 0;
+                if (refWordCount > 0) {
+                    // Pinalti jika kata kurang atau kelebihan banyak
+                    let lengthPenalty = Math.abs(refWordCount - stuWordCount) * 0.5;
+                    let adjustedMatch = Math.max(0, matchCount - lengthPenalty);
+                    
+                    score = Math.round((adjustedMatch / refWordCount) * 100);
+                    // Cegah nilai negatif
+                    if (score < 0) score = 0;
+                    // Cap di 100%
+                    if (score > 100) score = 100;
+                }
+
+                // Update UI Modal
+                document.getElementById('score-display').textContent = score + '%';
+                document.getElementById('stat-ref-words').textContent = refWordCount;
+                document.getElementById('stat-stu-words').textContent = stuWordCount;
+                document.getElementById('stat-match-words').textContent = Math.floor(matchCount);
+                
+                let diffCount = (refWordCount - Math.floor(matchCount)) + Math.abs(refWordCount - stuWordCount);
+                document.getElementById('stat-diff-words').textContent = diffCount > 0 ? diffCount : 0;
+
+                // Ubah warna dan ikon berdasarkan skor
+                const iconContainer = document.getElementById('result-icon');
+                const titleText = document.getElementById('result-title');
+                
+                iconContainer.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full mb-4';
+                
+                if (score >= 90) {
+                    iconContainer.classList.add('bg-green-100', 'text-green-600');
+                    iconContainer.innerHTML = '<svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+                    titleText.textContent = 'Luar Biasa!';
+                } else if (score >= 70) {
+                    iconContainer.classList.add('bg-blue-100', 'text-blue-600');
+                    iconContainer.innerHTML = '<svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.514"></path></svg>';
+                    titleText.textContent = 'Kerja Bagus!';
+                } else {
+                    iconContainer.classList.add('bg-orange-100', 'text-orange-600');
+                    iconContainer.innerHTML = '<svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+                    titleText.textContent = 'Perlu Banyak Latihan';
+                }
+
+                // Tampilkan modal
+                modal.classList.add('show');
+            });
+            
+            // Info untuk siswa agar mereka tahu shortcut keyboard berfungsi
+            // (Ctrl+B, Ctrl+I, Ctrl+U sudah otomatis ditangani oleh browser di contenteditable)
+        });
+    </script>
+</body>
+</html>
