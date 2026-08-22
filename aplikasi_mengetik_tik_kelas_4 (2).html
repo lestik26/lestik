@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Mengetik TIK Kelas 4 SD</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;500;600;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        
+        /* Custom scrollbar for reference and editor windows */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Editor Placeholder */
+        #student-editor:empty:before {
+            content: attr(placeholder);
+            color: #94a3b8;
+            pointer-events: none;
+            display: block;
+        }
+
+        /* Active toolbar state */
+        .btn-active {
+            background-color: #3b82f6 !important;
+            color: #ffffff !important;
+            border-color: #2563eb !important;
+        }
+
+        .swatch-btn {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+            cursor: pointer;
+            border: 2px solid #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .swatch-btn:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden bg-slate-100">
+
+    <header class="bg-indigo-700 text-white shadow-md px-6 py-3 flex justify-between items-center z-10">
+        <div class="flex items-center space-x-3">
+            <div class="bg-yellow-400 text-indigo-900 p-2 rounded-xl font-bold text-lg flex items-center justify-center w-10 h-10 shadow-sm">
+                <i class="fa-solid fa-keyboard"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold leading-tight">Praktikum Mengetik TIK - Kelas 5 SD</h1>
+                <p class="text-xs text-indigo-200">Materi: Format Teks (Bold, Italic, Underline, Warna Teks, & Highlight)</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="bg-indigo-800/80 backdrop-blur-sm px-4 py-1.5 rounded-lg border border-indigo-500/30 flex items-center space-x-2 text-sm">
+                <i class="fa-regular fa-clock text-yellow-300"></i>
+                <span class="font-medium text-indigo-100">Waktu:</span>
+                <span id="timer-display" class="font-bold text-yellow-300 text-base">40:00</span>
+            </div>
+            <button id="btn-submit" onclick="gradeWork()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-2 rounded-lg shadow-md hover:shadow-lg transition flex items-center space-x-2 active:scale-95">
+                <i id="submit-icon" class="fa-solid fa-paper-plane"></i>
+                <span id="submit-text">Kumpulkan Tugas</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 overflow-hidden">
+        
+        <!-- LEFT PANE: REFERENCE TEXT -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+            <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-red-400 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-400 inline-block"></span>
+                    <h2 class="ml-2 font-bold text-slate-700 text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-book-open text-indigo-600"></i>
+                        <span>Teks Acuan (Yang Harus Diketik Siswa)</span>
+                    </h2>
+                </div>
+                <span class="bg-indigo-100 text-indigo-700 font-semibold text-xs px-2.5 py-1 rounded-full">Contoh Target</span>
+            </div>
+
+            <!-- Content Area of Reference Text -->
+            <div class="flex-1 p-6 overflow-y-auto custom-scroll leading-relaxed text-slate-800 text-base space-y-4 select-none bg-slate-50/50" id="reference-container">
+                
+                <div class="text-center pb-2">
+                    <h3 class="text-xl font-bold text-blue-600 tracking-wide font-sans">
+                        Misi Rahasia Sasa dan Kucing Cyber di Planet Pixel
+                    </h3>
+                    <hr class="w-1/3 mx-auto mt-2 border-blue-200">
+                </div>
+
+                <p class="text-justify leading-loose">
+                    Di sebuah <span style="color: #2563eb; font-weight: bold;">Kota Masa Depan</span> yang canggih, seorang anak bernama <span style="text-decoration: underline; font-weight: bold;">Sasa</span> bersama kucing robotnya <span style="color: #c026d3; font-weight: bold;">Milo</span> bersiap melakukan <i>interstellar trip</i>. Body <b>Milo</b> yang berbulu <span style="background-color: #e9d5ff; font-weight: bold; padding: 0 4px; border-radius: 4px;">perak mengkilat</span> selalu memantulkan cahaya. Dengan <i>sensor</i> mata berkedip <span style="color: #dc2626; font-weight: bold;">merah-kuning</span>, <b>Milo</b> mengecek roket bermesin <span style="background-color: #a5f3fc; font-weight: bold; padding: 0 4px; border-radius: 4px;">Turbo-V8</span>. Hari ini, mereka terbang menuju <span style="color: #16a34a; text-decoration: underline;">Planet Pixel</span> menggunakan jalur <span style="background-color: #fef08a; font-weight: bold; padding: 0 4px; border-radius: 4px;">WiFi-7</span> berkecepatan tinggi di <b><i>Space Cyber</i></b>!
+                </p>
+
+                <p class="text-justify leading-loose">
+                    Saat mendarat di atas <i>surface</i> <span style="color: #16a34a; font-weight: bold;">rumput neon</span>, <span style="text-decoration: underline; font-weight: bold;">Sasa</span> menemukan sebuah <i>smartpad</i> berwarna <span style="color: #7e22ce; font-weight: bold;">ungu tua</span>. Benda ajaib itu terselip rapi di samping <span style="text-decoration: underline;">pohon kristal</span>. "Wah, <i>file</i> rahasia apa ini?" tanya <b>Sasa</b> dengan nada <i>excited</i>. Tanpa ragu, <b>Milo</b> memindai <i>QR code</i> menggunakan <span style="color: #2563eb; font-weight: bold;">kamera inframerah</span>. Seketika layar menyala dan menampilkan <span style="background-color: #fef08a; font-weight: bold; padding: 0 4px; border-radius: 4px;">Pesan Misterius</span>: <span style="text-decoration: underline;">Carilah <i>memory card</i> emas di dalam gua!</span> Wajah <b>Sasa</b> langsung gembira dan matanya berbinar <span style="background-color: #bef264; font-weight: bold; padding: 0 4px; border-radius: 4px;">terang</span>.
+                </p>
+
+                <p class="text-justify leading-loose">
+                    Dengan keberanian tinggi, mereka berlari menuju pintu gua. <i>Wush! Wush! Wush!</i> bunyi roket di kaki <b>Milo</b> bergema nyaring. Di dekat <span style="color: #ea580c; font-weight: bold;">batu kristal nomor 7</span>, terdapat peti terkunci dengan kode <span style="background-color: #e9d5ff; font-weight: bold; padding: 0 4px; border-radius: 4px;">P-900</span>. <b>Sasa</b> menekan tombol <i>Scan</i> lalu memasukkan <i>password</i> <span style="color: #d946ef; font-weight: bold;">9-9-0-0-9</span> pada <i>touchscreen</i>. Seketika pintu emas tergeser dan memancarkan sinar <span style="color: #dc2626; font-weight: bold;">darurat</span> berkedip. Layar <i>display</i> menampilkan tulisan <span style="background-color: #a5f3fc; font-style: italic; padding: 0 4px; border-radius: 4px;">System Unlocked</span> dan musik <b><i>space</i></b> berbunyi sangat <span style="color: #1e3a8a; text-decoration: underline;">merdu</span>.
+                </p>
+
+                <p class="text-justify leading-loose">
+                    Di tengah ruang rahasia, melayang sebuah <i>supercomputer</i> berpendingin <span style="color: #0d9488; font-weight: bold;">plasma biru</span>. Di dalamnya tersimpan <span style="background-color: #bef264; font-weight: bold; padding: 0 4px; border-radius: 4px;">50.000 Data Ensiklopedia</span> dan sistem simpan berkapasitas <span style="color: #9333ea; font-weight: bold;">10 Terabyte</span>. <b>Milo</b> segera menghubungkan kabel <span style="text-decoration: underline; font-style: italic;">fiber optic</span> untuk mendownload data. Seluruh berkas terunduh cepat ke dalam <i>microchip</i> <b>Sasa</b>. Layar gua menyalakan ucapan <span style="background-color: #fef08a; font-weight: bold; padding: 0 4px; border-radius: 4px;">Selamat, Penjelajah Cilik!</span> dan <span style="text-decoration: underline;">lampu hias</span> berwarna <span style="color: #16a34a; font-weight: bold;">hijau cerah</span> menyala terang benderang di seluruh <b><i>control room</i></b>.
+                </p>
+
+            </div>
+        </section>
+
+        <!-- RIGHT PANE: STUDENT WORKSPACE -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+            
+            <!-- Toolbar Container -->
+            <div class="bg-slate-100 border-b border-slate-200 p-2 flex flex-wrap gap-2 items-center text-slate-700 select-none shadow-inner" id="toolbar">
+                
+                <!-- Font Family -->
+                <div class="flex items-center bg-white rounded-lg border border-slate-300 px-2 py-1 shadow-sm">
+                    <i class="fa-solid fa-font text-slate-400 text-xs mr-1"></i>
+                    <select id="font-family" onchange="applyFormat('fontName', this.value)" class="bg-transparent text-xs font-medium text-slate-700 outline-none cursor-pointer">
+                        <option value="Inter">Inter (Default)</option>
+                        <option value="Comic Sans MS">Comic Sans MS</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                    </select>
+                </div>
+
+                <!-- Font Size -->
+                <div class="flex items-center bg-white rounded-lg border border-slate-300 px-2 py-1 shadow-sm">
+                    <i class="fa-solid fa-text-height text-slate-400 text-xs mr-1"></i>
+                    <select id="font-size" onchange="applyFontSize(this.value)" class="bg-transparent text-xs font-medium text-slate-700 outline-none cursor-pointer">
+                        <option value="14px">14px</option>
+                        <option value="16px" selected>16px (Sedang)</option>
+                        <option value="18px">18px (Besar)</option>
+                        <option value="22px">22px (Judul)</option>
+                    </select>
+                </div>
+
+                <div class="h-5 w-[1px] bg-slate-300 mx-0.5"></div>
+
+                <!-- Basic Formatting: Bold, Italic, Underline -->
+                <div class="flex items-center bg-white rounded-lg border border-slate-300 p-0.5 shadow-sm space-x-0.5">
+                    <button mousedown-prevent title="Cetak Tebal (Bold)" onclick="applyFormat('bold')" id="btn-bold" class="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-100 font-bold text-slate-700 transition">
+                        <i class="fa-solid fa-bold text-xs"></i>
+                    </button>
+                    <button mousedown-prevent title="Cetak Miring (Italic)" onclick="applyFormat('italic')" id="btn-italic" class="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-100 italic text-slate-700 transition">
+                        <i class="fa-solid fa-italic text-xs"></i>
+                    </button>
+                    <button mousedown-prevent title="Garis Bawah (Underline)" onclick="applyFormat('underline')" id="btn-underline" class="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-100 underline text-slate-700 transition">
+                        <i class="fa-solid fa-underline text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="h-5 w-[1px] bg-slate-300 mx-0.5"></div>
+
+                <!-- Text Color Swatches & Picker -->
+                <div class="flex items-center bg-white rounded-lg border border-slate-300 px-2 py-1 shadow-sm space-x-1.5" title="Warna Teks">
+                    <div class="flex items-center space-x-1">
+                        <i class="fa-solid fa-font text-xs text-slate-500 mr-0.5"></i>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase">Warna:</span>
+                    </div>
+                    <!-- Quick Swatches -->
+                    <button mousedown-prevent onclick="applyTextColor('#000000')" class="swatch-btn bg-black" title="Hitam"></button>
+                    <button mousedown-prevent onclick="applyTextColor('#2563eb')" class="swatch-btn bg-blue-600" title="Biru"></button>
+                    <button mousedown-prevent onclick="applyTextColor('#dc2626')" class="swatch-btn bg-red-600" title="Merah"></button>
+                    <button mousedown-prevent onclick="applyTextColor('#16a34a')" class="swatch-btn bg-green-600" title="Hijau"></button>
+                    <button mousedown-prevent onclick="applyTextColor('#9333ea')" class="swatch-btn bg-purple-600" title="Ungu"></button>
+                    <button mousedown-prevent onclick="applyTextColor('#ea580c')" class="swatch-btn bg-orange-600" title="Oranye"></button>
+                    <!-- Custom Color Input -->
+                    <input type="color" id="text-color-picker" onchange="applyTextColor(this.value)" class="w-5 h-5 rounded cursor-pointer border-none p-0 bg-transparent" title="Pilih Warna Kustom">
+                </div>
+
+                <!-- Highlight / Stabilo Color Swatches & Picker -->
+                <div class="flex items-center bg-white rounded-lg border border-slate-300 px-2 py-1 shadow-sm space-x-1.5" title="Warna Stabilo / Highlight">
+                    <div class="flex items-center space-x-1">
+                        <i class="fa-solid fa-highlighter text-xs text-yellow-500 mr-0.5"></i>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase">Stabilo:</span>
+                    </div>
+                    <!-- Quick Swatches -->
+                    <button mousedown-prevent onclick="applyHighlightColor('transparent')" class="swatch-btn bg-slate-200 text-center text-[10px] flex items-center justify-center font-bold text-slate-500" title="Tanpa Stabilo">✕</button>
+                    <button mousedown-prevent onclick="applyHighlightColor('#fef08a')" class="swatch-btn bg-yellow-200" title="Kuning"></button>
+                    <button mousedown-prevent onclick="applyHighlightColor('#a5f3fc')" class="swatch-btn bg-cyan-200" title="Cyan"></button>
+                    <button mousedown-prevent onclick="applyHighlightColor('#bef264')" class="swatch-btn bg-lime-300" title="Hijau Neon"></button>
+                    <button mousedown-prevent onclick="applyHighlightColor('#fbcfe8')" class="swatch-btn bg-pink-200" title="Merah Muda"></button>
+                    <button mousedown-prevent onclick="applyHighlightColor('#e9d5ff')" class="swatch-btn bg-purple-200" title="Ungu Muda"></button>
+                    <!-- Custom Color Input -->
+                    <input type="color" id="highlight-color-picker" value="#fef08a" onchange="applyHighlightColor(this.value)" class="w-5 h-5 rounded cursor-pointer border-none p-0 bg-transparent" title="Pilih Warna Stabilo Kustom">
+                </div>
+
+                <div class="h-5 w-[1px] bg-slate-300 mx-0.5"></div>
+
+                <!-- Text Alignment -->
+                <div class="flex items-center bg-white rounded-lg border border-slate-300 p-0.5 shadow-sm space-x-0.5">
+                    <button mousedown-prevent title="Rata Kiri" onclick="applyFormat('justifyLeft')" class="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-100 text-slate-700 transition">
+                        <i class="fa-solid fa-align-left text-xs"></i>
+                    </button>
+                    <button mousedown-prevent title="Rata Tengah (Center)" onclick="applyFormat('justifyCenter')" class="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-100 text-slate-700 transition">
+                        <i class="fa-solid fa-align-center text-xs"></i>
+                    </button>
+                    <button mousedown-prevent title="Rata Kanan" onclick="applyFormat('justifyRight')" class="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-100 text-slate-700 transition">
+                        <i class="fa-solid fa-align-right text-xs"></i>
+                    </button>
+                    <button mousedown-prevent title="Rata Kanan Kiri (Justify)" onclick="applyFormat('justifyFull')" class="w-7 h-7 flex items-center justify-center rounded hover:bg-slate-100 text-slate-700 transition">
+                        <i class="fa-solid fa-align-justify text-xs"></i>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Student Typing Canvas -->
+            <div class="flex-1 p-6 overflow-y-auto custom-scroll bg-white">
+                <div id="student-editor" 
+                     contenteditable="true" 
+                     placeholder="Mulaikah mengetik di sini... Ketiklah judul dan 4 paragraf cerita sesuai teks acuan di sebelah kiri!" 
+                     class="w-full h-full min-h-[350px] outline-none text-slate-800 text-base leading-loose font-sans"></div>
+            </div>
+
+            <!-- Footer Stats Bar -->
+            <div class="bg-slate-50 border-t border-slate-200 px-4 py-2 flex items-center justify-between text-xs text-slate-500 font-medium">
+                <div class="flex items-center space-x-4">
+                    <span><i class="fa-solid fa-font text-indigo-500 mr-1"></i>Jumlah Kata: <strong id="word-count" class="text-slate-700">0</strong></span>
+                    <span><i class="fa-solid fa-keyboard text-indigo-500 mr-1"></i>Karakter: <strong id="char-count" class="text-slate-700">0</strong></span>
+                </div>
+                <div class="text-indigo-600 font-semibold text-[11px] flex items-center space-x-1">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                    <span>Lembar Kerja Siap Diberi Format</span>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- RESULT / SCORE MODAL -->
+    <div id="score-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            
+            <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white p-6 text-center relative">
+                <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3 text-yellow-300 text-3xl backdrop-blur-sm border border-white/20">
+                    <i class="fa-solid fa-trophy" id="score-icon"></i>
+                </div>
+                <h3 class="text-2xl font-bold" id="modal-title">Hasil Pengetikan Siswa</h3>
+                <p class="text-indigo-200 text-xs mt-1" id="modal-subtitle">Laporan Ketepatan Teks & Kesesuaian Format Ikon TIK</p>
+            </div>
+
+            <div class="p-6 space-y-5 max-h-[80vh] overflow-y-auto custom-scroll">
+                
+                <!-- Main Score Circle -->
+                <div class="flex justify-center items-center">
+                    <div class="relative flex items-center justify-center">
+                        <div class="w-32 h-32 rounded-full border-8 border-indigo-100 flex flex-col items-center justify-center bg-indigo-50/50">
+                            <span id="final-score" class="text-4xl font-extrabold text-indigo-700">0</span>
+                            <span id="grade-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-200 text-indigo-800 uppercase tracking-wider mt-1">SANGAT BAIK</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stars Rating -->
+                <div class="flex justify-center space-x-1 text-2xl text-yellow-400" id="star-rating">
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                </div>
+
+                <!-- Detailed Metrics Bars -->
+                <div class="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                            <span><i class="fa-solid fa-align-left text-blue-500 mr-1"></i>Kesesuaian Teks</span>
+                            <span id="text-accuracy-text">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                            <div id="text-accuracy-bar" class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                            <span><i class="fa-solid fa-icons text-purple-500 mr-1"></i>Penggunaan Format Ikon</span>
+                            <span id="format-accuracy-text">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                            <div id="format-accuracy-bar" class="bg-purple-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                            <span><i class="fa-solid fa-book-open text-emerald-500 mr-1"></i>Kelengkapan Paragraf</span>
+                            <span id="paragraph-completion-text">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                            <div id="paragraph-completion-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feedback Checklist -->
+                <div class="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100 text-xs space-y-2 text-slate-700">
+                    <h4 class="font-bold text-indigo-900 flex items-center space-x-1.5 mb-1 text-sm">
+                        <i class="fa-solid fa-clipboard-check text-indigo-600"></i>
+                        <span>Evaluasi Penggunaan Ikon Format:</span>
+                    </h4>
+                    <ul id="feedback-list" class="space-y-2 pl-1">
+                        <!-- Dynamic Feedback Items -->
+                    </ul>
+                </div>
+
+                <!-- Action Button -->
+                <button onclick="closeModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md transition text-sm flex items-center justify-center space-x-2 active:scale-98">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Lanjutkan Perbaiki / Ketik Lagi</span>
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store saved selection range
+        let savedRange = null;
+
+        // Initialize editor
+        window.onload = function() {
+            const editor = document.getElementById('student-editor');
+            
+            // Enable CSS styling execution
+            document.execCommand('styleWithCSS', false, true);
+
+            // Save range on cursor/selection changes
+            ['keyup', 'mouseup', 'selectionchange'].forEach(evt => {
+                document.addEventListener(evt, saveCurrentSelection);
+            });
+
+            // Prevent toolbar buttons from stealing focus from editor
+            document.querySelectorAll('[mousedown-prevent]').forEach(btn => {
+                btn.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                });
+            });
+
+            // Update word & char count on typing
+            editor.addEventListener('input', updateWordCount);
+
+            // Timer system (40 minutes)
+            startTimer(40 * 60);
+        };
+
+        // Save current selection range inside the student editor
+        function saveCurrentSelection() {
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                const editor = document.getElementById('student-editor');
+                if (editor.contains(range.commonAncestorContainer)) {
+                    savedRange = range.cloneRange();
+                }
+            }
+        }
+
+        // Restore saved selection
+        function restoreSelection() {
+            const editor = document.getElementById('student-editor');
+            editor.focus();
+            if (savedRange) {
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(savedRange);
+            }
+        }
+
+        // Apply general formatting command (Bold, Italic, Underline, FontName, Align)
+        function applyFormat(command, value = null) {
+            restoreSelection();
+            document.execCommand('styleWithCSS', false, true);
+            document.execCommand(command, false, value);
+            saveCurrentSelection();
+            updateWordCount();
+        }
+
+        // Apply Font Size cleanly using inline styles or execCommand
+        function applyFontSize(sizePx) {
+            restoreSelection();
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0 && !sel.isCollapsed) {
+                const range = sel.getRangeAt(0);
+                const span = document.createElement('span');
+                span.style.fontSize = sizePx;
+                span.appendChild(range.extractContents());
+                range.insertNode(span);
+                
+                sel.removeAllRanges();
+                const newRange = document.createRange();
+                newRange.selectNodeContents(span);
+                sel.addRange(newRange);
+            } else {
+                document.execCommand('fontSize', false, '4');
+            }
+            saveCurrentSelection();
+            updateWordCount();
+        }
+
+        // Apply Text Color
+        function applyTextColor(colorHex) {
+            restoreSelection();
+            document.execCommand('styleWithCSS', false, true);
+            document.execCommand('foreColor', false, colorHex);
+            saveCurrentSelection();
+            updateWordCount();
+        }
+
+        // Apply Highlight / Stabilo Color
+        function applyHighlightColor(colorHex) {
+            restoreSelection();
+            document.execCommand('styleWithCSS', false, true);
+            if (colorHex === 'transparent' || colorHex === '') {
+                document.execCommand('removeFormat', false, null);
+            } else {
+                const success = document.execCommand('hiliteColor', false, colorHex);
+                if (!success) {
+                    document.execCommand('backColor', false, colorHex);
+                }
+            }
+            saveCurrentSelection();
+            updateWordCount();
+        }
+
+        function updateWordCount() {
+            const editor = document.getElementById('student-editor');
+            const text = editor.innerText || editor.textContent || '';
+            const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+            
+            document.getElementById('word-count').innerText = words.length;
+            document.getElementById('char-count').innerText = text.length;
+        }
+
+        // Timer Countdown function
+        function startTimer(durationSeconds) {
+            let timer = durationSeconds;
+            const timerDisplay = document.getElementById('timer-display');
+
+            const interval = setInterval(() => {
+                const minutes = Math.floor(timer / 60);
+                const seconds = timer % 60;
+
+                const displayMin = minutes < 10 ? '0' + minutes : minutes;
+                const displaySec = seconds < 10 ? '0' + seconds : seconds;
+
+                timerDisplay.innerText = `${displayMin}:${displaySec}`;
+
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    timerDisplay.innerText = "WAKTU HABIS";
+                    gradeWork();
+                }
+            }, 1000);
+        }
+
+        // Automated Grading & Evaluation Logic
+        function gradeWork() {
+            const submitBtn = document.getElementById('btn-submit');
+            const submitIcon = document.getElementById('submit-icon');
+            const submitText = document.getElementById('submit-text');
+
+            // Show loading animation on button
+            submitIcon.className = "fa-solid fa-spinner fa-spin";
+            submitText.innerText = "Menilai...";
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                // Restore button state
+                submitIcon.className = "fa-solid fa-paper-plane";
+                submitText.innerText = "Kumpulkan Tugas";
+                submitBtn.disabled = false;
+
+                const editor = document.getElementById('student-editor');
+                const html = editor.innerHTML || '';
+                const text = (editor.innerText || editor.textContent || '').trim();
+
+                // Target reference keywords for checking
+                const targetWords = [
+                    "misi", "rahasia", "sasa", "kucing", "cyber", "planet", "pixel",
+                    "kota", "masa", "depan", "milo", "interstellar", "trip", "perak",
+                    " turbo-v8", "wifi-7", "smartpad", "kristal", "inframerah", "qr",
+                    " supercomputer", "terabyte", "fiber", "optic", "control", "room"
+                ];
+
+                const lowerText = text.toLowerCase();
+
+                // Check text completeness / word matches
+                let matchedWords = 0;
+                targetWords.forEach(w => {
+                    if (lowerText.includes(w.trim())) matchedWords++;
+                });
+
+                const wordCount = text ? text.split(/\s+/).length : 0;
+                // Reference text has ~240 words
+                const textAccuracy = Math.min(100, Math.round((wordCount / 240) * 100 * 0.4 + (matchedWords / targetWords.length) * 100 * 0.6));
+                
+                // Paragraph completion check (looks for paragraph breaks or double line breaks)
+                const paragraphCount = text.split(/\n\s*\n|\n/).filter(p => p.trim().length > 20).length;
+                const paragraphCompletion = Math.min(100, Math.round((paragraphCount / 4) * 100));
+
+                // Detailed formatting checks
+                const formatChecks = [
+                    {
+                        id: 'bold',
+                        label: 'Ikon Bold (Cetak Tebal)',
+                        desc: 'Dipakai pada nama karakter & kata kunci',
+                        passed: /<b\b|<strong\b|font-weight:\s*(bold|700|600)/i.test(html)
+                    },
+                    {
+                        id: 'italic',
+                        label: 'Ikon Italic (Cetak Miring)',
+                        desc: 'Dipakai pada istilah asing & suara roket',
+                        passed: /<i\b|<em\b|font-style:\s*italic/i.test(html)
+                    },
+                    {
+                        id: 'underline',
+                        label: 'Ikon Underline (Garis Bawah)',
+                        desc: 'Dipakai pada frasa dan lokasi penting',
+                        passed: /<u\b|text-decoration:\s*underline/i.test(html)
+                    },
+                    {
+                        id: 'color',
+                        label: 'Ikon Text Color (Warna Teks)',
+                        desc: 'Warna teks selain hitam (biru, merah, hijau, dll)',
+                        passed: /color:\s*(?!black|windowtext|#000000|rgb\(0,\s*0,\s*0\))/i.test(html)
+                    },
+                    {
+                        id: 'highlight',
+                        label: 'Ikon Highlight Color (Stabilo)',
+                        desc: 'Latar belakang teks berwarna (kuning/cyan/lime)',
+                        passed: /background-color:\s*(?!transparent|#ffffff|rgb\(255,\s*255,\s*255\))/i.test(html)
+                    },
+                    {
+                        id: 'align',
+                        label: 'Pengaturan Rataan Teks (Align)',
+                        desc: 'Penggunaan Rata Tengah / Rata Kanan-Kiri',
+                        passed: /text-align:\s*(center|justify|right)/i.test(html) || /<center\b/i.test(html)
+                    }
+                ];
+
+                const passedCount = formatChecks.filter(c => c.passed).length;
+                const formatAccuracy = Math.round((passedCount / formatChecks.length) * 100);
+
+                // Calculate final combined score
+                let finalScore = 0;
+                if (text.length < 15) {
+                    finalScore = Math.min(20, Math.round(text.length * 0.8));
+                } else {
+                    finalScore = Math.round((textAccuracy * 0.4) + (formatAccuracy * 0.4) + (paragraphCompletion * 0.2));
+                }
+
+                // Determine Badge Grade
+                let gradeText = "SANGAT BAIK";
+                let badgeColorClass = "bg-emerald-100 text-emerald-800 border-emerald-300";
+                if (finalScore >= 88) {
+                    gradeText = "SANGAT BAIK (A+)";
+                    badgeColorClass = "bg-emerald-100 text-emerald-800";
+                } else if (finalScore >= 75) {
+                    gradeText = "BAIK (A)";
+                    badgeColorClass = "bg-blue-100 text-blue-800";
+                } else if (finalScore >= 60) {
+                    gradeText = "CUKUP (B)";
+                    badgeColorClass = "bg-yellow-100 text-yellow-800";
+                } else {
+                    gradeText = "PERLU BELAJAR LAGI";
+                    badgeColorClass = "bg-red-100 text-red-800";
+                }
+
+                // Update Modal UI
+                document.getElementById('final-score').innerText = finalScore;
+                
+                const gradeBadge = document.getElementById('grade-badge');
+                gradeBadge.innerText = gradeText;
+                gradeBadge.className = `text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider mt-1 ${badgeColorClass}`;
+
+                // Update Metrics Bars
+                document.getElementById('text-accuracy-text').innerText = textAccuracy + '%';
+                document.getElementById('text-accuracy-bar').style.width = textAccuracy + '%';
+
+                document.getElementById('format-accuracy-text').innerText = formatAccuracy + '%';
+                document.getElementById('format-accuracy-bar').style.width = formatAccuracy + '%';
+
+                document.getElementById('paragraph-completion-text').innerText = paragraphCompletion + '%';
+                document.getElementById('paragraph-completion-bar').style.width = paragraphCompletion + '%';
+
+                // Render Stars
+                const starContainer = document.getElementById('star-rating');
+                const starCount = Math.max(1, Math.min(5, Math.ceil(finalScore / 20)));
+                let starHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= starCount) {
+                        starHtml += '<i class="fa-solid fa-star"></i>';
+                    } else {
+                        starHtml += '<i class="fa-regular fa-star text-slate-300"></i>';
+                    }
+                }
+                starContainer.innerHTML = starHtml;
+
+                // Render Feedback Checklist
+                const feedbackList = document.getElementById('feedback-list');
+                feedbackList.innerHTML = '';
+                
+                if (text.length < 20) {
+                    const li = document.createElement('li');
+                    li.className = 'p-2 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 flex items-center space-x-2';
+                    li.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-500 text-base"></i><span>Teks ketikan masih sangat sedikit. Ketiklah paragraf cerita terlebih dahulu!</span>`;
+                    feedbackList.appendChild(li);
+                }
+
+                formatChecks.forEach(check => {
+                    const li = document.createElement('li');
+                    li.className = 'flex items-start justify-between p-2 rounded-lg bg-white border border-slate-100 shadow-sm';
+                    if (check.passed) {
+                        li.innerHTML = `
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+                                <div>
+                                    <strong class="text-slate-800 block text-xs">${check.label}</strong>
+                                    <span class="text-[11px] text-slate-500">${check.desc}</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">Berhasil</span>
+                        `;
+                    } else {
+                        li.innerHTML = `
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-circle-xmark text-red-400 text-sm"></i>
+                                <div>
+                                    <strong class="text-slate-600 block text-xs">${check.label}</strong>
+                                    <span class="text-[11px] text-slate-400">${check.desc}</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full">Belum Ditambah</span>
+                        `;
+                    }
+                    feedbackList.appendChild(li);
+                });
+
+                // Show Modal with smooth animation
+                const modal = document.getElementById('score-modal');
+                const modalContent = document.getElementById('modal-content');
+                modal.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                    modalContent.classList.add('scale-100', 'opacity-100');
+                }, 20);
+
+            }, 500);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('score-modal');
+            const modalContent = document.getElementById('modal-content');
+            
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+    </script>
+</body>
+</html>
