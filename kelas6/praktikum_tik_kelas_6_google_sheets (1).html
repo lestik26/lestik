@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praktikum TIK Kelas 6 - Google Sheets 50 Baris x 10 Kolom</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gsheet: {
+                            green: '#0f9d58',
+                            lightgreen: '#e6f4ea',
+                            darkgreen: '#0b8043',
+                            border: '#e0e0e0',
+                            header: '#f8f9fa',
+                            select: '#e8f0fe',
+                            selectborder: '#1a73e8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+        .sheet-cell {
+            min-width: 70px;
+            height: 28px;
+            border-right: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            outline: none;
+            font-size: 12px;
+            padding: 2px 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sheet-cell:focus {
+            border: 2px solid #1a73e8 !important;
+            background-color: #fff !important;
+            z-index: 10;
+        }
+        .sheet-header-cell {
+            background-color: #f8f9fa;
+            border-right: 1px solid #c0c0c0;
+            border-bottom: 1px solid #c0c0c0;
+            font-weight: 600;
+            font-size: 11px;
+            color: #5f6368;
+            text-align: center;
+        }
+        .reference-table td, .reference-table th {
+            border: 1px solid #d1d5db;
+            padding: 4px 6px;
+            font-size: 11px;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 h-screen flex flex-col overflow-hidden text-slate-800">
+
+    <!-- Top Navigation & Header -->
+    <header class="bg-white border-b border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between shrink-0 shadow-sm z-20">
+        <div class="flex items-center space-x-3">
+            <div class="bg-gsheet-green text-white p-2 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-file-excel text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-slate-800 text-sm md:text-base leading-tight">Praktikum TIK Kelas 6: Pengolahan Data (50 Baris x 10 Kolom)</h1>
+                <p class="text-[11px] text-slate-500">Materi: Pengetikan Tabel & Rumus Statistik (<span class="font-semibold text-gsheet-darkgreen font-mono">=SUM, =AVERAGE, =MIN, =MAX</span>)</p>
+            </div>
+        </div>
+
+        <!-- Timer Controls -->
+        <div class="flex items-center bg-slate-900 text-white px-3.5 py-1 rounded-full shadow-inner space-x-3 my-1 sm:my-0">
+            <i class="fa-regular fa-clock text-amber-400 animate-pulse text-base"></i>
+            <div class="flex flex-col">
+                <span class="text-[9px] text-slate-400 font-semibold uppercase tracking-wider">Sisa Waktu</span>
+                <span id="timerDisplay" class="font-mono text-base font-bold text-amber-300 tracking-wider leading-none">50:00</span>
+            </div>
+            <div class="flex items-center space-x-1 pl-2 border-l border-slate-700 text-xs">
+                <button id="btnStartTimer" onclick="startTimer()" class="p-1 hover:bg-slate-700 rounded text-emerald-400" title="Mulai Timer"><i class="fa-solid fa-play"></i></button>
+                <button id="btnPauseTimer" onclick="pauseTimer()" class="p-1 hover:bg-slate-700 rounded text-amber-400" title="Jeda Timer"><i class="fa-solid fa-pause"></i></button>
+                <button onclick="resetTimer()" class="p-1 hover:bg-slate-700 rounded text-rose-400" title="Reset 50 Menit"><i class="fa-solid fa-rotate-left"></i></button>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center space-x-2">
+            <button onclick="showHelpModal()" class="px-2.5 py-1.5 bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-circle-question text-sky-600"></i> Petunjuk Rumus
+            </button>
+            <button onclick="checkStudentWork()" class="px-3.5 py-1.5 bg-gsheet-green hover:bg-gsheet-darkgreen text-white rounded-lg text-xs font-semibold shadow flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-circle-check"></i> Periksa / Cek Nilai
+            </button>
+            <button onclick="confirmResetSheet()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold border border-slate-300 transition">
+                <i class="fa-solid fa-trash-arrow-up"></i> Reset Grid
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER (SPLIT 2 COLUMNS) -->
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden p-2 gap-2 bg-slate-200/70">
+
+        <!-- LEFT PANEL: REFERENCE TABLE (LEMBAR SOAL 50 BARIS X 10 KOLOM) -->
+        <section class="w-full lg:w-[45%] bg-white rounded-xl shadow border border-slate-300 flex flex-col overflow-hidden">
+            <!-- Left Header -->
+            <div class="bg-slate-800 text-white px-3 py-2 flex items-center justify-between shrink-0">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-book-open text-amber-400"></i>
+                    <span class="font-bold text-xs uppercase tracking-wider">Lembar Soal (Ketik ke Sheet Kanan)</span>
+                </div>
+                <span class="bg-emerald-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">50 Baris x 10 Kolom</span>
+            </div>
+
+            <!-- Context Info -->
+            <div class="bg-amber-50 border-b border-amber-200 p-2 text-[11px] text-amber-900 flex items-start gap-2 shrink-0">
+                <i class="fa-solid fa-circle-info text-amber-600 mt-0.5 text-xs shrink-0"></i>
+                <div>
+                    <strong class="font-semibold">Tugas Praktikum 50 Menit:</strong>
+                    Ketik seluruh 50 baris data siswa (Kolom A s/d J) ke sheet sebelah kanan. Gunakan rumus <code class="bg-amber-200/80 px-1 rounded font-mono font-bold">=SUM</code>, <code class="bg-amber-200/80 px-1 rounded font-mono font-bold">=AVERAGE</code>, <code class="bg-amber-200/80 px-1 rounded font-mono font-bold">=MIN</code>, dan <code class="bg-amber-200/80 px-1 rounded font-mono font-bold">=MAX</code> untuk menghitung bagian statistik baris 52-55!
+                </div>
+            </div>
+
+            <!-- Scrollable Table Reference Container -->
+            <div class="flex-1 overflow-auto p-2 bg-white">
+                <div class="mb-2 text-center">
+                    <h2 class="font-bold text-slate-900 text-xs tracking-wide">DAFTAR NILAI TIK KELAS 6 SD NEGERI UTAMA</h2>
+                    <p class="text-[10px] text-slate-500 italic">50 Data Siswa & 10 Kolom Nilai Mata Pelajaran</p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse reference-table text-left bg-white shadow-sm min-w-[600px]">
+                        <thead>
+                            <tr class="bg-slate-200 text-slate-800 font-bold text-center">
+                                <th class="w-8">No (A)</th>
+                                <th class="min-w-[130px]">Nama Siswa (B)</th>
+                                <th class="w-12">T1 (C)</th>
+                                <th class="w-12">T2 (D)</th>
+                                <th class="w-12">T3 (E)</th>
+                                <th class="w-12">P1 (F)</th>
+                                <th class="w-12">P2 (G)</th>
+                                <th class="w-12">UH (H)</th>
+                                <th class="w-12">UTS (I)</th>
+                                <th class="w-12">UAS (J)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="referenceTableBody">
+                            <!-- Populated dynamically with 50 Student Rows -->
+                        </tbody>
+                        <tfoot class="bg-slate-100 font-semibold border-t-2 border-slate-400 text-[10px]">
+                            <tr>
+                                <td colspan="2" class="text-right font-bold text-slate-700 bg-slate-200 px-1">JUMLAH (=SUM)</td>
+                                <td class="text-center font-mono bg-emerald-50 text-emerald-800 font-bold p-0.5">=SUM(C2:C51)</td>
+                                <td class="text-center font-mono bg-emerald-50 text-emerald-800 font-bold p-0.5">=SUM(D2:D51)</td>
+                                <td class="text-center font-mono bg-emerald-50 text-emerald-800 font-bold p-0.5">=SUM(E2:E51)</td>
+                                <td class="text-center font-mono bg-emerald-50 text-emerald-800 font-bold p-0.5">=SUM(F2:F51)</td>
+                                <td class="text-center font-mono bg-emerald-50 text-emerald-800 font-bold p-0.5">=SUM(G2:G51)</td>
+                                <td class="text-center font-mono bg-emerald-50 text-emerald-800 font-bold p-0.5">=SUM(H2:H51)</td>
+                                <td class="text-center font-mono bg-emerald-50 text-emerald-800 font-bold p-0.5">=SUM(I2:I51)</td>
+                                <td class="text-center font-mono bg-emerald-50 text-emerald-800 font-bold p-0.5">=SUM(J2:J51)</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-right font-bold text-slate-700 bg-slate-200 px-1">RATA-RATA (=AVERAGE)</td>
+                                <td class="text-center font-mono bg-sky-50 text-sky-800 font-bold p-0.5">=AVERAGE(C2:C51)</td>
+                                <td class="text-center font-mono bg-sky-50 text-sky-800 font-bold p-0.5">=AVERAGE(D2:D51)</td>
+                                <td class="text-center font-mono bg-sky-50 text-sky-800 font-bold p-0.5">=AVERAGE(E2:E51)</td>
+                                <td class="text-center font-mono bg-sky-50 text-sky-800 font-bold p-0.5">=AVERAGE(F2:F51)</td>
+                                <td class="text-center font-mono bg-sky-50 text-sky-800 font-bold p-0.5">=AVERAGE(G2:G51)</td>
+                                <td class="text-center font-mono bg-sky-50 text-sky-800 font-bold p-0.5">=AVERAGE(H2:H51)</td>
+                                <td class="text-center font-mono bg-sky-50 text-sky-800 font-bold p-0.5">=AVERAGE(I2:I51)</td>
+                                <td class="text-center font-mono bg-sky-50 text-sky-800 font-bold p-0.5">=AVERAGE(J2:J51)</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-right font-bold text-slate-700 bg-slate-200 px-1">NILAI TERENDAH (=MIN)</td>
+                                <td class="text-center font-mono bg-amber-50 text-amber-800 font-bold p-0.5">=MIN(C2:C51)</td>
+                                <td class="text-center font-mono bg-amber-50 text-amber-800 font-bold p-0.5">=MIN(D2:D51)</td>
+                                <td class="text-center font-mono bg-amber-50 text-amber-800 font-bold p-0.5">=MIN(E2:E51)</td>
+                                <td class="text-center font-mono bg-amber-50 text-amber-800 font-bold p-0.5">=MIN(F2:F51)</td>
+                                <td class="text-center font-mono bg-amber-50 text-amber-800 font-bold p-0.5">=MIN(G2:G51)</td>
+                                <td class="text-center font-mono bg-amber-50 text-amber-800 font-bold p-0.5">=MIN(H2:H51)</td>
+                                <td class="text-center font-mono bg-amber-50 text-amber-800 font-bold p-0.5">=MIN(I2:I51)</td>
+                                <td class="text-center font-mono bg-amber-50 text-amber-800 font-bold p-0.5">=MIN(J2:J51)</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-right font-bold text-slate-700 bg-slate-200 px-1">NILAI TERTINGGI (=MAX)</td>
+                                <td class="text-center font-mono bg-purple-50 text-purple-800 font-bold p-0.5">=MAX(C2:C51)</td>
+                                <td class="text-center font-mono bg-purple-50 text-purple-800 font-bold p-0.5">=MAX(D2:D51)</td>
+                                <td class="text-center font-mono bg-purple-50 text-purple-800 font-bold p-0.5">=MAX(E2:E51)</td>
+                                <td class="text-center font-mono bg-purple-50 text-purple-800 font-bold p-0.5">=MAX(F2:F51)</td>
+                                <td class="text-center font-mono bg-purple-50 text-purple-800 font-bold p-0.5">=MAX(G2:G51)</td>
+                                <td class="text-center font-mono bg-purple-50 text-purple-800 font-bold p-0.5">=MAX(H2:H51)</td>
+                                <td class="text-center font-mono bg-purple-50 text-purple-800 font-bold p-0.5">=MAX(I2:I51)</td>
+                                <td class="text-center font-mono bg-purple-50 text-purple-800 font-bold p-0.5">=MAX(J2:J51)</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: INTERACTIVE GOOGLE SHEETS WORKSPACE -->
+        <section class="w-full lg:w-[55%] bg-white rounded-xl shadow border border-slate-300 flex flex-col overflow-hidden">
+            
+            <!-- Standard Google Sheets Header Menu & Toolbar -->
+            <div class="bg-gsheet-header border-b border-gsheet-border select-none shrink-0">
+                <!-- File Menu Bar -->
+                <div class="flex items-center space-x-3 px-3 pt-1.5 pb-1 text-xs text-slate-700 border-b border-slate-200">
+                    <span class="font-semibold text-gsheet-darkgreen cursor-pointer hover:bg-slate-200 px-1.5 py-0.5 rounded">Lembar Kerja Siswa Kelas 6.xlsx</span>
+                    <span class="cursor-pointer hover:bg-slate-200 px-1.5 py-0.5 rounded hidden sm:inline">File</span>
+                    <span class="cursor-pointer hover:bg-slate-200 px-1.5 py-0.5 rounded hidden sm:inline">Edit</span>
+                    <span class="cursor-pointer hover:bg-slate-200 px-1.5 py-0.5 rounded hidden sm:inline">Format</span>
+                    <span class="cursor-pointer hover:bg-slate-200 px-1.5 py-0.5 rounded hidden sm:inline">Data</span>
+                </div>
+
+                <!-- Main Icons Toolbar -->
+                <div class="flex items-center flex-wrap gap-1 px-3 py-1 text-slate-600 text-xs">
+                    <button onclick="triggerUndo()" class="p-1 hover:bg-slate-200 rounded" title="Urungkan (Undo)"><i class="fa-solid fa-rotate-left"></i></button>
+                    <button onclick="triggerRedo()" class="p-1 hover:bg-slate-200 rounded" title="Ulangi (Redo)"><i class="fa-solid fa-rotate-right"></i></button>
+                    <button onclick="window.print()" class="p-1 hover:bg-slate-200 rounded" title="Cetak"><i class="fa-solid fa-print"></i></button>
+                    <div class="h-4 w-[1px] bg-slate-300 mx-1"></div>
+                    
+                    <!-- Formatting Tools -->
+                    <button id="btnFormatBold" onclick="toggleFormat('bold')" class="p-1 hover:bg-slate-200 rounded font-bold" title="Cetak Tebal"><i class="fa-solid fa-bold"></i></button>
+                    <button id="btnFormatItalic" onclick="toggleFormat('italic')" class="p-1 hover:bg-slate-200 rounded italic" title="Cetak Miring"><i class="fa-solid fa-italic"></i></button>
+                    <div class="h-4 w-[1px] bg-slate-300 mx-1"></div>
+
+                    <!-- Alignment -->
+                    <button onclick="toggleAlign('left')" class="p-1 hover:bg-slate-200 rounded" title="Rata Kiri"><i class="fa-solid fa-align-left"></i></button>
+                    <button onclick="toggleAlign('center')" class="p-1 hover:bg-slate-200 rounded" title="Rata Tengah"><i class="fa-solid fa-align-center"></i></button>
+                    <button onclick="toggleAlign('right')" class="p-1 hover:bg-slate-200 rounded" title="Rata Kanan"><i class="fa-solid fa-align-right"></i></button>
+                    <div class="h-4 w-[1px] bg-slate-300 mx-1"></div>
+
+                    <!-- Function Quick Picker -->
+                    <button onclick="insertFormulaTemplate('SUM')" class="px-2 py-0.5 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 rounded font-semibold text-[11px] flex items-center gap-1">
+                        <i class="fa-solid fa-calculator text-emerald-600"></i> Sisipkan Rumus
+                    </button>
+
+                    <div class="ml-auto text-[11px] text-slate-500 hidden sm:flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span class="font-medium text-slate-600">Google Sheets Ready</span>
+                    </div>
+                </div>
+
+                <!-- Formula Bar Row -->
+                <div class="flex items-center border-t border-gsheet-border px-2 py-1 bg-white">
+                    <div id="activeCellAddress" class="w-12 text-center font-mono text-xs font-semibold text-slate-700 border-r border-slate-300 pr-1">A1</div>
+                    <div class="px-2 text-slate-400 font-serif italic text-sm font-bold">fx</div>
+                    <input type="text" id="formulaBar" oninput="onFormulaInput(this.value)" onkeydown="onFormulaKeydown(event)" placeholder="Ketik data atau rumus (contoh: =SUM(C2:C51))" class="flex-1 text-xs font-mono px-2 py-0.5 outline-none focus:bg-sky-50/50 rounded transition" />
+                </div>
+            </div>
+
+            <!-- Sheet Canvas / Grid Container -->
+            <div id="sheetScrollContainer" class="flex-1 overflow-auto bg-slate-100 relative">
+                <table id="spreadsheetGrid" class="border-collapse bg-white table-fixed">
+                    <!-- Column Headers and Cells injected dynamically -->
+                </table>
+            </div>
+
+            <!-- Sheet Bottom Bar -->
+            <div class="bg-gsheet-header border-t border-gsheet-border px-3 py-1 flex items-center justify-between text-xs text-slate-600 shrink-0">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-white border border-slate-300 px-3 py-0.5 rounded-t border-b-2 border-b-gsheet-green font-semibold text-gsheet-darkgreen shadow-sm flex items-center gap-1.5 text-xs">
+                        <i class="fa-solid fa-table"></i> Sheet1
+                    </div>
+                </div>
+                <div id="sheetStatusInfo" class="text-[11px] text-slate-500 font-mono">
+                    Siap. Gunakan tombol Enter / Panah untuk berpindah sel.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL: RESULT EVALUATION & DIAGNOSTIC -->
+    <div id="resultModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 transform transition-all">
+            <div class="bg-slate-900 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-award text-amber-400 text-xl"></i>
+                    <h3 class="font-bold text-base">Hasil Evaluasi Praktikum 50 Baris</h3>
+                </div>
+                <button onclick="closeResultModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="p-5 space-y-4">
+                <!-- Score Display -->
+                <div class="text-center bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider block">Nilai Ketikan & Rumus Kamu</span>
+                    <div id="finalScoreText" class="text-5xl font-black text-emerald-600 my-1">0 / 100</div>
+                    <p id="scoreGradeBadge" class="text-xs font-semibold text-slate-600 mt-1">Sangat Baik!</p>
+                </div>
+
+                <!-- Breakdown Stats -->
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                        <span class="text-emerald-800 font-medium block">Akurasi Ketik Data:</span>
+                        <strong id="statDataAccuracy" class="text-sm text-emerald-900 font-bold">0%</strong>
+                    </div>
+                    <div class="p-3 bg-sky-50 border border-sky-200 rounded-lg">
+                        <span class="text-sky-800 font-medium block">Kebenaran Rumus:</span>
+                        <strong id="statFormulaAccuracy" class="text-sm text-sky-900 font-bold">0/32 Rumus</strong>
+                    </div>
+                </div>
+
+                <!-- Details List -->
+                <div class="space-y-1.5">
+                    <h4 class="font-bold text-xs text-slate-700 uppercase tracking-wider">Catatan Evaluasi Guru:</h4>
+                    <ul id="evaluationNotes" class="text-xs text-slate-600 space-y-1 max-h-36 overflow-y-auto pr-1">
+                        <!-- Diagnostics appended via JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-3.5 flex justify-end gap-2 border-t border-slate-200">
+                <button onclick="closeResultModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs rounded-lg shadow">Lanjutkan Mengerjakan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: FORMULA HELP & GUIDANCE -->
+    <div id="helpModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-slate-200">
+            <div class="bg-gsheet-green text-white p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-book text-amber-300 text-lg"></i>
+                    <h3 class="font-bold text-base">Panduan Rumus Excel 50 Baris (Kelas 6)</h3>
+                </div>
+                <button onclick="closeHelpModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="p-5 space-y-3.5 text-xs text-slate-700 max-h-[70vh] overflow-y-auto">
+                <p class="leading-relaxed">Setiap penulisan rumus di Excel / Google Sheets <strong>WAJIB diawali tanda sama dengan (<code class="text-rose-600 font-bold font-mono text-sm">=</code>)</strong>. Rentang data siswa berada pada baris 2 sampai 51 (<code class="font-mono bg-slate-100 px-1 font-bold">C2:C51</code>).</p>
+
+                <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg space-y-1">
+                    <div class="font-bold text-emerald-900 text-sm flex items-center gap-1.5"><i class="fa-solid fa-plus-circle"></i> 1. Rumus SUM (Penjumlahan Total)</div>
+                    <p>Digunakan untuk menjumlahkan seluruh angka dari baris 2 hingga baris 51.</p>
+                    <p class="font-mono bg-white p-1.5 rounded border border-emerald-300 font-bold text-emerald-800">Contoh Kolom C: =SUM(C2:C51)</p>
+                </div>
+
+                <div class="p-3 bg-sky-50 border border-sky-200 rounded-lg space-y-1">
+                    <div class="font-bold text-sky-900 text-sm flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> 2. Rumus AVERAGE (Rata-Rata)</div>
+                    <p>Digunakan untuk menghitung rata-rata nilai dari 50 siswa.</p>
+                    <p class="font-mono bg-white p-1.5 rounded border border-sky-300 font-bold text-sky-800">Contoh Kolom C: =AVERAGE(C2:C51)</p>
+                </div>
+
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg space-y-1">
+                    <div class="font-bold text-amber-900 text-sm flex items-center gap-1.5"><i class="fa-solid fa-arrow-down-short-wide"></i> 3. Rumus MIN (Nilai Terendah)</div>
+                    <p>Digunakan untuk mencari nilai terendah di antara 50 siswa.</p>
+                    <p class="font-mono bg-white p-1.5 rounded border border-amber-300 font-bold text-amber-800">Contoh Kolom C: =MIN(C2:C51)</p>
+                </div>
+
+                <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg space-y-1">
+                    <div class="font-bold text-purple-900 text-sm flex items-center gap-1.5"><i class="fa-solid fa-arrow-up-wide-short"></i> 4. Rumus MAX (Nilai Tertinggi)</div>
+                    <p>Digunakan untuk mencari nilai tertinggi di antara 50 siswa.</p>
+                    <p class="font-mono bg-white p-1.5 rounded border border-purple-300 font-bold text-purple-800">Contoh Kolom C: =MAX(C2:C51)</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 p-3 flex justify-end border-t border-slate-200">
+                <button onclick="closeHelpModal()" class="px-4 py-1.5 bg-gsheet-green hover:bg-gsheet-darkgreen text-white font-semibold text-xs rounded-lg shadow">Saya Paham, Mulai Mengerjakan!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Master Student Dataset (50 rows x 10 columns)
+        // Col A: No, Col B: Nama, Col C: T1, Col D: T2, Col E: T3, Col F: P1, Col G: P2, Col H: UH, Col I: UTS, Col J: UAS
+        const MASTER_STUDENTS = [
+            { no: 1, name: "Aditya Pratama", t1: 85, t2: 88, t3: 90, p1: 82, p2: 85, uh: 80, uts: 84, uas: 88 },
+            { no: 2, name: "Aisyah Putri", t1: 90, t2: 92, t3: 95, p1: 88, p2: 91, uh: 92, uts: 90, uas: 95 },
+            { no: 3, name: "Aldo Wijaya", t1: 78, t2: 80, t3: 82, p1: 75, p2: 78, uh: 75, uts: 76, uas: 80 },
+            { no: 4, name: "Anisa Rahmawati", t1: 88, t2: 85, t3: 89, p1: 86, p2: 88, uh: 85, uts: 87, uas: 90 },
+            { no: 5, name: "Bagus Setiawan", t1: 82, t2: 80, t3: 85, p1: 78, p2: 82, uh: 80, uts: 81, uas: 84 },
+            { no: 6, name: "Bunga Lestari", t1: 92, t2: 90, t3: 93, p1: 89, p2: 92, uh: 90, uts: 91, uas: 94 },
+            { no: 7, name: "Citra Dewi", t1: 80, t2: 82, t3: 84, p1: 81, p2: 83, uh: 82, uts: 80, uas: 85 },
+            { no: 8, name: "Daniel Kurnia", t1: 75, t2: 78, t3: 80, p1: 74, p2: 76, uh: 78, uts: 75, uas: 82 },
+            { no: 9, name: "Dina Maria", t1: 89, t2: 88, t3: 90, p1: 87, p2: 89, uh: 88, uts: 86, uas: 91 },
+            { no: 10, name: "Eko Prasetyo", t1: 84, t2: 82, t3: 86, p1: 80, p2: 83, uh: 82, uts: 83, uas: 86 },
+            { no: 11, name: "Farhan Maulana", t1: 88, t2: 86, t3: 87, p1: 85, p2: 88, uh: 86, uts: 85, uas: 89 },
+            { no: 12, name: "Fitri Handayani", t1: 95, t2: 94, t3: 96, p1: 92, p2: 95, uh: 94, uts: 93, uas: 96 },
+            { no: 13, name: "Gilang Ramadhan", t1: 76, t2: 74, t3: 78, p1: 72, p2: 75, uh: 74, uts: 73, uas: 78 },
+            { no: 14, name: "Hana Susanti", t1: 90, t2: 88, t3: 91, p1: 87, p2: 90, uh: 88, uts: 89, uas: 92 },
+            { no: 15, name: "Ibrahim Malik", t1: 83, t2: 85, t3: 84, p1: 82, p2: 84, uh: 85, uts: 82, uas: 87 },
+            { no: 16, name: "Indah Permata", t1: 87, t2: 89, t3: 88, p1: 86, p2: 88, uh: 89, uts: 87, uas: 90 },
+            { no: 17, name: "Joko Widodo", t1: 80, t2: 78, t3: 81, p1: 79, p2: 80, uh: 78, uts: 79, uas: 82 },
+            { no: 18, name: "Karin Novita", t1: 91, t2: 93, t3: 92, p1: 90, p2: 92, uh: 93, uts: 91, uas: 92 },
+            { no: 19, name: "Luthfi Ahmad", t1: 85, t2: 82, t3: 86, p1: 83, p2: 85, uh: 82, uts: 84, uas: 88 },
+            { no: 20, name: "Maya Saphira", t1: 89, t2: 90, t3: 91, p1: 88, p2: 89, uh: 90, uts: 88, uas: 91 },
+            { no: 21, name: "Naufal Zaki", t1: 82, t2: 84, t3: 83, p1: 81, p2: 83, uh: 84, uts: 80, uas: 83 },
+            { no: 22, name: "Olivia Grace", t1: 94, t2: 92, t3: 95, p1: 91, p2: 93, uh: 92, uts: 93, uas: 95 },
+            { no: 23, name: "Panji Saputra", t1: 77, t2: 76, t3: 79, p1: 75, p2: 77, uh: 76, uts: 75, uas: 80 },
+            { no: 24, name: "Qonita Zahra", t1: 88, t2: 87, t3: 89, p1: 86, p2: 88, uh: 87, uts: 86, uas: 89 },
+            { no: 25, name: "Rian Hidayat", t1: 81, t2: 80, t3: 83, p1: 79, p2: 81, uh: 80, uts: 82, uas: 85 },
+            { no: 26, name: "Siti Nurhaliza", t1: 93, t2: 95, t3: 94, p1: 91, p2: 93, uh: 95, uts: 92, uas: 94 },
+            { no: 27, name: "Taufik Hidayat", t1: 79, t2: 82, t3: 80, p1: 78, p2: 80, uh: 82, uts: 78, uas: 81 },
+            { no: 28, name: "Utami Putri", t1: 86, t2: 88, t3: 89, p1: 85, p2: 87, uh: 88, uts: 86, uas: 90 },
+            { no: 29, name: "Vina Pandu", t1: 90, t2: 89, t3: 92, p1: 88, p2: 90, uh: 89, uts: 88, uas: 93 },
+            { no: 30, name: "Zackie Firmansyah", t1: 84, t2: 85, t3: 86, p1: 83, p2: 85, uh: 85, uts: 83, uas: 86 },
+            { no: 31, name: "Achmad Fauzi", t1: 83, t2: 81, t3: 85, p1: 80, p2: 82, uh: 81, uts: 82, uas: 84 },
+            { no: 32, name: "Amanda Julia", t1: 91, t2: 89, t3: 93, p1: 90, p2: 92, uh: 89, uts: 90, uas: 94 },
+            { no: 33, name: "Bayu Samudra", t1: 76, t2: 78, t3: 80, p1: 75, p2: 77, uh: 78, uts: 74, uas: 79 },
+            { no: 34, name: "Cantika Kirana", t1: 88, t2: 90, t3: 89, p1: 87, p2: 88, uh: 90, uts: 86, uas: 91 },
+            { no: 35, name: "Daffa Alamsyah", t1: 82, t2: 84, t3: 83, p1: 81, p2: 82, uh: 84, uts: 81, uas: 85 },
+            { no: 36, name: "Elvira Rosa", t1: 95, t2: 93, t3: 96, p1: 92, p2: 94, uh: 93, uts: 94, uas: 97 },
+            { no: 37, name: "Farel Ardiansyah", t1: 78, t2: 75, t3: 79, p1: 76, p2: 77, uh: 75, uts: 76, uas: 80 },
+            { no: 38, name: "Gita Gutawa", t1: 89, t2: 91, t3: 90, p1: 88, p2: 90, uh: 91, uts: 88, uas: 92 },
+            { no: 39, name: "Hafiz Syahputra", t1: 84, t2: 82, t3: 85, p1: 83, p2: 84, uh: 82, uts: 83, uas: 86 },
+            { no: 40, name: "Intan Nuraini", t1: 90, t2: 88, t3: 92, p1: 89, p2: 91, uh: 88, uts: 89, uas: 93 },
+            { no: 41, name: "Kevin Sanjaya", t1: 86, t2: 87, t3: 88, p1: 85, p2: 86, uh: 87, uts: 84, uas: 89 },
+            { no: 42, name: "Lestari Anggraini", t1: 92, t2: 94, t3: 93, p1: 90, p2: 92, uh: 94, uts: 91, uas: 95 },
+            { no: 43, name: "Muhammad Rizky", t1: 79, t2: 80, t3: 82, p1: 78, p2: 81, uh: 80, uts: 77, uas: 82 },
+            { no: 44, name: "Nadia Safira", t1: 87, t2: 89, t3: 90, p1: 86, p2: 88, uh: 89, uts: 87, uas: 91 },
+            { no: 45, name: "Oscar Zulkarnaen", t1: 81, t2: 83, t3: 82, p1: 80, p2: 82, uh: 83, uts: 80, uas: 84 },
+            { no: 46, name: "Putu Ayu", t1: 93, t2: 91, t3: 94, p1: 90, p2: 93, uh: 91, uts: 92, uas: 96 },
+            { no: 47, name: "Rehan Saputra", t1: 77, t2: 78, t3: 80, p1: 76, p2: 77, uh: 78, uts: 75, uas: 81 },
+            { no: 48, name: "Salsabila Putri", t1: 89, t2: 90, t3: 92, p1: 88, p2: 89, uh: 90, uts: 88, uas: 93 },
+            { no: 49, name: "Tari Marlina", t1: 85, t2: 86, t3: 87, p1: 84, p2: 85, uh: 86, uts: 84, uas: 88 },
+            { no: 50, name: "Zidan Al-Farisi", t1: 82, t2: 84, t3: 85, p1: 81, p2: 83, uh: 84, uts: 82, uas: 86 }
+        ];
+
+        // Grid Configuration (12 Columns A-L, 60 Rows for 50 student data + formulas)
+        const NUM_ROWS = 60;
+        const COLS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
+        
+        // App State
+        let cellData = {}; 
+        let cellFormatting = {}; 
+        let activeCellId = 'A1';
+        let timerSeconds = 50 * 60; // 50 Minutes
+        let timerInterval = null;
+        let isTimerRunning = false;
+
+        window.onload = function() {
+            renderReferenceTable();
+            buildSpreadsheetGrid();
+            selectCell('A1');
+            startTimer();
+        };
+
+        // Render 50 student reference table on the left panel
+        function renderReferenceTable() {
+            const tbody = document.getElementById('referenceTableBody');
+            tbody.innerHTML = '';
+            
+            MASTER_STUDENTS.forEach((s) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="text-center font-mono text-slate-500">${s.no}</td>
+                    <td class="font-medium text-slate-800 whitespace-nowrap">${s.name}</td>
+                    <td class="text-center font-mono">${s.t1}</td>
+                    <td class="text-center font-mono">${s.t2}</td>
+                    <td class="text-center font-mono">${s.t3}</td>
+                    <td class="text-center font-mono">${s.p1}</td>
+                    <td class="text-center font-mono">${s.p2}</td>
+                    <td class="text-center font-mono">${s.uh}</td>
+                    <td class="text-center font-mono">${s.uts}</td>
+                    <td class="text-center font-mono">${s.uas}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Build the interactive sheet grid (A1 through L60)
+        function buildSpreadsheetGrid() {
+            const grid = document.getElementById('spreadsheetGrid');
+            grid.innerHTML = '';
+
+            // Header Row
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            
+            // Top-left corner
+            const cornerTh = document.createElement('th');
+            cornerTh.className = 'sheet-header-cell w-8 min-w-[32px]';
+            cornerTh.textContent = '';
+            headerRow.appendChild(cornerTh);
+
+            // Column Headers
+            COLS.forEach(col => {
+                const th = document.createElement('th');
+                th.className = 'sheet-header-cell';
+                if (col === 'A') th.style.width = '40px';
+                if (col === 'B') th.style.width = '150px';
+                if (['C','D','E','F','G','H','I','J'].includes(col)) th.style.width = '65px';
+                if (['K','L'].includes(col)) th.style.width = '80px';
+                th.textContent = col;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            grid.appendChild(thead);
+
+            // Table Body (Rows 1 to 60)
+            const tbody = document.createElement('tbody');
+            for (let r = 1; r <= NUM_ROWS; r++) {
+                const tr = document.createElement('tr');
+                
+                // Row Header Number
+                const rowTh = document.createElement('td');
+                rowTh.className = 'sheet-header-cell font-mono text-slate-500';
+                rowTh.textContent = r;
+                tr.appendChild(rowTh);
+
+                // Row Cells
+                COLS.forEach(col => {
+                    const cellId = `${col}${r}`;
+                    const td = document.createElement('td');
+                    td.id = `cell_${cellId}`;
+                    td.className = 'sheet-cell font-sans transition-all';
+                    td.contentEditable = "true";
+                    
+                    // Cell Event Listeners
+                    td.addEventListener('focus', () => onCellFocus(cellId));
+                    td.addEventListener('blur', () => onCellBlur(cellId));
+                    td.addEventListener('keydown', (e) => onCellKeyDown(e, col, r));
+                    td.addEventListener('input', () => onCellInput(cellId));
+
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            }
+            grid.appendChild(tbody);
+        }
+
+        function selectCell(cellId) {
+            activeCellId = cellId;
+            document.getElementById('activeCellAddress').textContent = cellId;
+            const td = document.getElementById(`cell_${cellId}`);
+            if (td) {
+                td.focus();
+                document.getElementById('formulaBar').value = cellData[cellId] || '';
+                updateToolbarFormatButtons(cellId);
+            }
+        }
+
+        function onCellFocus(cellId) {
+            activeCellId = cellId;
+            document.getElementById('activeCellAddress').textContent = cellId;
+            
+            const td = document.getElementById(`cell_${cellId}`);
+            if (cellData[cellId] !== undefined) {
+                td.textContent = cellData[cellId];
+            }
+            document.getElementById('formulaBar').value = cellData[cellId] || '';
+            updateToolbarFormatButtons(cellId);
+        }
+
+        function onCellBlur(cellId) {
+            const td = document.getElementById(`cell_${cellId}`);
+            const val = td.textContent.trim();
+            cellData[cellId] = val;
+            evaluateAndRenderAllCells();
+        }
+
+        function onCellInput(cellId) {
+            const td = document.getElementById(`cell_${cellId}`);
+            const val = td.textContent;
+            cellData[cellId] = val;
+            document.getElementById('formulaBar').value = val;
+        }
+
+        function onFormulaInput(val) {
+            if (!activeCellId) return;
+            cellData[activeCellId] = val;
+            const td = document.getElementById(`cell_${activeCellId}`);
+            if (td) {
+                td.textContent = val;
+            }
+        }
+
+        function onFormulaKeydown(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                evaluateAndRenderAllCells();
+                const col = activeCellId.charAt(0);
+                const row = parseInt(activeCellId.substring(1));
+                selectCell(`${col}${row + 1}`);
+            }
+        }
+
+        function onCellKeyDown(e, col, r) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                selectCell(`${col}${r + 1}`);
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                const colIdx = COLS.indexOf(col);
+                if (colIdx < COLS.length - 1) {
+                    selectCell(`${COLS[colIdx + 1]}${r}`);
+                }
+            } else if (e.key === 'ArrowDown') {
+                if (!e.target.isContentEditable || document.activeElement !== e.target) return;
+                // Standard arrow down movement
+            }
+        }
+
+        // Evaluate formulas across all cells and format display
+        function evaluateAndRenderAllCells() {
+            for (let r = 1; r <= NUM_ROWS; r++) {
+                COLS.forEach(col => {
+                    const cellId = `${col}${r}`;
+                    const td = document.getElementById(`cell_${cellId}`);
+                    if (!td) return;
+
+                    if (document.activeElement === td) return;
+
+                    const rawVal = cellData[cellId] || '';
+
+                    if (rawVal.startsWith('=')) {
+                        const calculatedResult = parseExcelFormula(rawVal);
+                        td.textContent = calculatedResult;
+                        td.classList.add('font-semibold', 'text-slate-900');
+                    } else {
+                        td.textContent = rawVal;
+                    }
+                });
+            }
+        }
+
+        // Formula Parser supporting =SUM(), =AVERAGE(), =MIN(), =MAX()
+        function parseExcelFormula(formulaStr) {
+            try {
+                const cleanStr = formulaStr.trim().toUpperCase();
+                
+                // Matches =FUNC(C2:C51) or similar ranges
+                const match = cleanStr.match(/^=(SUM|AVERAGE|MIN|MAX)\(([A-L]\d+):([A-L]\d+)\)$/);
+                
+                if (!match) {
+                    return "#VALUE!";
+                }
+
+                const func = match[1];
+                const startRef = match[2];
+                const endRef = match[3];
+
+                const values = getValuesInRange(startRef, endRef);
+                if (values.length === 0) return 0;
+
+                let result = 0;
+                if (func === 'SUM') {
+                    result = values.reduce((a, b) => a + b, 0);
+                } else if (func === 'AVERAGE') {
+                    const sum = values.reduce((a, b) => a + b, 0);
+                    result = sum / values.length;
+                    result = Math.round(result * 100) / 100;
+                } else if (func === 'MIN') {
+                    result = Math.min(...values);
+                } else if (func === 'MAX') {
+                    result = Math.max(...values);
+                }
+
+                return result;
+            } catch (err) {
+                return "#ERROR!";
+            }
+        }
+
+        // Helper to extract numerical values from range
+        function getValuesInRange(startRef, endRef) {
+            const startCol = startRef.charAt(0);
+            const startRow = parseInt(startRef.substring(1));
+            const endCol = endRef.charAt(0);
+            const endRow = parseInt(endRef.substring(1));
+
+            const startColIdx = COLS.indexOf(startCol);
+            const endColIdx = COLS.indexOf(endCol);
+
+            let nums = [];
+
+            for (let c = startColIdx; c <= endColIdx; c++) {
+                for (let r = startRow; r <= endRow; r++) {
+                    const cid = `${COLS[c]}${r}`;
+                    const raw = cellData[cid];
+                    if (raw !== undefined && raw !== null && raw !== '') {
+                        const num = parseFloat(raw);
+                        if (!isNaN(num)) {
+                            nums.push(num);
+                        }
+                    }
+                }
+            }
+            return nums;
+        }
+
+        function toggleFormat(type) {
+            if (!activeCellId) return;
+            const td = document.getElementById(`cell_${activeCellId}`);
+            if (!td) return;
+
+            if (!cellFormatting[activeCellId]) {
+                cellFormatting[activeCellId] = { bold: false, italic: false, align: 'left' };
+            }
+
+            if (type === 'bold') {
+                cellFormatting[activeCellId].bold = !cellFormatting[activeCellId].bold;
+                td.style.fontWeight = cellFormatting[activeCellId].bold ? 'bold' : 'normal';
+            } else if (type === 'italic') {
+                cellFormatting[activeCellId].italic = !cellFormatting[activeCellId].italic;
+                td.style.fontStyle = cellFormatting[activeCellId].italic ? 'italic' : 'normal';
+            }
+            updateToolbarFormatButtons(activeCellId);
+        }
+
+        function toggleAlign(alignType) {
+            if (!activeCellId) return;
+            const td = document.getElementById(`cell_${activeCellId}`);
+            if (!td) return;
+
+            if (!cellFormatting[activeCellId]) {
+                cellFormatting[activeCellId] = { bold: false, italic: false, align: 'left' };
+            }
+
+            cellFormatting[activeCellId].align = alignType;
+            td.style.textAlign = alignType;
+        }
+
+        function updateToolbarFormatButtons(cellId) {
+            const fmt = cellFormatting[cellId] || { bold: false, italic: false };
+            const btnB = document.getElementById('btnFormatBold');
+            const btnI = document.getElementById('btnFormatItalic');
+
+            if (fmt.bold) btnB.classList.add('bg-slate-300', 'text-emerald-700');
+            else btnB.classList.remove('bg-slate-300', 'text-emerald-700');
+
+            if (fmt.italic) btnI.classList.add('bg-slate-300', 'text-emerald-700');
+            else btnI.classList.remove('bg-slate-300', 'text-emerald-700');
+        }
+
+        function insertFormulaTemplate(funcName) {
+            if (!activeCellId) return;
+            const defaultFormula = `=${funcName}(C2:C51)`;
+            cellData[activeCellId] = defaultFormula;
+            document.getElementById('formulaBar').value = defaultFormula;
+            const td = document.getElementById(`cell_${activeCellId}`);
+            if (td) td.textContent = defaultFormula;
+            evaluateAndRenderAllCells();
+        }
+
+        function startTimer() {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+            timerInterval = setInterval(() => {
+                if (timerSeconds > 0) {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    pauseTimer();
+                    alert("Waktu praktikum 50 menit telah selesai! Silahkan klik 'Periksa / Cek Nilai' untuk melihat hasil pekerjaan kamu.");
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerSeconds = 50 * 60;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timerSeconds / 60);
+            const s = timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function checkStudentWork() {
+            evaluateAndRenderAllCells();
+
+            // 50 rows x 10 columns = 500 total student data cells
+            let totalDataPoints = 50 * 10; 
+            let correctDataPoints = 0;
+            let formulaPoints = 0;
+            // 8 grade columns (C,D,E,F,G,H,I,J) x 4 formulas (SUM, AVERAGE, MIN, MAX) = 32 formulas
+            let totalFormulas = 32; 
+            let notes = [];
+
+            // 1. Check 50 Student Data Rows (Rows 2 to 51)
+            MASTER_STUDENTS.forEach((student, idx) => {
+                const r = idx + 2; 
+                
+                // Col A: No
+                const valA = (cellData[`A${r}`] || '').toString().trim();
+                if (valA == student.no) correctDataPoints++;
+
+                // Col B: Name
+                const valB = (cellData[`B${r}`] || '').toString().trim().toLowerCase();
+                if (valB === student.name.toLowerCase()) {
+                    correctDataPoints++;
+                } else if (valB !== '') {
+                    notes.push(`Baris ${r}: Nama "${cellData[`B${r}`]}" kurang pas dengan "${student.name}".`);
+                }
+
+                // Col C: T1
+                if (parseFloat(cellData[`C${r}`] || 0) === student.t1) correctDataPoints++;
+                // Col D: T2
+                if (parseFloat(cellData[`D${r}`] || 0) === student.t2) correctDataPoints++;
+                // Col E: T3
+                if (parseFloat(cellData[`E${r}`] || 0) === student.t3) correctDataPoints++;
+                // Col F: P1
+                if (parseFloat(cellData[`F${r}`] || 0) === student.p1) correctDataPoints++;
+                // Col G: P2
+                if (parseFloat(cellData[`G${r}`] || 0) === student.p2) correctDataPoints++;
+                // Col H: UH
+                if (parseFloat(cellData[`H${r}`] || 0) === student.uh) correctDataPoints++;
+                // Col I: UTS
+                if (parseFloat(cellData[`I${r}`] || 0) === student.uts) correctDataPoints++;
+                // Col J: UAS
+                if (parseFloat(cellData[`J${r}`] || 0) === student.uas) correctDataPoints++;
+            });
+
+            // 2. Check Statistics Formulas (Rows 52 to 55)
+            const statCheck = [
+                { row: 52, type: 'SUM', name: 'JUMLAH' },
+                { row: 53, type: 'AVERAGE', name: 'RATA-RATA' },
+                { row: 54, type: 'MIN', name: 'NILAI TERENDAH' },
+                { row: 55, type: 'MAX', name: 'NILAI TERTINGGI' }
+            ];
+
+            const statCols = ['C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+
+            statCheck.forEach(stat => {
+                statCols.forEach(col => {
+                    const cid = `${col}${stat.row}`;
+                    const raw = (cellData[cid] || '').toString().trim().toUpperCase();
+                    
+                    if (raw.startsWith(`=${stat.type}`) && raw.includes(`${col}2:${col}51`)) {
+                        formulaPoints++;
+                    } else if (raw.startsWith('=')) {
+                        notes.push(`Sel ${cid}: Rumus ${stat.name} disarankan menggunakan <code class="font-mono">=${stat.type}(${col}2:${col}51)</code>.`);
+                    } else {
+                        notes.push(`Sel ${cid}: Belum diisi rumus <code class="font-mono font-bold">=${stat.type}</code> untuk kolom ${col}.`);
+                    }
+                });
+            });
+
+            // Calculate accuracy percentages
+            const dataAccuracyPct = Math.round((correctDataPoints / totalDataPoints) * 100);
+            const formulaPct = Math.round((formulaPoints / totalFormulas) * 100);
+            
+            // Final Score: 60% Typing Accuracy, 40% Formula Correctness
+            const finalScore = Math.round((dataAccuracyPct * 0.6) + (formulaPct * 0.4));
+
+            // Display in Modal
+            document.getElementById('finalScoreText').textContent = `${finalScore} / 100`;
+            document.getElementById('statDataAccuracy').textContent = `${dataAccuracyPct}% (${correctDataPoints}/${totalDataPoints} Sel)`;
+            document.getElementById('statFormulaAccuracy').textContent = `${formulaPoints}/${totalFormulas} Benar`;
+
+            // Grade Badge
+            const badge = document.getElementById('scoreGradeBadge');
+            if (finalScore >= 90) {
+                badge.textContent = "🌟 Sangat Memuaskan (Nilai A)";
+                badge.className = "text-xs font-bold text-emerald-600 mt-1";
+            } else if (finalScore >= 75) {
+                badge.textContent = "👍 Baik / Memuaskan (Nilai B)";
+                badge.className = "text-xs font-bold text-sky-600 mt-1";
+            } else if (finalScore >= 60) {
+                badge.textContent = "⚠️ Cukup (Cek Kembali Ketikan)";
+                badge.className = "text-xs font-bold text-amber-600 mt-1";
+            } else {
+                badge.textContent = "❌ Perlu Perbaikan (Periksa Ketikan & Rumus)";
+                badge.className = "text-xs font-bold text-rose-600 mt-1";
+            }
+
+            // Render Diagnostic Notes
+            const notesUl = document.getElementById('evaluationNotes');
+            notesUl.innerHTML = '';
+            if (notes.length === 0) {
+                notesUl.innerHTML = `<li class="text-emerald-700 font-semibold"><i class="fa-solid fa-circle-check"></i> Sempurna! Seluruh 500 sel data dan 32 rumus diketik dengan tepat!</li>`;
+            } else {
+                notes.slice(0, 8).forEach(note => {
+                    const li = document.createElement('li');
+                    li.className = "bg-rose-50 border-l-2 border-rose-400 p-1 rounded text-rose-900";
+                    li.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-500 mr-1"></i> ${note}`;
+                    notesUl.appendChild(li);
+                });
+                if (notes.length > 8) {
+                    const li = document.createElement('li');
+                    li.className = "text-slate-400 italic pt-1";
+                    li.textContent = `...dan ${notes.length - 8} catatan ketelitian sel lainnya.`;
+                    notesUl.appendChild(li);
+                }
+            }
+
+            document.getElementById('resultModal').classList.remove('hidden');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+
+        function showHelpModal() {
+            document.getElementById('helpModal').classList.remove('hidden');
+        }
+
+        function closeHelpModal() {
+            document.getElementById('helpModal').classList.add('hidden');
+        }
+
+        function confirmResetSheet() {
+            if (confirm("Apakah Anda yakin ingin mengosongkan seluruh isi lembar kerja siswa?")) {
+                cellData = {};
+                cellFormatting = {};
+                buildSpreadsheetGrid();
+                selectCell('A1');
+            }
+        }
+
+        function triggerUndo() {
+            alert("Petunjuk: Jika ada kesalahan ketik, Anda dapat langsung menghapus isi sel dengan tombol Backspace atau Delete pada keyboard.");
+        }
+
+        function triggerRedo() {
+            // Placeholder
+        }
+    </script>
+</body>
+</html>
