@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul & Kuis Interaktif Google Sheets - Analisis Data Kelas 6</title>
+    <style>
+        :root {
+            --primary: #0f9d58;
+            --primary-hover: #0b8043;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #3c4043;
+            --border-color: #dadce0;
+            --success: #34a853;
+            --warning: #fbbc04;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .header-title h1 {
+            font-size: 1.3rem;
+        }
+
+        .header-title p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .timer-container {
+            display: flex;
+            gap: 15px;
+        }
+
+        .timer-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .main-layout {
+            display: flex;
+            height: calc(100vh - 65px);
+            overflow: hidden;
+        }
+
+        /* Panel Kiri: Materi */
+        .left-panel {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            border-right: 2px solid var(--border-color);
+            background-color: white;
+        }
+
+        .material-header {
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .material-section {
+            margin-bottom: 25px;
+        }
+
+        .material-section h2 {
+            color: var(--primary);
+            font-size: 1.15rem;
+            margin-bottom: 10px;
+        }
+
+        .material-section p, .material-section li {
+            font-size: 0.95rem;
+            color: #4a4a4a;
+            margin-bottom: 8px;
+        }
+
+        .material-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .material-table th, .material-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .material-table th {
+            background-color: #e6f4ea;
+            color: var(--primary);
+        }
+
+        .tip-box {
+            background-color: #e6f4ea;
+            border-left: 4px solid var(--primary);
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.9rem;
+        }
+
+        /* Panel Kanan: Kuis */
+        .right-panel {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            position: relative;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .overlay-lock {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.96);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .overlay-lock h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #5f6368;
+        }
+
+        .btn-secondary:hover {
+            background-color: #474a4d;
+        }
+
+        .student-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .quiz-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .type-badge {
+            background: #e6f4ea;
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .question-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            min-height: 250px;
+            margin-bottom: 15px;
+        }
+
+        .question-card h3 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .options label {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            margin: 6px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .options label:hover {
+            background-color: #f1f3f4;
+        }
+
+        .options input {
+            margin-right: 12px;
+            transform: scale(1.1);
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .quiz-nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            gap: 10px;
+        }
+
+        .select-question {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        #result-section {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .summary-box {
+            background: #e6f4ea;
+            border-left: 5px solid var(--success);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                flex-direction: column;
+                height: auto;
+                overflow: visible;
+            }
+            .left-panel, .right-panel {
+                overflow-y: visible;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <h1>Modul Informatika & Kuis Interaktif</h1>
+            <p>Kelas 6 SD/MI — Mengenal Analisis Data Sederhana (Google Sheets)</p>
+        </div>
+        <div class="timer-container">
+            <div class="timer-box" id="read-timer-display">⏱️ Waktu Membaca: 05:00</div>
+            <div class="timer-box" id="quiz-timer-display" style="display:none;">⏳ Waktu Kuis: 55:00</div>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <div class="left-panel">
+            <div class="material-header">
+                <h2>MATERI PEMBELAJARAN</h2>
+                <p><strong>Topik:</strong> Mengenal Analisis Data Sederhana dari Tabel Menggunakan Google Sheets</p>
+            </div>
+
+            <div class="tip-box">
+                🎯 <strong>Tujuan Pembelajaran:</strong>
+                <ol style="margin-left: 20px; margin-top: 5px;">
+                    <li>Menjelaskan pengertian analisis data dengan bahasa sendiri.</li>
+                    <li>Memberi contoh analisis data sederhana dalam kehidupan sehari-hari.</li>
+                    <li>Mengubah data sehari-hari menjadi bentuk tabel yang rapi.</li>
+                    <li>Menganalisis data pada tabel menggunakan Google Sheets dengan rumus <strong>SUM, AVERAGE, MAX, dan MIN</strong>.</li>
+                </ol>
+            </div>
+
+            <div class="material-section">
+                <h2>1. Apa Itu Analisis Data?</h2>
+                <p>Pernahkah kalian menghitung berapa banyak uang jajan yang dihabiskan dalam seminggu? Atau melihat nilai ulangan teman-teman sekelas untuk mengetahui siapa yang mendapat nilai tertinggi? Nah, kegiatan seperti itu disebut <strong>analisis data</strong>.</p>
+                <p><strong>Analisis data</strong> adalah kegiatan mengumpulkan, mengamati, dan mengolah data (angka atau informasi) untuk mendapatkan kesimpulan atau informasi baru yang berguna.</p>
+                <p>Dengan kata lain, analisis data membantu kita mengubah data yang “mentah” (belum diolah) menjadi informasi yang mudah dipahami dan bermanfaat untuk mengambil keputusan.</p>
+                
+                <table class="material-table">
+                    <thead>
+                        <tr>
+                            <th>Data (Mentah)</th>
+                            <th>Informasi (Hasil Olahan Data)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Kumpulan angka atau fakta yang belum diolah.<br><em>Contoh: 80, 90, 75, 85 (nilai ulangan)</em></td>
+                            <td>Hasil olahan data yang sudah punya arti bagi penerimanya.<br><em>Contoh: “Rata-rata nilai ulangan kelas adalah 82,5.”</em></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="material-section">
+                <h2>2. Contoh Analisis Data Sederhana dalam Kehidupan Sehari-hari</h2>
+                <p>Tanpa disadari, kita sering melakukan analisis data setiap hari. Berikut beberapa contohnya:</p>
+                <ul>
+                    <li><strong>Uang saku:</strong> Menjumlahkan uang jajan selama seminggu untuk mengetahui total pengeluaran, lalu membandingkan hari mana yang paling boros.</li>
+                    <li><strong>Nilai ulangan:</strong> Mencari nilai tertinggi, nilai terendah, dan rata-rata nilai seluruh siswa di kelas.</li>
+                    <li><strong>Cuaca:</strong> Mencatat suhu setiap hari selama seminggu untuk mengetahui hari terpanas dan hari terdingin.</li>
+                    <li><strong>Olahraga:</strong> Menghitung rata-rata jumlah langkah kaki (dari jam tangan pintar) setiap hari dalam sebulan.</li>
+                    <li><strong>Hobi membaca:</strong> Mencatat jumlah halaman buku yang dibaca setiap hari untuk mengetahui total halaman yang sudah dibaca dalam sebulan.</li>
+                </ul>
+                <p>Semua kegiatan tersebut menunjukkan bahwa analisis data bukanlah hal yang rumit — kita hanya perlu mengumpulkan angka, lalu mengolahnya menjadi informasi yang berguna.</p>
+            </div>
+
+            <div class="material-section">
+                <h2>3. Bagaimana Cara Menganalisis Data dalam Kehidupan Sehari-hari?</h2>
+                <p>Ada 5 langkah sederhana yang bisa kita ikuti setiap kali ingin menganalisis data:</p>
+                <ul>
+                    <li><strong>Langkah 1: Mengumpulkan data</strong> — Catat semua informasi/angka yang ingin diketahui. <em>Contoh: mencatat uang jajan setiap hari selama seminggu.</em></li>
+                    <li><strong>Langkah 2: Menyusun data</strong> — Rapikan data yang sudah dikumpulkan, misalnya diurutkan berdasarkan hari atau tanggal.</li>
+                    <li><strong>Langkah 3: Mengolah data</strong> — Hitung data tersebut, misalnya menjumlahkan (total), mencari rata-rata, atau mencari nilai tertinggi/terendah.</li>
+                    <li><strong>Langkah 4: Menarik kesimpulan</strong> — Jelaskan apa arti dari hasil perhitungan tadi. <em>Contoh: “Uang jajan paling banyak dihabiskan pada hari Sabtu.”</em></li>
+                    <li><strong>Langkah 5: Menggunakan hasilnya</strong> — Gunakan kesimpulan tersebut untuk mengambil keputusan. <em>Contoh: “Mulai minggu depan, aku akan menabung lebih banyak di hari Sabtu.”</em></li>
+                </ul>
+
+                <div class="tip-box">
+                    💡 <strong>Contoh Penerapan:</strong>
+                    <br>Rani mencatat uang jajannya selama 5 hari: Senin Rp5.000, Selasa Rp7.000, Rabu Rp4.000, Kamis Rp6.000, Jumat Rp8.000.
+                    <br><strong>Setelah dianalisis:</strong> Total Rp30.000, rata-rata Rp6.000/hari, pengeluaran terbesar hari Jumat, terkecil hari Rabu.
+                    <br><strong>Kesimpulan:</strong> Rani bisa mengatur uang jajannya lebih baik terutama di hari Jumat.
+                </div>
+            </div>
+
+            <div class="material-section">
+                <h2>4. Mengubah Data Menjadi Tabel</h2>
+                <p>Sebelum data bisa dianalisis dengan mudah, sebaiknya data disusun dulu menjadi bentuk tabel. Tabel membuat data lebih rapi, mudah dibaca, dan mudah diolah menggunakan Google Sheets.</p>
+                <p><strong>Langkah mengubah data menjadi tabel:</strong></p>
+                <ol style="margin-left: 20px;">
+                    <li>Tentukan judul kolom sesuai jenis data. Contoh: “Hari” dan “Uang Jajan (Rp)”.</li>
+                    <li>Masukkan data ke dalam baris sesuai dengan kolomnya masing-masing.</li>
+                    <li>Pastikan setiap baris hanya berisi satu data agar mudah dihitung.</li>
+                </ol>
+
+                <p style="margin-top: 10px;"><strong>Sebelum (Catatan Biasa):</strong></p>
+                <blockquote style="background: #f1f3f4; padding: 10px; border-left: 3px solid var(--primary); margin: 5px 0;">
+                    “Uang jajan Rani: Senin 5000, Selasa 7000, Rabu 4000, Kamis 6000, Jumat 8000.”
+                </blockquote>
+
+                <p style="margin-top: 10px;"><strong>Sesudah (Bentuk Tabel):</strong></p>
+                <table class="material-table">
+                    <thead>
+                        <tr>
+                            <th>Hari</th>
+                            <th>Uang Jajan (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Senin</td><td>5.000</td></tr>
+                        <tr><td>Selasa</td><td>7.000</td></tr>
+                        <tr><td>Rabu</td><td>4.000</td></tr>
+                        <tr><td>Kamis</td><td>6.000</td></tr>
+                        <tr><td>Jumat</td><td>8.000</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="material-section">
+                <h2>5. Menganalisis Tabel Menggunakan Google Sheets</h2>
+                <p>Kita dapat menggunakan Google Sheets untuk menganalisis tabel di atas secara cepat menggunakan rumus:</p>
+                
+                <table class="material-table">
+                    <thead>
+                        <tr>
+                            <th>Rumus</th>
+                            <th>Kegunaan</th>
+                            <th>Contoh Penulisan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>SUM</code></td>
+                            <td>Menjumlahkan seluruh data</td>
+                            <td><code>=SUM(B2:B6)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>AVERAGE</code></td>
+                            <td>Mencari nilai rata-rata</td>
+                            <td><code>=AVERAGE(B2:B6)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>MAX</code></td>
+                            <td>Mencari nilai/data terbesar</td>
+                            <td><code>=MAX(B2:B6)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>MIN</code></td>
+                            <td>Mencari nilai/data terkecil</td>
+                            <td><code>=MIN(B2:B6)</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>Hasil Analisis Tabel Uang Jajan Rani:</strong></p>
+                <table class="material-table">
+                    <thead>
+                        <tr>
+                            <th>Jenis Analisis</th>
+                            <th>Rumus</th>
+                            <th>Hasil</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Total uang jajan seminggu</td><td>SUM</td><td>Rp30.000</td></tr>
+                        <tr><td>Rata-rata uang jajan per hari</td><td>AVERAGE</td><td>Rp6.000</td></tr>
+                        <tr><td>Uang jajan terbesar</td><td>MAX</td><td>Rp8.000 (Jumat)</td></tr>
+                        <tr><td>Uang jajan terkecil</td><td>MIN</td><td>Rp4.000 (Rabu)</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="tip-box">
+                    📌 <strong>Kesimpulan dari Contoh Analisis:</strong>
+                    <br>- Dalam seminggu, Rani menghabiskan total Rp30.000 dengan rata-rata Rp6.000 per hari.
+                    <br>- Pengeluaran tertinggi terjadi pada hari Jumat (Rp8.000), sedangkan pengeluaran terendah pada hari Rabu (Rp4.000).
+                    <br>- Dari sini, Rani bisa membuat rencana agar pengeluaran hari Jumat tidak terlalu besar di minggu berikutnya.
+                </div>
+            </div>
+
+            <div class="material-section">
+                <h2>6. Ayo Berlatih!</h2>
+                <p>Data Nilai Ulangan Matematika:</p>
+                <table class="material-table">
+                    <thead>
+                        <tr>
+                            <th>Nama Siswa</th>
+                            <th>Nilai Ulangan Matematika</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Adi</td><td>85</td></tr>
+                        <tr><td>Bunga</td><td>90</td></tr>
+                        <tr><td>Citra</td><td>78</td></tr>
+                        <tr><td>Dimas</td><td>95</td></tr>
+                        <tr><td>Eka</td><td>88</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="material-section">
+                <h2>7. Rangkuman</h2>
+                <ul>
+                    <li>Analisis data adalah kegiatan mengolah data menjadi informasi yang bermanfaat.</li>
+                    <li>Analisis data sederhana banyak dijumpai dalam kehidupan sehari-hari, seperti uang jajan, nilai ulangan, dan cuaca.</li>
+                    <li>Langkah analisis data: <strong>Mengumpulkan → Menyusun → Mengolah → Menyimpulkan → Menggunakan hasilnya.</strong></li>
+                    <li>Data akan lebih mudah dianalisis jika sudah disusun dalam bentuk tabel.</li>
+                    <li>Google Sheets membantu kita menganalisis tabel dengan cepat menggunakan rumus <code>SUM</code>, <code>AVERAGE</code>, <code>MAX</code>, dan <code>MIN</code>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div id="read-overlay" class="overlay-lock">
+                <h2>📖 Sesi Membaca Wajib</h2>
+                <p>Silakan baca materi di panel sebelah kiri terlebih dahulu.</p>
+                <p>Kuis akan terbuka secara otomatis dalam:</p>
+                <h1 id="overlay-timer" style="font-size: 3rem; color: var(--primary); margin: 15px 0;">05:00</h1>
+                <button id="btn-start-quiz" class="btn" disabled onclick="startQuiz()">Mulai Kuis Sekarang</button>
+            </div>
+
+            <div id="quiz-wrapper" style="display: flex; flex-direction: column; height: 100%;">
+                <div class="student-info">
+                    <div style="display: flex; gap: 10px;">
+                        <div class="form-group" style="flex:1;">
+                            <label>Nama Lengkap:</label>
+                            <input type="text" id="student-name" placeholder="Masukkan nama..." oninput="saveProgress()">
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label>Kelas / NIS:</label>
+                            <input type="text" id="student-class" placeholder="Contoh: Kelas 6A" oninput="saveProgress()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quiz-header-bar">
+                    <span id="question-number" style="font-weight: bold;">Soal 1 dari 45</span>
+                    <span id="question-type-badge" class="type-badge">Pilihan Ganda</span>
+                </div>
+
+                <div id="question-card-container">
+                    </div>
+
+                <div class="quiz-nav-bar">
+                    <button id="btn-prev" class="btn btn-secondary" onclick="prevQuestion()">← Sebelumnya</button>
+                    
+                    <select id="jump-select" class="select-question" onchange="jumpToQuestion(this.value)">
+                        </select>
+
+                    <button id="btn-next" class="btn" onclick="nextQuestion()">Selanjutnya →</button>
+                    <button id="btn-submit" class="btn" style="background-color: var(--success); display: none;" onclick="submitQuiz()">Kirim Jawaban ✓</button>
+                </div>
+            </div>
+
+            <div id="result-section">
+                <h2>Hasil Evaluasi Kuis Interaktif</h2>
+                <hr style="margin: 10px 0;"><br>
+                <p><strong>Nama Siswa:</strong> <span id="res-name"></span></p>
+                <p><strong>Kelas / NIS:</strong> <span id="res-class"></span></p>
+                <p><strong>Skor Otomatis (PG, PG Kompleks & Isian):</strong> <span id="res-score" style="font-size: 1.2rem; font-weight: bold; color: var(--primary);"></span></p>
+                
+                <div class="summary-box">
+                    <h3>🤖 AI Summary & Evaluasi Jawaban Essai (Groq API)</h3>
+                    <div id="ai-loading" style="display:none; font-style: italic; color: #666; margin-top: 10px;">Sedang menganalisis jawaban essai dan membuat kesimpulan...</div>
+                    <div id="ai-feedback" style="margin-top: 10px; white-space: pre-line;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GROQ_API_KEY = "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";
+
+        // Total 45 Soal Analisis Data SD Kelas 6 Sesuai Materi Dokumen
+        const allQuestions = [
+            // --- 20 PILIHAN GANDA BIASA ---
+            { id: 1, type: "pg", q: "Kegiatan mengumpulkan, mengamati, dan mengolah data untuk mendapatkan kesimpulan atau informasi baru disebut...", o: ["Penyusunan file", "Analisis data", "Pencetakan tabel", "Menggambar data"], a: 1 },
+            { id: 2, type: "pg", q: "Kumpulan angka atau fakta yang belum diolah dan belum memiliki arti bagi penerimanya disebut...", o: ["Informasi", "Data", "Tabel", "Rumus"], a: 1 },
+            { id: 3, type: "pg", q: "Hasil dari olahan data yang sudah memiliki arti dan berguna untuk mengambil keputusan disebut...", o: ["Data mentah", "Informasi", "Sel kosong", "Baris"], a: 1 },
+            { id: 4, type: "pg", q: "Manakah di bawah ini yang merupakan contoh dari data mentah?", o: ["Rata-rata nilai ulangan kelas adalah 82,5", "80, 90, 75, 85", "Pengeluaran terbesar terjadi hari Jumat", "Total uang jajan seminggu adalah Rp30.000"], a: 1 },
+            { id: 5, type: "pg", q: "Manakah yang merupakan contoh informasi dari hasil olahan data?", o: ["80, 90, 75, 85", "Senin, Selasa, Rabu", "Rata-rata uang jajan Rani per hari adalah Rp6.000", "5000, 7000, 4000"], a: 2 },
+            { id: 6, type: "pg", q: "Langkah pertama yang dilakukan dalam menganalisis data adalah...", o: ["Mengolah data", "Mengumpulkan data", "Menarik kesimpulan", "Menggunakan hasil"], a: 1 },
+            { id: 7, type: "pg", q: "Setelah data dikumpulkan, langkah kedua yang harus dilakukan agar data rapi adalah...", o: ["Menyusun data", "Menghapus data", "Membuat rumus", "Menarik kesimpulan"], a: 0 },
+            { id: 8, type: "pg", q: "Aplikasi lembar kerja berbasis web milik Google yang digunakan untuk mengolah data tabel adalah...", o: ["Google Docs", "Google Sheets", "Google Slides", "Google Forms"], a: 1 },
+            { id: 9, type: "pg", q: "Rumus Google Sheets yang digunakan untuk menjumlahkan seluruh data adalah...", o: ["AVERAGE", "MAX", "SUM", "MIN"], a: 2 },
+            { id: 10, type: "pg", q: "Rumus Google Sheets yang digunakan untuk mencari nilai rata-rata dari sekelompok angka adalah...", o: ["SUM", "AVERAGE", "MAX", "MIN"], a: 1 },
+            { id: 11, type: "pg", q: "Untuk mencari angka pengeluaran terbesar atau nilai tertinggi, kita menggunakan rumus...", o: ["MIN", "MAX", "SUM", "AVERAGE"], a: 1 },
+            { id: 12, type: "pg", q: "Rumus Google Sheets yang digunakan untuk menemukan nilai atau data terendah adalah...", o: ["MAX", "SUM", "MIN", "AVERAGE"], a: 2 },
+            { id: 13, type: "pg", q: "Setiap penulisan rumus pada Google Sheets harus diawali dengan tanda...", o: ["+", "=", "*", "#"], a: 1 },
+            { id: 14, type: "pg", q: "Berdasarkan contoh analisis uang jajan Rani (Senin Rp5.000, Selasa Rp7.000, Rabu Rp4.000, Kamis Rp6.000, Jumat Rp8.000), berapakah total uang jajan Rani selama seminggu (SUM)?", o: ["Rp25.000", "Rp30.000", "Rp35.000", "Rp40.000"], a: 1 },
+            { id: 15, type: "pg", q: "Berdasarkan data uang jajan Rani, berapakah rata-rata pengeluarannya per hari (AVERAGE)?", o: ["Rp5.000", "Rp6.000", "Rp7.000", "Rp8.000"], a: 1 },
+            { id: 16, type: "pg", q: "Pada hari apakah Rani mengeluarkan uang jajan terbesar (MAX)?", o: ["Senin", "Rabu", "Kamis", "Jumat"], a: 3 },
+            { id: 17, type: "pg", q: "Pada hari apakah Rani mengeluarkan uang jajan terkecil (MIN)?", o: ["Senin", "Selasa", "Rabu", "Jumat"], a: 2 },
+            { id: 18, type: "pg", q: "Diberikan data nilai latihan: Adi 85, Bunga 90, Citra 78, Dimas 95, Eka 88. Siswa yang memperoleh nilai tertinggi (MAX) adalah...", o: ["Adi", "Bunga", "Citra", "Dimas"], a: 3 },
+            { id: 19, type: "pg", q: "Berdasarkan data nilai latihan di atas, siswa yang memperoleh nilai terendah (MIN) adalah...", o: ["Citra", "Adi", "Eka", "Bunga"], a: 0 },
+            { id: 20, type: "pg", q: "Menyusun data ke dalam bentuk tabel membuat data menjadi...", o: ["Sulit dihitung", "Acak-acakan", "Rapi dan mudah dibaca", "Hilang sebagian"], a: 2 },
+
+            // --- 10 PILIHAN GANDA KOMPLEKS (Pilih 2 atau lebih) ---
+            { id: 21, type: "pg_kompleks", q: "Pilihlah 2 contoh analisis data sederhana dalam kehidupan sehari-hari!", o: ["Mencatat uang jajan seminggu untuk mengetahui hari paling boros", "Mencatat nilai ulangan untuk mencari rata-rata kelas", "Bermain game tanpa melihat skor", "Tidur siang di rumah"], a: [0, 1] },
+            { id: 22, type: "pg_kompleks", q: "Pilihlah 2 rumus Google Sheets yang digunakan untuk mencari nilai ekstrem (terbesar dan terkecil)!", o: ["MAX", "MIN", "SUM", "AVERAGE"], a: [0, 1] },
+            { id: 23, type: "pg_kompleks", q: "Pilihlah 2 langkah awal dalam urutan menganalisis data secara benar!", o: ["Mengumpulkan data", "Menyusun data", "Menghapus tabel", "Menutup file"], a: [0, 1] },
+            { id: 24, type: "pg_kompleks", q: "Pilihlah 2 pernyataan yang BENAR mengenai Data dan Informasi!", o: ["Data adalah angka/fakta mentah yang belum diolah", "Informasi adalah hasil olahan data yang sudah memiliki arti", "Data pasti berbentuk kalimat panjang", "Informasi tidak pernah berguna untuk mengambil keputusan"], a: [0, 1] },
+            { id: 25, type: "pg_kompleks", q: "Pilihlah 2 keuntungan utama menyusun data ke dalam bentuk tabel sebelum diolah di Google Sheets!", o: ["Membuat data lebih rapi dan mudah dibaca", "Memudahkan penghitungan dengan rumus", "Menyebabkan angka berubah sendiri", "Menghapus data acak secara otomatis"], a: [0, 1] },
+            { id: 26, type: "pg_kompleks", q: "Manakah 2 rumus yang menghasilkan angka pemusatan/ringkasan jumlah seluruh data?", o: ["SUM", "AVERAGE", "MAX", "MIN"], a: [0, 1] },
+            { id: 27, type: "pg_kompleks", q: "Berdasarkan data nilai latihan (Adi 85, Bunga 90, Citra 78, Dimas 95, Eka 88), pilih 2 siswa yang mendapat nilai di atas 88!", o: ["Bunga", "Dimas", "Citra", "Adi"], a: [0, 1] },
+            { id: 28, type: "pg_kompleks", q: "Berdasarkan data uang jajan Rani, pilihlah 2 pernyataan yang BENAR!", o: ["Pengeluaran tertinggi pada hari Jumat (Rp8.000)", "Pengeluaran terendah pada hari Rabu (Rp4.000)", "Rani paling boros pada hari Senin", "Total pengeluaran Rani adalah Rp50.000"], a: [0, 1] },
+            { id: 29, type: "pg_kompleks", q: "Pilihlah 2 komponen utama yang membentuk sebuah tabel sederhana di Google Sheets!", o: ["Kolom (Judul Kolom)", "Baris (Data)", "Mikrofon", "Kamera"], a: [0, 1] },
+            { id: 30, type: "pg_kompleks", q: "Pilihlah 2 contoh data mentah berbentuk angka dalam kehidupan sekolah!", o: ["Nilai ulangan harian siswa", "Tinggi badan siswa (cm)", "Nama jalan rumah", "Warna favorit"], a: [0, 1] },
+
+            // --- 10 ISIAN SINGKAT ---
+            { id: 31, type: "isian", q: "Kumpulan angka atau fakta yang belum diolah disebut...", a: "data" },
+            { id: 32, type: "isian", q: "Hasil olahan data yang sudah memiliki arti dan bermanfaat disebut...", a: "informasi" },
+            { id: 33, type: "isian", q: "Rumus Google Sheets yang digunakan untuk menjumlahkan seluruh data adalah...", a: "sum" },
+            { id: 34, type: "isian", q: "Rumus yang digunakan untuk mencari nilai rata-rata adalah...", a: "average" },
+            { id: 35, type: "isian", q: "Rumus untuk mencari nilai atau data terbesar adalah...", a: "max" },
+            { id: 36, type: "isian", q: "Rumus untuk mencari nilai atau data terkecil adalah...", a: "min" },
+            { id: 37, type: "isian", q: "Setiap penulisan rumus pada Google Sheets harus selalu diawali dengan tanda...", a: "=" },
+            { id: 38, type: "isian", q: "Berdasarkan contoh analisis Rani, pengeluaran uang jajan terbesar terjadi pada hari...", a: "jumat" },
+            { id: 39, type: "isian", q: "Pengeluaran uang jajan terendah Rani terjadi pada hari...", a: "rabu" },
+            { id: 40, type: "isian", q: "Agar data mentah mudah dibaca dan diolah, data harus disusun ke dalam bentuk...", a: "tabel" },
+
+            // --- 5 ESSAI ---
+            { id: 41, type: "essai", q: "Jelaskan perbedaan antara Data dan Informasi beserta masing-masing contohnya berdasarkan materi yang telah dipelajari!" },
+            { id: 42, type: "essai", q: "Tuliskan 5 langkah berurutan dalam menganalisis data pada kehidupan sehari-hari!" },
+            { id: 43, type: "essai", q: "Jelaskan fungsi/kegunaan dari rumus Google Sheets berikut: SUM, AVERAGE, MAX, dan MIN!" },
+            { id: 44, type: "essai", q: "Berdasarkan contoh analisis uang jajan Rani (Senin Rp5.000, Selasa Rp7.000, Rabu Rp4.000, Kamis Rp6.000, Jumat Rp8.000), tuliskan kesimpulan yang bisa kamu dapatkan!" },
+            { id: 45, type: "essai", q: "Diberikan data nilai ulangan Matematika: Adi 85, Bunga 90, Citra 78, Dimas 95, Eka 88. Hitung secara manual: total nilai seluruh siswa (SUM) dan nilai rata-ratanya (AVERAGE)!" }
+        ];
+
+        let currentIndex = 0;
+        let readTime = 200; // 5 menit membaca
+        let quizTime = 3000; // 55 menit kuis
+        let readInterval, quizInterval;
+        let userAnswers = {};
+        let hasStartedQuiz = false;
+
+        window.onload = function() {
+            populateJumpSelect();
+            let startedBefore = loadProgress();
+            renderCurrentQuestion();
+
+            // Jika siswa sudah pernah klik "Mulai Kuis" sebelumnya, langsung lewati timer membaca
+            if (startedBefore) {
+                resumeQuizMode();
+            } else {
+                startReadTimer();
+            }
+        };
+
+        function startReadTimer() {
+            readInterval = setInterval(() => {
+                if(readTime <= 0) {
+                    clearInterval(readInterval);
+                    document.getElementById("btn-start-quiz").disabled = false;
+                    document.getElementById("overlay-timer").innerText = "00:00 - Selesai!";
+                } else {
+                    readTime--;
+                    let m = Math.floor(readTime / 60).toString().padStart(2, '0');
+                    let s = (readTime % 60).toString().padStart(2, '0');
+                    document.getElementById("read-timer-display").innerText = `⏱️ Waktu Membaca: ${m}:${s}`;
+                    document.getElementById("overlay-timer").innerText = `${m}:${s}`;
+                }
+            }, 1000);
+        }
+
+        function startQuiz() {
+            clearInterval(readInterval);
+            hasStartedQuiz = true;
+            saveProgress();
+            resumeQuizMode();
+        }
+
+        function resumeQuizMode() {
+            document.getElementById("read-overlay").style.display = "none";
+            document.getElementById("read-timer-display").style.display = "none";
+            document.getElementById("quiz-timer-display").style.display = "flex";
+
+            if (!quizInterval) {
+                quizInterval = setInterval(() => {
+                    if(quizTime <= 0) {
+                        clearInterval(quizInterval);
+                        alert("Waktu pengerjaan kuis telah habis!");
+                        submitQuiz();
+                    } else {
+                        quizTime--;
+                        let m = Math.floor(quizTime / 60).toString().padStart(2, '0');
+                        let s = (quizTime % 60).toString().padStart(2, '0');
+                        document.getElementById("quiz-timer-display").innerText = `⏳ Waktu Kuis: ${m}:${s}`;
+                        
+                        if(quizTime % 5 === 0) saveProgress();
+                    }
+                }, 1000);
+            }
+        }
+
+        function populateJumpSelect() {
+            let select = document.getElementById("jump-select");
+            select.innerHTML = "";
+            allQuestions.forEach((q, idx) => {
+                let opt = document.createElement("option");
+                opt.value = idx;
+                opt.innerText = `Soal ${idx + 1}`;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderCurrentQuestion() {
+            let q = allQuestions[currentIndex];
+            let container = document.getElementById("question-card-container");
+            document.getElementById("question-number").innerText = `Soal ${currentIndex + 1} dari ${allQuestions.length}`;
+            document.getElementById("jump-select").value = currentIndex;
+
+            let badge = document.getElementById("question-type-badge");
+            if(q.type === "pg") badge.innerText = "Pilihan Ganda";
+            else if(q.type === "pg_kompleks") badge.innerText = "Pilihan Ganda Kompleks (Bisa >1 Jawaban)";
+            else if(q.type === "isian") badge.innerText = "Isian Singkat";
+            else if(q.type === "essai") badge.innerText = "Soal Essai";
+
+            let html = `<div class="question-card"><h3>${currentIndex + 1}. ${q.q}</h3>`;
+
+            if(q.type === "pg") {
+                html += `<div class="options">`;
+                q.o.forEach((opt, i) => {
+                    let checked = (userAnswers[q.id] === i) ? "checked" : "";
+                    html += `
+                    <label>
+                        <input type="radio" name="q_${q.id}" value="${i}" ${checked} onchange="saveAnswer(${q.id}, ${i})">
+                        ${String.fromCharCode(65 + i)}. ${opt}
+                    </label>`;
+                });
+                html += `</div>`;
+            } else if(q.type === "pg_kompleks") {
+                html += `<div class="options"><p style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">*Pilih 2 atau lebih jawaban yang menurutmu benar:</p>`;
+                q.o.forEach((opt, i) => {
+                    let currentArr = userAnswers[q.id] || [];
+                    let checked = currentArr.includes(i) ? "checked" : "";
+                    html += `
+                    <label>
+                        <input type="checkbox" name="q_${q.id}" value="${i}" ${checked} onchange="saveAnswerKompleks(${q.id}, ${i})">
+                        ${String.fromCharCode(65 + i)}. ${opt}
+                    </label>`;
+                });
+                html += `</div>`;
+            } else if(q.type === "isian") {
+                let val = userAnswers[q.id] || "";
+                html += `<input type="text" value="${val}" placeholder="Ketik jawaban singkat di sini..." oninput="saveAnswerText(${q.id}, this.value)">`;
+            } else if(q.type === "essai") {
+                let val = userAnswers[q.id] || "";
+                html += `<textarea rows="5" placeholder="Ketik jawaban lengkap di sini..." oninput="saveAnswerText(${q.id}, this.value)">${val}</textarea>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+
+            document.getElementById("btn-prev").disabled = (currentIndex === 0);
+            if(currentIndex === allQuestions.length - 1) {
+                document.getElementById("btn-next").style.display = "none";
+                document.getElementById("btn-submit").style.display = "block";
+            } else {
+                document.getElementById("btn-next").style.display = "block";
+                document.getElementById("btn-submit").style.display = "none";
+            }
+        }
+
+        function saveAnswer(qId, val) {
+            userAnswers[qId] = val;
+            saveProgress();
+        }
+
+        function saveAnswerKompleks(qId, val) {
+            if(!userAnswers[qId]) userAnswers[qId] = [];
+            let idx = userAnswers[qId].indexOf(val);
+            if(idx > -1) {
+                userAnswers[qId].splice(idx, 1);
+            } else {
+                userAnswers[qId].push(val);
+            }
+            saveProgress();
+        }
+
+        function saveAnswerText(qId, val) {
+            userAnswers[qId] = val;
+            saveProgress();
+        }
+
+        function prevQuestion() {
+            if(currentIndex > 0) {
+                currentIndex--;
+                renderCurrentQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if(currentIndex < allQuestions.length - 1) {
+                currentIndex++;
+                renderCurrentQuestion();
+            }
+        }
+
+        function jumpToQuestion(idx) {
+            currentIndex = parseInt(idx);
+            renderCurrentQuestion();
+        }
+
+        function saveProgress() {
+            let data = {
+                answers: userAnswers,
+                name: document.getElementById("student-name").value,
+                sClass: document.getElementById("student-class").value,
+                hasStartedQuiz: hasStartedQuiz,
+                quizTimeLeft: quizTime
+            };
+            localStorage.setItem("sd6_materi_analisis_data_progress", JSON.stringify(data));
+        }
+
+        function loadProgress() {
+            let saved = localStorage.getItem("sd6_materi_analisis_data_progress");
+            if(!saved) return false;
+            let data = JSON.parse(saved);
+            userAnswers = data.answers || {};
+            if(data.name) document.getElementById("student-name").value = data.name;
+            if(data.sClass) document.getElementById("student-class").value = data.sClass;
+            if(data.quizTimeLeft !== undefined) quizTime = data.quizTimeLeft;
+            hasStartedQuiz = data.hasStartedQuiz || false;
+            return hasStartedQuiz;
+        }
+
+        async function submitQuiz() {
+            if(confirm("Apakah Anda yakin ingin menyelesaikan kuis ini?")) {
+                clearInterval(quizInterval);
+
+                let name = document.getElementById("student-name").value || "Siswa";
+                let sClass = document.getElementById("student-class").value || "Kelas 6";
+
+                let autoScore = 0;
+
+                allQuestions.forEach(q => {
+                    let ans = userAnswers[q.id];
+                    if(q.type === "pg" && ans !== undefined) {
+                        if(ans === q.a) autoScore += 2; // 20 PG x 2 = 40
+                    } else if(q.type === "pg_kompleks" && Array.isArray(ans)) {
+                        let sortedAns = [...ans].sort().join(',');
+                        let sortedTarget = [...q.a].sort().join(',');
+                        if(sortedAns === sortedTarget) autoScore += 2; // 10 Kompleks x 2 = 20
+                    } else if(q.type === "isian" && typeof ans === 'string') {
+                        if(ans.trim().toLowerCase().includes(q.a)) autoScore += 2; // 10 Isian x 2 = 20
+                    }
+                });
+
+                document.getElementById("quiz-wrapper").style.display = "none";
+                document.getElementById("result-section").style.display = "block";
+
+                document.getElementById("res-name").innerText = name;
+                document.getElementById("res-class").innerText = sClass;
+                document.getElementById("res-score").innerText = `${autoScore} / 80 (Maksimal PG, Kompleks & Isian)`;
+
+                fetchGroqEvaluation(name, autoScore);
+            }
+        }
+
+async function fetchGroqEvaluation(studentName, autoScore) {
+    document.getElementById("ai-loading").style.display = "block";
+
+    let essayAnswers = [];
+    allQuestions.filter(q => q.type === "essai").forEach((q, idx) => {
+        let ansText = userAnswers[q.id] || "(Tidak dijawab)";
+        essayAnswers.push(`Soal Essai ${idx + 1}: ${q.q}\nJawaban Siswa: ${ansText}`);
+    });
+
+    let promptText = `Kamu adalah seorang guru Informatika SD Kelas 6. Berikan umpan balik ringkas, ramah, menyemangati, dan beri nilai/kesimpulan untuk jawaban essai siswa bernama ${studentName} mengenai materi Mengenal Analisis Data Sederhana (Google Sheets).
+
+Skor Otomatis (PG, Kompleks & Isian): ${autoScore}/80
+
+Jawaban Essai Siswa:
+${essayAnswers.join("\n\n")}
+
+Berikan:
+1. Penilaian singkat tiap jawaban essai (Skor maksimal total 5 essai adalah 20).
+2. Total Nilai Akhir Keseluruhan (Skor Otomatis + Nilai Essai = Maksimal 100).
+3. Catatan evaluasi/kesimpulan belajar untuk siswa.`;
+
+    try {
+        let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${GROQ_API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "groq/compound-mini",
+                messages: [{ role: "user", content: promptText }],
+                temperature: 0.5
+            })
+        });
+
+        let data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error?.message || `HTTP Error status: ${response.status}`);
+        }
+
+        let feedback = data.choices[0].message.content;
+        document.getElementById("ai-loading").style.display = "none";
+        document.getElementById("ai-feedback").innerText = feedback;
+    } catch (err) {
+        document.getElementById("ai-loading").innerText = `Gagal memuat evaluasi AI: ${err.message}`;
+    }
+}
+    </script>
+</body>
+</html>
