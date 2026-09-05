@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul & Kuis Interaktif Google Docs</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-hover: #1557b0;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #3c4043;
+            --border-color: #dadce0;
+            --success: #34a853;
+            --warning: #fbbc04;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .header-title h1 {
+            font-size: 1.3rem;
+        }
+
+        .header-title p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .timer-container {
+            display: flex;
+            gap: 15px;
+        }
+
+        .timer-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .main-layout {
+            display: flex;
+            height: calc(100vh - 65px);
+            overflow: hidden;
+        }
+
+        /* Left Panel: Material */
+        .left-panel {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            border-right: 2px solid var(--border-color);
+            background-color: white;
+        }
+
+        .material-header {
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .material-section {
+            margin-bottom: 25px;
+        }
+
+        .material-section h2 {
+            color: var(--primary);
+            font-size: 1.15rem;
+            margin-bottom: 10px;
+        }
+
+        .material-section p, .material-section li {
+            font-size: 0.95rem;
+            color: #4a4a4a;
+            margin-bottom: 8px;
+        }
+
+        .tip-box {
+            background-color: #e8f0fe;
+            border-left: 4px solid var(--primary);
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.9rem;
+        }
+
+        /* Right Panel: Quiz */
+        .right-panel {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            position: relative;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .overlay-lock {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.96);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .overlay-lock h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #5f6368;
+        }
+
+        .btn-secondary:hover {
+            background-color: #474a4d;
+        }
+
+        .student-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .quiz-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .type-badge {
+            background: #e8f0fe;
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .question-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            min-height: 250px;
+            margin-bottom: 15px;
+        }
+
+        .question-card h3 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .options label {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            margin: 6px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .options label:hover {
+            background-color: #f1f3f4;
+        }
+
+        .options input {
+            margin-right: 12px;
+            transform: scale(1.1);
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .quiz-nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            gap: 10px;
+        }
+
+        .select-question {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        #result-section {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .summary-box {
+            background: #e6f4ea;
+            border-left: 5px solid var(--success);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                flex-direction: column;
+                height: auto;
+                overflow: visible;
+            }
+            .left-panel, .right-panel {
+                overflow-y: visible;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <h1>Modul Informatika & Quiz Interaktif</h1>
+            <p>Kelas 5 SD/MI — Menggunakan Google Docs di Chromebook</p>
+        </div>
+        <div class="timer-container">
+            <div class="timer-box" id="read-timer-display">⏱️ Waktu Membaca: 05:00</div>
+            <div class="timer-box" id="quiz-timer-display" style="display:none;">⏳ Waktu Kuis: 55:00</div>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <!-- LEFT PANEL: MATERIAL -->
+        <div class="left-panel">
+            <div class="material-header">
+                <h2>MATERI PEMBELAJARAN</h2>
+                <p><strong>Topik:</strong> Mengolah Dokumen Sederhana dengan Google Docs</p>
+            </div>
+
+            <div class="material-section">
+                <h2>A. Pengantar Materi</h2>
+                <p>Pada saat ini, kita sering berurusan dengan hal-hal terkait teknologi dan komunikasi. Kita menggunakan komputer atau Chromebook untuk berbagai keperluan, mengirim pesan lewat ponsel, dan mengedit dokumen.</p>
+                <p>Pernahkah kamu berpikir bagaimana teknologi ini bekerja? Apakah kamu ingin tahu cara membuat dokumen sederhana, melakukan perhitungan dasar, atau bahkan membuat gambar digital? Pada bagian ini, kita akan belajar bagaimana teknologi informasi dan komunikasi menjadi bagian penting dalam kehidupan kita.</p>
+                <p>Di sekolah kita, komputer yang digunakan adalah Chromebook. Karena itu, aplikasi pengolah dokumen yang kita gunakan bukan Microsoft Word, melainkan <strong>Google Docs</strong> — aplikasi berbasis internet (cloud) yang bisa dibuka langsung lewat browser Chrome tanpa perlu diinstal.</p>
+            </div>
+
+            <div class="material-section">
+                <h2>B. Mengolah Dokumen Sederhana dengan Google Docs</h2>
+                <p>Mengolah dokumen sederhana merupakan langkah membuat dan mengedit teks atau dokumen dengan bantuan perangkat lunak atau aplikasi khusus. Contohnya, kita dapat menggunakan aplikasi Google Docs untuk membuat surat, laporan, atau catatan penting.</p>
+                <p>Pada aplikasi ini kita dapat menambahkan teks, mengubah huruf, mengganti warna teks, bahkan dokumen otomatis tersimpan di Google Drive (cloud) tanpa perlu disimpan manual berkali-kali.</p>
+                <div class="tip-box">
+                    💡 <strong>Tips:</strong> Google Docs otomatis menyimpan setiap perubahan yang kamu buat ke Google Drive selama Chromebook terhubung ke internet.
+                </div>
+            </div>
+
+            <div class="material-section">
+                <h2>1. Membuat Dokumen Baru</h2>
+                <ul>
+                    <li>Buka Chromebook, lalu klik ikon Google Chrome untuk membuka browser.</li>
+                    <li>Ketik <code>docs.google.com</code> pada address bar, lalu tekan Enter. Kamu juga bisa membuka Google Docs melalui menu “Google Apps” (ikon titik sembilan) di akun Google-mu, lalu pilih “Docs”.</li>
+                    <li>Setelah halaman Google Docs terbuka, klik tanda “+” atau pilih “Blank document” (dokumen kosong) untuk membuat dokumen baru.</li>
+                    <li>Google Docs akan menampilkan lembar kerja kosong. Kamu dapat mulai mengetik atau mengedit dokumenmu di area ini.</li>
+                </ul>
+            </div>
+
+            <div class="material-section">
+                <h2>2. Menyimpan Dokumen</h2>
+                <p>Salah satu kelebihan Google Docs adalah dokumen tersimpan otomatis ke Google Drive. Namun, kamu tetap perlu memberi nama dan mengetahui cara menyimpannya.</p>
+                <ul>
+                    <li>Klik tulisan “Untitled document” (Dokumen tanpa judul) di bagian kiri atas.</li>
+                    <li>Ketik nama dokumen yang kamu inginkan, lalu tekan Enter.</li>
+                    <li>Dokumen akan otomatis tersimpan ke Google Drive setiap kali ada perubahan (ditandai tulisan “Saving…” lalu berubah menjadi “All changes saved in Drive”).</li>
+                    <li>Jika ingin menyimpan salinan dalam format lain (misalnya .docx atau .pdf), klik menu “File” > “Download”, lalu pilih format yang diinginkan.</li>
+                </ul>
+            </div>
+
+            <div class="material-section">
+                <h2>3. Mengatur Format Font</h2>
+                <ul>
+                    <li>Pilih (blok) teks yang ingin kamu ganti format font-nya.</li>
+                    <li>Pada toolbar (bagian atas jendela Google Docs), klik kotak nama font (misalnya “Arial”) untuk memilih jenis huruf lain.</li>
+                    <li>Di sebelahnya terdapat kotak ukuran huruf. Klik untuk memilih atau mengetik ukuran font sesuai keinginan.</li>
+                    <li>Untuk mengubah warna teks, klik ikon huruf “A” dengan garis warna di bawahnya (Text color), lalu pilih warna yang diinginkan.</li>
+                </ul>
+            </div>
+
+            <div class="material-section">
+                <h2>4. Mengatur Format Teks</h2>
+                <ul>
+                    <li>Pilih teks yang ingin kamu format.</li>
+                    <li>Gunakan ikon pada toolbar untuk membuat teks <strong>Bold (B)</strong>, <em>Italic (I)</em>, atau <u>Underline (U)</u>.</li>
+                    <li>Untuk mengatur perataan teks (alignment), klik ikon garis-garis sejajar pada toolbar, lalu pilih rata kiri, tengah, kanan, atau rata kanan-kiri (justify).</li>
+                </ul>
+            </div>
+
+            <div class="material-section">
+                <h2>5. Mengatur Spasi</h2>
+                <ul>
+                    <li>Klik menu “Format” pada menu bar di bagian atas.</li>
+                    <li>Pilih “Line & paragraph spacing” (Spasi baris dan paragraf).</li>
+                    <li>Pilih spasi yang sesuai, misalnya “Single” (1.0), “1.15”, “1.5”, atau “Double” (2.0) untuk mengubah jarak antarbaris.</li>
+                </ul>
+            </div>
+
+            <div class="material-section">
+                <h2>6. Menyisipkan Objek</h2>
+                <ul>
+                    <li>Klik menu “Insert” (Sisipkan) di bagian atas jendela Google Docs.</li>
+                    <li>Pilih jenis objek yang ingin kamu sisipkan, seperti “Image” untuk gambar atau “Table” untuk tabel.</li>
+                    <li>Jika memilih gambar, kamu bisa mengunggah dari perangkat (Upload from computer), dari Google Drive, atau mencari gambar dari internet (Search the web).</li>
+                    <li>Sesuaikan ukuran objek jika diperlukan.</li>
+                </ul>
+            </div>
+
+            <div class="material-section">
+                <h2>7. Format Halaman</h2>
+                <ul>
+                    <li>Klik menu “File” > pilih “Page setup” (Pengaturan halaman).</li>
+                    <li>Atur orientasi (Portrait/Landscape), ukuran kertas, warna halaman, dan margin atas-bawah-kiri-kanan.</li>
+                    <li>Klik “OK” untuk menerapkan pengaturan.</li>
+                </ul>
+            </div>
+
+            <div class="material-section">
+                <h2>8. Mencetak Dokumen</h2>
+                <ul>
+                    <li>Klik menu “File” > pilih “Print” (Cetak), atau tekan tombol <strong>Ctrl + P</strong> pada keyboard.</li>
+                    <li>Pilih printer yang ingin kamu gunakan pada jendela pencetakan.</li>
+                    <li>Atur opsi pencetakan seperti jumlah salinan dan halaman yang akan dicetak, lalu klik “Print”.</li>
+                </ul>
+                <div class="tip-box">
+                    💡 <strong>Tips:</strong> Karena Google Docs berbasis cloud, dokumenmu dapat dibuka kembali dari Chromebook mana pun asalkan kamu login dengan akun Google yang sama.
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: QUIZ -->
+        <div class="right-panel">
+            <div id="read-overlay" class="overlay-lock">
+                <h2>📖 Sesi Membaca Wajib</h2>
+                <p>Silakan baca materi di panel sebelah kiri terlebih dahulu.</p>
+                <p>Kuis akan terbuka secara otomatis dalam:</p>
+                <h1 id="overlay-timer" style="font-size: 3rem; color: var(--primary); margin: 15px 0;">05:00</h1>
+                <button id="btn-start-quiz" class="btn" disabled onclick="startQuiz()">Mulai Kuis Sekarang</button>
+            </div>
+
+            <div id="quiz-wrapper" style="display: flex; flex-direction: column; height: 100%;">
+                <div class="student-info">
+                    <div style="display: flex; gap: 10px;">
+                        <div class="form-group" style="flex:1;">
+                            <label>Nama Lengkap:</label>
+                            <input type="text" id="student-name" placeholder="Masukkan nama..." oninput="saveProgress()">
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label>Kelas / NIS:</label>
+                            <input type="text" id="student-class" placeholder="Contoh: Kelas 5A" oninput="saveProgress()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quiz-header-bar">
+                    <span id="question-number" style="font-weight: bold;">Soal 1 dari 45</span>
+                    <span id="question-type-badge" class="type-badge">Pilihan Ganda</span>
+                </div>
+
+                <!-- Active Question Container -->
+                <div id="question-card-container">
+                    <!-- Dynamic rendering -->
+                </div>
+
+                <!-- Navigation Bar -->
+                <div class="quiz-nav-bar">
+                    <button id="btn-prev" class="btn btn-secondary" onclick="prevQuestion()">← Sebelumnya</button>
+                    
+                    <select id="jump-select" class="select-question" onchange="jumpToQuestion(this.value)">
+                        <!-- Dynamically filled options -->
+                    </select>
+
+                    <button id="btn-next" class="btn" onclick="nextQuestion()">Selanjutnya →</button>
+                    <button id="btn-submit" class="btn" style="background-color: var(--success); display: none;" onclick="submitQuiz()">Kirim Jawaban ✓</button>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div id="result-section">
+                <h2>Hasil Evaluasi Kuis Interaktif</h2>
+                <hr style="margin: 10px 0;"><br>
+                <p><strong>Nama Siswa:</strong> <span id="res-name"></span></p>
+                <p><strong>Kelas / NIS:</strong> <span id="res-class"></span></p>
+                <p><strong>Skor Otomatis (PG, PG Kompleks & Isian):</strong> <span id="res-score" style="font-size: 1.2rem; font-weight: bold; color: var(--primary);"></span></p>
+                
+                <div class="summary-box">
+                    <h3>🤖 AI Summary & Evaluasi Jawaban Essai (Groq API)</h3>
+                    <div id="ai-loading" style="display:none; font-style: italic; color: #666; margin-top: 10px;">Sedang menganalisis jawaban essai dan membuat kesimpulan...</div>
+                    <div id="ai-feedback" style="margin-top: 10px; white-space: pre-line;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GROQ_API_KEY = "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";
+
+        // Total 45 Soal:
+        // 1-20: Pilihan Ganda biasa (1 jawaban)
+        // 21-30: Pilihan Ganda Kompleks (Bisa >1 jawaban)
+        // 31-40: Isian Singkat
+        // 41-45: Essai
+        const allQuestions = [
+            // --- 20 PILIHAN GANDA BIASA ---
+            { id: 1, type: "pg", q: "Aplikasi pengolah dokumen yang digunakan pada Chromebook di sekolah adalah...", o: ["Microsoft Word", "Google Docs", "Notepad", "WordPad"], a: 1 },
+            { id: 2, type: "pg", q: "Google Docs adalah aplikasi pengolah kata berbasis...", o: ["Offline", "Cloud (Internet)", "Harddisk", "Sistem operasi"], a: 1 },
+            { id: 3, type: "pg", q: "Alamat situs web untuk membuka Google Docs secara langsung adalah...", o: ["docs.google.com", "drive.google.com", "gmail.com", "chrome.com"], a: 0 },
+            { id: 4, type: "pg", q: "Menu titik sembilan pada akun Google dinamakan...", o: ["Google Chrome", "Google Apps", "Google Drive", "Google Setting"], a: 1 },
+            { id: 5, type: "pg", q: "Dokumen kosong baru di Google Docs disebut...", o: ["New Text", "Blank document", "Untitled Sheet", "New File"], a: 1 },
+            { id: 6, type: "pg", q: "Dokumen yang dibuat di Google Docs akan tersimpan secara otomatis di...", o: ["Flashdisk", "Google Drive", "Memori HP", "Komputer lokal"], a: 1 },
+            { id: 7, type: "pg", q: "Judul awal dokumen baru yang belum diubah nama adalah...", o: ["Dokumen Baru", "Untitled document", "File Baru", "Google Doc 1"], a: 1 },
+            { id: 8, type: "pg", q: "Tanda bahwa perubahan dokumen telah tersimpan di Drive adalah...", o: ["Saving...", "All changes saved in Drive", "File saved", "Download finish"], a: 1 },
+            { id: 9, type: "pg", q: "Menu untuk mendownload dokumen dalam bentuk format PDF atau .docx adalah...", o: ["Edit > Download", "File > Download", "Format > Export", "Tools > Save"], a: 1 },
+            { id: 10, type: "pg", q: "Menandai bagian teks yang ingin diubah formatnya dinamakan...", o: ["Menghapus", "Mengeblok (pilih teks)", "Mencetak", "Menyalin"], a: 1 },
+            { id: 11, type: "pg", q: "Jenis huruf standar bawaan yang disebutkan pada contoh materi adalah...", o: ["Calibri", "Arial", "Times New Roman", "Comic Sans"], a: 1 },
+            { id: 12, type: "pg", q: "Ikon huruf 'A' dengan garis warna di bawahnya berfungsi untuk...", o: ["Mengubah ukuran huruf", "Mengubah warna teks", "Mebuat huruf tebal", "Memberi garis bawah"], a: 1 },
+            { id: 13, type: "pg", q: "Ikon berpemberitahuan huruf 'B' (Bold) pada toolbar berfungsi untuk...", o: ["Membuat teks miring", "Membuat teks tebal", "Memberi garis bawah", "Mengatur spasi"], a: 1 },
+            { id: 14, type: "pg", q: "Ikon 'I' (Italic) pada toolbar berfungsi untuk...", o: ["Membuat teks miring", "Membuat teks tebal", "Mengubah warna", "Menyisipkan gambar"], a: 0 },
+            { id: 15, type: "pg", q: "Ikon 'U' (Underline) digunakan untuk membuat...", o: ["Teks tebal", "Teks miring", "Teks bergaris bawah", "Teks rata tengah"], a: 2 },
+            { id: 16, type: "pg", q: "Perataan teks rata kanan dan rata kiri dinamakan...", o: ["Align Left", "Center", "Align Right", "Justify"], a: 3 },
+            { id: 17, type: "pg", q: "Menu yang digunakan untuk mengatur spasi antarbaris adalah...", o: ["File", "Insert", "Format", "View"], a: 2 },
+            { id: 18, type: "pg", q: "Pilihan spasi 'Double' memiliki nilai spasi sebesar...", o: ["1.0", "1.15", "1.5", "2.0"], a: 3 },
+            { id: 19, type: "pg", q: "Menu yang digunakan untuk menyisipkan gambar atau tabel adalah...", o: ["Insert", "Format", "Edit", "Tools"], a: 0 },
+            { id: 20, type: "pg", q: "Tombol kombinasi (shortcut) keyboard untuk mencetak dokumen adalah...", o: ["Ctrl + C", "Ctrl + V", "Ctrl + P", "Ctrl + S"], a: 2 },
+
+            // --- 10 PILIHAN GANDA KOMPLEKS (Bisa pilih 2 atau lebih) ---
+            { id: 21, type: "pg_kompleks", q: "Pilihlah 2 opsi tempat untuk menyisipkan gambar (Image) ke dalam Google Docs!", o: ["Upload from computer", "Search the web", "Play Store", "Flash Drive langsung"], a: [0, 1] },
+            { id: 22, type: "pg_kompleks", q: "Manakah 2 pernyataan yang BENAR mengenai keunggulan Google Docs?", o: ["Otomatis tersimpan ke Google Drive", "Dapat dibuka di Chromebook mana saja asal login akun Google", "Harus menekan Ctrl+S setiap menit", "Hanya bisa digunakan secara offline"], a: [0, 1] },
+            { id: 23, type: "pg_kompleks", q: "Pilihlah 2 format file yang tersedia saat mengunduh dokumen melalui menu File > Download!", o: [".docx", ".pdf", ".exe", ".apk"], a: [0, 1] },
+            { id: 24, type: "pg_kompleks", q: "Pilihlah 2 jenis perataan teks (alignment) yang ada pada toolbar Google Docs!", o: ["Center", "Justify", "Bold", "Underline"], a: [0, 1] },
+            { id: 25, type: "pg_kompleks", q: "Pilihlah 2 opsi orientasi halaman yang tersedia di menu Page setup!", o: ["Portrait", "Landscape", "Vertical", "Diagonal"], a: [0, 1] },
+            { id: 26, type: "pg_kompleks", q: "Pilihlah 2 gaya format teks yang bisa diterapkan melalui tombol ikon toolbar!", o: ["Bold (Tebal)", "Italic (Miring)", "Copy", "Paste"], a: [0, 1] },
+            { id: 27, type: "pg_kompleks", q: "Pilihlah 2 pilihan spasi baris yang tersedia di Google Docs!", o: ["Single (1.0)", "Double (2.0)", "Triple (3.0)", "Quadruple (4.0)"], a: [0, 1] },
+            { id: 28, type: "pg_kompleks", q: "Objek apa saja yang dapat disisipkan melalui menu 'Insert' di Google Docs? (Pilih 2)", o: ["Image (Gambar)", "Table (Tabel)", "Sistem Operasi", "Browser Chrome"], a: [0, 1] },
+            { id: 29, type: "pg_kompleks", q: "Pilihlah 2 cara untuk membuat/membuka dokumen Google Docs baru!", o: ["Ketik docs.google.com pada address bar", "Pilih 'Docs' dari menu Google Apps (titik sembilan)", "Klik tombol Restart pada Chromebook", "Tekan tombol Ctrl+P"], a: [0, 1] },
+            { id: 30, type: "pg_kompleks", q: "Pilihlah 2 contoh dokumen sederhana yang dapat dibuat menggunakan Google Docs!", o: ["Surat", "Laporan", "Game 3D", "Video MP4"], a: [0, 1] },
+
+            // --- 10 ISIAN SINGKAT ---
+            { id: 31, type: "isian", q: "Aplikasi pengolah kata berbasis cloud yang digunakan pada Chromebook adalah...", a: "google docs" },
+            { id: 32, type: "isian", q: "Tempat mengetikkan alamat docs.google.com pada browser disebut...", a: "address bar" },
+            { id: 33, type: "isian", q: "Nama awal dokumen baru sebelum diubah namanya adalah...", a: "untitled document" },
+            { id: 34, type: "isian", q: "Ikon 'B' pada toolbar digunakan untuk membuat teks menjadi...", a: "tebal" },
+            { id: 35, type: "isian", q: "Perataan teks rata kiri dan kanan sekaligus dinamakan...", a: "justify" },
+            { id: 36, type: "isian", q: "Jarak antarbaris teks dalam sebuah paragraf disebut...", a: "spasi" },
+            { id: 37, type: "isian", q: "Menu yang diklik untuk menyisipkan tabel atau gambar adalah menu...", a: "insert" },
+            { id: 38, type: "isian", q: "Pengaturan orientasi kertas dalam posisi tegak lurus disebut...", a: "portrait" },
+            { id: 39, type: "isian", q: "Pintasan keyboard untuk mencetak dokumen adalah Ctrl + ...", a: "p" },
+            { id: 40, type: "isian", q: "Dokumen Google Docs disimpan secara otomatis ke dalam...", a: "google drive" },
+
+            // --- 5 ESSAI ---
+            { id: 41, type: "essai", q: "Jelaskan langkah-langkah membuat dokumen baru di Google Docs menggunakan Chromebook!" },
+            { id: 42, type: "essai", q: "Mengapa Google Docs dianggap lebih praktis dibanding pengolah kata luring (offline)? Sebutkan 2 alasannya!" },
+            { id: 43, type: "essai", q: "Tuliskan langkah-langkah untuk mengubah warna teks dan ukuran font pada Google Docs!" },
+            { id: 44, type: "essai", q: "Sebutkan dan jelaskan 4 jenis perataan teks (alignment) yang tersedia di Google Docs!" },
+            { id: 45, type: "essai", q: "Bagaimana cara menyisipkan gambar langsung dari internet ke dalam dokumen Google Docs?" }
+        ];
+
+        let currentIndex = 0;
+        let readTime = 300; // 5 menit
+        let quizTime = 3300; // 55 menit
+        let readInterval, quizInterval;
+        let userAnswers = {};
+
+        window.onload = function() {
+            populateJumpSelect();
+            loadProgress();
+            renderCurrentQuestion();
+            startReadTimer();
+        };
+
+        function startReadTimer() {
+            readInterval = setInterval(() => {
+                if(readTime <= 0) {
+                    clearInterval(readInterval);
+                    document.getElementById("btn-start-quiz").disabled = false;
+                    document.getElementById("overlay-timer").innerText = "00:00 - Selesai!";
+                } else {
+                    readTime--;
+                    let m = Math.floor(readTime / 60).toString().padStart(2, '0');
+                    let s = (readTime % 60).toString().padStart(2, '0');
+                    document.getElementById("read-timer-display").innerText = `⏱️ Waktu Membaca: ${m}:${s}`;
+                    document.getElementById("overlay-timer").innerText = `${m}:${s}`;
+                }
+            }, 1000);
+        }
+
+        function startQuiz() {
+            document.getElementById("read-overlay").style.display = "none";
+            document.getElementById("read-timer-display").style.display = "none";
+            document.getElementById("quiz-timer-display").style.display = "flex";
+
+            quizInterval = setInterval(() => {
+                if(quizTime <= 0) {
+                    clearInterval(quizInterval);
+                    alert("Waktu pengerjaan kuis telah habis!");
+                    submitQuiz();
+                } else {
+                    quizTime--;
+                    let m = Math.floor(quizTime / 60).toString().padStart(2, '0');
+                    let s = (quizTime % 60).toString().padStart(2, '0');
+                    document.getElementById("quiz-timer-display").innerText = `⏳ Waktu Kuis: ${m}:${s}`;
+                }
+            }, 1000);
+        }
+
+        function populateJumpSelect() {
+            let select = document.getElementById("jump-select");
+            select.innerHTML = "";
+            allQuestions.forEach((q, idx) => {
+                let opt = document.createElement("option");
+                opt.value = idx;
+                opt.innerText = `Soal ${idx + 1}`;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderCurrentQuestion() {
+            let q = allQuestions[currentIndex];
+            let container = document.getElementById("question-card-container");
+            document.getElementById("question-number").innerText = `Soal ${currentIndex + 1} dari ${allQuestions.length}`;
+            document.getElementById("jump-select").value = currentIndex;
+
+            let badge = document.getElementById("question-type-badge");
+            if(q.type === "pg") badge.innerText = "Pilihan Ganda";
+            else if(q.type === "pg_kompleks") badge.innerText = "Pilihan Ganda Kompleks (Bisa >1 Jawaban)";
+            else if(q.type === "isian") badge.innerText = "Isian Singkat";
+            else if(q.type === "essai") badge.innerText = "Soal Essai";
+
+            let html = `<div class="question-card"><h3>${currentIndex + 1}. ${q.q}</h3>`;
+
+            if(q.type === "pg") {
+                html += `<div class="options">`;
+                q.o.forEach((opt, i) => {
+                    let checked = (userAnswers[q.id] === i) ? "checked" : "";
+                    html += `
+                    <label>
+                        <input type="radio" name="q_${q.id}" value="${i}" ${checked} onchange="saveAnswer(${q.id}, ${i})">
+                        ${String.fromCharCode(65 + i)}. ${opt}
+                    </label>`;
+                });
+                html += `</div>`;
+            } else if(q.type === "pg_kompleks") {
+                html += `<div class="options"><p style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">*Pilih 2 atau lebih jawaban yang menurutmu benar:</p>`;
+                q.o.forEach((opt, i) => {
+                    let currentArr = userAnswers[q.id] || [];
+                    let checked = currentArr.includes(i) ? "checked" : "";
+                    html += `
+                    <label>
+                        <input type="checkbox" name="q_${q.id}" value="${i}" ${checked} onchange="saveAnswerKompleks(${q.id}, ${i})">
+                        ${String.fromCharCode(65 + i)}. ${opt}
+                    </label>`;
+                });
+                html += `</div>`;
+            } else if(q.type === "isian") {
+                let val = userAnswers[q.id] || "";
+                html += `<input type="text" value="${val}" placeholder="Ketik jawaban singkat di sini..." oninput="saveAnswerText(${q.id}, this.value)">`;
+            } else if(q.type === "essai") {
+                let val = userAnswers[q.id] || "";
+                html += `<textarea rows="5" placeholder="Ketik jawaban lengkap di sini..." oninput="saveAnswerText(${q.id}, this.value)">${val}</textarea>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+
+            // Nav buttons state
+            document.getElementById("btn-prev").disabled = (currentIndex === 0);
+            if(currentIndex === allQuestions.length - 1) {
+                document.getElementById("btn-next").style.display = "none";
+                document.getElementById("btn-submit").style.display = "block";
+            } else {
+                document.getElementById("btn-next").style.display = "block";
+                document.getElementById("btn-submit").style.display = "none";
+            }
+        }
+
+        function saveAnswer(qId, val) {
+            userAnswers[qId] = val;
+            saveProgress();
+        }
+
+        function saveAnswerKompleks(qId, val) {
+            if(!userAnswers[qId]) userAnswers[qId] = [];
+            let idx = userAnswers[qId].indexOf(val);
+            if(idx > -1) {
+                userAnswers[qId].splice(idx, 1);
+            } else {
+                userAnswers[qId].push(val);
+            }
+            saveProgress();
+        }
+
+        function saveAnswerText(qId, val) {
+            userAnswers[qId] = val;
+            saveProgress();
+        }
+
+        function prevQuestion() {
+            if(currentIndex > 0) {
+                currentIndex--;
+                renderCurrentQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if(currentIndex < allQuestions.length - 1) {
+                currentIndex++;
+                renderCurrentQuestion();
+            }
+        }
+
+        function jumpToQuestion(idx) {
+            currentIndex = parseInt(idx);
+            renderCurrentQuestion();
+        }
+
+        function saveProgress() {
+            let data = {
+                answers: userAnswers,
+                name: document.getElementById("student-name").value,
+                sClass: document.getElementById("student-class").value
+            };
+            localStorage.setItem("gdocs_quiz_nav_progress", JSON.stringify(data));
+        }
+
+        function loadProgress() {
+            let saved = localStorage.getItem("gdocs_quiz_nav_progress");
+            if(!saved) return;
+            let data = JSON.parse(saved);
+            userAnswers = data.answers || {};
+            if(data.name) document.getElementById("student-name").value = data.name;
+            if(data.sClass) document.getElementById("student-class").value = data.sClass;
+        }
+
+        async function submitQuiz() {
+            if(confirm("Apakah Anda yakin ingin menyelesaikan kuis ini?")) {
+                clearInterval(quizInterval);
+
+                let name = document.getElementById("student-name").value || "Siswa";
+                let sClass = document.getElementById("student-class").value || "Kelas 5";
+
+                let autoScore = 0;
+
+                allQuestions.forEach(q => {
+                    let ans = userAnswers[q.id];
+                    if(q.type === "pg" && ans !== undefined) {
+                        if(ans === q.a) autoScore += 2; // 20 PG x 2 = 40
+                    } else if(q.type === "pg_kompleks" && Array.isArray(ans)) {
+                        let sortedAns = [...ans].sort().join(',');
+                        let sortedTarget = [...q.a].sort().join(',');
+                        if(sortedAns === sortedTarget) autoScore += 2; // 10 PG Kompleks x 2 = 20
+                    } else if(q.type === "isian" && typeof ans === 'string') {
+                        if(ans.trim().toLowerCase().includes(q.a)) autoScore += 2; // 10 Isian x 2 = 20
+                    }
+                });
+
+                document.getElementById("quiz-wrapper").style.display = "none";
+                document.getElementById("result-section").style.display = "block";
+
+                document.getElementById("res-name").innerText = name;
+                document.getElementById("res-class").innerText = sClass;
+                document.getElementById("res-score").innerText = `${autoScore} / 80 (Maksimal PG, Kompleks & Isian)`;
+
+                fetchGroqEvaluation(name, autoScore);
+            }
+        }
+
+        async function fetchGroqEvaluation(studentName, autoScore) {
+            document.getElementById("ai-loading").style.display = "block";
+
+            let essayAnswers = [];
+            allQuestions.filter(q => q.type === "essai").forEach((q, idx) => {
+                let ansText = userAnswers[q.id] || "(Tidak dijawab)";
+                essayAnswers.push(`Soal Essai ${idx + 1}: ${q.q}\nJawaban Siswa: ${ansText}`);
+            });
+
+            let promptText = `Kamu adalah seorang guru Informatika SD. Berikan umpan balik ringkas, menyemangati, dan beri nilai/kesimpulan untuk jawaban essai siswa bernama ${studentName}.
+            
+Skor Otomatis (PG, Kompleks & Isian): ${autoScore}/80
+
+Jawaban Essai Siswa:
+${essayAnswers.join("\n\n")}
+
+Berikan:
+1. Penilaian singkat tiap jawaban essai (Skor maksimal total 5 essai adalah 20).
+2. Total Nilai Akhir Keseluruhan (Skor Otomatis + Nilai Essai = Maksimal 100).
+3. Catatan evaluasi/kesimpulan belajar untuk siswa.`;
+
+            try {
+                let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${GROQ_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [{ role: "user", content: promptText }],
+                        temperature: 0.5
+                    })
+                });
+
+                let data = await response.json();
+                let feedback = data.choices[0].message.content;
+
+                document.getElementById("ai-loading").style.display = "none";
+                document.getElementById("ai-feedback").innerText = feedback;
+            } catch (err) {
+                document.getElementById("ai-loading").innerText = "Gagal memuat evaluasi AI. Silakan periksa koneksi internet.";
+            }
+        }
+    </script>
+</body>
+</html>
