@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEP RPG Dark Labirin Quiz — TIK SD Kelas 5</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #1e293b;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+
+        .header-title h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 50px);
+            overflow: hidden;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: #ffffff;
+            border-right: 3px solid #334155;
+            position: relative;
+        }
+
+        .left-panel iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .right-panel {
+            flex: 1;
+            background: #0f172a;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-controls-bar {
+            background: #1e293b;
+            padding: 8px 12px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border-bottom: 2px solid #334155;
+            color: white;
+            font-size: 0.8rem;
+            z-index: 5;
+        }
+
+        .game-controls-bar input {
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        #game-canvas-container {
+            flex: 1;
+            position: relative;
+            background: #020617;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .dpad-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 42px);
+            grid-template-rows: repeat(3, 42px);
+            gap: 4px;
+            z-index: 15;
+            opacity: 0.85;
+        }
+
+        .dpad-btn {
+            background: rgba(30, 41, 59, 0.85);
+            border: 2px solid #64748b;
+            color: white;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            cursor: pointer;
+        }
+        .dpad-btn:active { background: var(--primary); }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 550px;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            border: 3px solid var(--primary);
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: popIn 0.2s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .stage-title {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .q-type-badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .question-body {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .option-item:hover { border-color: var(--primary); background: #f8fafc; }
+        .option-item input { margin-right: 10px; transform: scale(1.1); }
+
+        textarea, input[type="text"].text-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .btn-confirm {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-confirm:hover { background: var(--primary-dark); }
+
+        .feedback-message {
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        #result-modal {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #ffffff;
+            z-index: 60;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        .score-box {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .ai-box {
+            background: #f8fafc;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            white-space: pre-line;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 900px) {
+            .main-container { flex-direction: column; }
+            .left-panel { height: 35vh; }
+            .right-panel { height: 65vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <h1>🔦 ZEP Dark Labirin Quiz — TIK SD Kelas 5 (30 Soal)</h1>
+        </div>
+        <div class="header-stats">
+            <div class="stat-badge" id="gate-badge">🚪 Pintu Terbuka: 0 / 30</div>
+            <div class="stat-badge" id="score-badge">⭐ Skor: 0</div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="left-panel">
+            <iframe src="https://docs.google.com/document/d/e/2PACX-1vRmOyYy6iIXri3HD-wn-62U-2zXQOx7sjztXweSMx-QOzQJx8DqZBegNVxASVtHUjNJi7a6m7mSTkcJ/pub"></iframe>
+        </div>
+
+        <div class="right-panel">
+            <div class="game-controls-bar">
+                <label>Siswa:</label>
+                <input type="text" id="student-name" placeholder="Nama..." style="width: 100px;">
+                <input type="text" id="student-class" placeholder="Kelas..." style="width: 60px;">
+                <label style="margin-left:auto;">Gemini API Key:</label>
+                <input type="password" id="gemini-key" value="AQ.Ab8RN6K2Z8FWXgQwrwsOk8soLanwLW8-lr8d1viPXg7q6AjmOw" style="width: 140px;">
+            </div>
+
+            <div id="game-canvas-container">
+                <canvas id="rpgCanvas"></canvas>
+
+                <div class="dpad-container">
+                    <div></div>
+                    <div class="dpad-btn" onclick="tryMove(0, -1)">▲</div>
+                    <div></div>
+                    <div class="dpad-btn" onclick="tryMove(-1, 0)">◄</div>
+                    <div class="dpad-btn" style="font-size:0.7rem;">WALK</div>
+                    <div class="dpad-btn" onclick="tryMove(1, 0)">►</div>
+                    <div></div>
+                    <div class="dpad-btn" onclick="tryMove(0, 1)">▼</div>
+                    <div></div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="quiz-modal">
+                <div class="modal-card">
+                    <div class="modal-header">
+                        <span class="stage-title" id="modal-stage-num">PINTU SOAL LABIRIN</span>
+                        <span class="q-type-badge" id="modal-q-badge">Pilihan Ganda</span>
+                    </div>
+                    <div class="question-body" id="modal-q-text">Isi pertanyaan...</div>
+                    <div id="modal-options-container"></div>
+                    <button class="btn-confirm" onclick="submitGateAnswer()">Buka Pintu Labirin 🔓</button>
+                    <div class="feedback-message" id="feedback-msg"></div>
+                </div>
+            </div>
+
+            <div id="result-modal">
+                <h2>🎉 FINISH! Kamu Berhasil Menjelajahi Labirin & Menyelesaikan 30 Soal!</h2>
+                <hr style="margin: 10px 0;">
+                <p><strong>Nama:</strong> <span id="res-name">-</span> | <strong>Kelas:</strong> <span id="res-class">-</span></p>
+                
+                <div class="score-card score-box">
+                    <div>Skor Otomatis (10 PG, 5 PG Kompleks & 10 Isian)</div>
+                    <h2 id="res-score">0 / 250</h2>
+                </div>
+
+                <h3>🤖 Evaluasi Gemini AI (gemini-3.5-flash-lite)</h3>
+                <div id="ai-loading" style="display:none; color: var(--primary); font-style: italic; margin: 10px 0;">
+                    🔄 Gemini AI sedang mengevaluasi 5 jawaban essai kamu... Mohon tunggu.
+                </div>
+                <div class="ai-box" id="ai-feedback-text">
+                    API Key Gemini sedang memproses...
+                </div>
+                <button class="btn-confirm" style="margin-top: 20px;" onclick="location.reload()">Main Lagi 🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database 30 Soal (10 PG, 5 PG Kompleks, 10 Isian, 5 Essai)
+        const questions = [
+            // 10 Pilihan Ganda (PG 1-10)
+            { id: 1, type: "pg", q: "Pilar Berpikir Komputasional yang memecah masalah besar menjadi bagian kecil dinamakan...", o: ["Abstraksi", "Dekomposisi", "Algoritma", "Pengenalan Pola"], a: 1 },
+            { id: 2, type: "pg", q: "Aplikasi pengolah kata berbasis cloud buatan Google dinamakan...", o: ["Microsoft Word", "Google Docs", "Notepad", "WordPad"], a: 1 },
+            { id: 3, type: "pg", q: "Menghilangkan bagian yang tidak penting dan fokus pada poin inti saja adalah...", o: ["Abstraksi", "Dekomposisi", "Algoritma", "Pengenalan Pola"], a: 0 },
+            { id: 4, type: "pg", q: "Kombinasi tombol keyboard (shortcut) untuk mencetak dokumen langsung adalah...", o: ["Ctrl + C", "Ctrl + V", "Ctrl + P", "Ctrl + Z"], a: 2 },
+            { id: 5, type: "pg", q: "Opsi pengaturan posisi kertas tegak berdiri di Google Docs dinamakan...", o: ["Landscape", "Portrait", "Margin", "Header"], a: 1 },
+            { id: 6, type: "pg", q: "Shortcut keyboard yang berfungsi untuk menyalin (copy) teks/gambar adalah...", o: ["Ctrl + C", "Ctrl + X", "Ctrl + V", "Ctrl + A"], a: 0 },
+            { id: 7, type: "pg", q: "Shortcut keyboard yang berfungsi untuk menempelkan (paste) hasil salinan adalah...", o: ["Ctrl + V", "Ctrl + C", "Ctrl + S", "Ctrl + P"], a: 0 },
+            { id: 8, type: "pg", q: "Mengenali kesamaan atau tren dalam suatu masalah merupakan pilar...", o: ["Algoritma", "Dekomposisi", "Pengenalan Pola", "Abstraksi"], a: 2 },
+            { id: 9, type: "pg", q: "Urutan langkah-langkah logis dan sistematis untuk menyelesaikan masalah dinamakan...", o: ["Algoritma", "Abstraksi", "Dekomposisi", "Pengenalan Pola"], a: 0 },
+            { id: 10, type: "pg", q: "Posisi cetak kertas secara melebar/horisontal dinamakan...", o: ["Portrait", "Landscape", "Grid", "Column"], a: 1 },
+
+            // 5 PG Kompleks (11-15)
+            { id: 11, type: "pg_kompleks", q: "Pilih keunggulan utama dari aplikasi Google Docs!", o: ["Tersimpan otomatis di Cloud", "Dapat kolaborasi real-time", "Perlu install aplikasi berat", "Dapat diakses via browser"], a: [0, 1, 3] },
+            { id: 12, type: "pg_kompleks", q: "Pernyataan mana saja yang termasuk pilar Berpikir Komputasional?", o: ["Dekomposisi", "Abstraksi", "Kalkulasi", "Algoritma"], a: [0, 1, 3] },
+            { id: 13, type: "pg_kompleks", q: "Manakah yang merupakan aturan posisi duduk ergonomis di depan komputer?", o: ["Punggung tegak bersandar", "Kaki menapak di lantai", "Mata menempel di layar", "Siku membentuk sudut 90 derajat"], a: [0, 1, 3] },
+            { id: 14, type: "pg_kompleks", q: "Manakah fitur pemformatan teks dasar di Google Docs?", o: ["Bold (Tebal)", "Italic (Miring)", "Underline (Garis Bawah)", "Restart Komputer"], a: [0, 1, 2] },
+            { id: 15, type: "pg_kompleks", q: "Perangkat lunak yang termasuk kategori Browser Internet adalah...", o: ["Google Chrome", "Mozilla Firefox", "Microsoft Word", "Microsoft Edge"], a: [0, 1, 3] },
+
+            // 10 Isian (16-25)
+            { id: 16, type: "isian", q: "Tempat penyimpanan dokumen otomatis bagi pengguna Google Docs bernama Google ...", a: "drive" },
+            { id: 17, type: "isian", q: "Urutan langkah-langkah logis yang disusun secara sistematis dinamakan ...", a: "algoritma" },
+            { id: 18, type: "isian", q: "Pilar Berpikir Komputasional yang memecah masalah besar jadi bagian kecil adalah ...", a: "dekomposisi" },
+            { id: 19, type: "isian", q: "Shortcut keyboard untuk menyalin teks adalah Ctrl + ...", a: "c" },
+            { id: 20, type: "isian", q: "Shortcut keyboard untuk menempel teks hasil salinan adalah Ctrl + ...", a: "v" },
+            { id: 21, type: "isian", q: "Shortcut keyboard untuk mencetak dokumen adalah Ctrl + ...", a: "p" },
+            { id: 22, type: "isian", q: "Pengaturan kertas berdiri tegak pada dokumen dinamakan ...", a: "portrait" },
+            { id: 23, type: "isian", q: "Pengaturan kertas melebar ke samping dinamakan ...", a: "landscape" },
+            { id: 24, type: "isian", q: "Tombol keyboard untuk menghapus karakter di sebelah kiri kursor adalah ...", a: "backspace" },
+            { id: 25, type: "isian", q: "Perangkat keras yang digunakan untuk menggerakkan kursor panah pada layar dinamakan ...", a: "mouse" },
+
+            // 5 Essai (26-30)
+            { id: 26, type: "essai", q: "Jelaskan bagaimana penerapan 4 pilar Berpikir Komputasional saat kamu membuat tugas kelompok kliping TIK!" },
+            { id: 27, type: "essai", q: "Tuliskan 3 etika dan keselamatan kerja (K3) yang wajib kamu patuhi saat berada di laboratorium komputer sekolah!" },
+            { id: 28, type: "essai", q: "Jelaskan perbedaan utama antara menggunakan Google Docs dengan Microsoft Word biasa!" },
+            { id: 29, type: "essai", q: "Mengapa kita harus memperhatikan jarak pandang mata serta pencahayaan ruangan saat mengetik komputer?" },
+            { id: 30, type: "essai", q: "Bagaimana langkah-langkah membagikan dokumen Google Docs agar teman kelompokmu bisa mengetik bersama secara online?" }
+        ];
+
+        // LABIRIN LUAS DAN BEBAS (27 x 21 Grid)
+        // 1 = Dinding, 0 = Jalan Bebas, 2 = Pintu Soal Terkunci, 3 = Pintu Terbuka, 9 = Finish
+        const mazeGrid = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,1,0,2,0,0,0,1,0,2,0,0,0,1,0,0,0,2,0,0,0,0,0,1],
+            [1,0,1,0,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,1,1,1,1,1,1,0,1],
+            [1,2,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,2,0,1,0,1],
+            [1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1],
+            [1,0,0,0,2,0,1,0,0,0,0,0,1,0,2,0,1,0,0,0,1,0,0,0,1,0,1],
+            [1,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1],
+            [1,0,0,0,1,0,0,0,2,0,1,0,0,0,0,0,0,0,2,0,1,0,0,0,0,0,1],
+            [1,0,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1],
+            [1,2,1,0,0,0,0,0,1,0,2,0,0,0,0,0,0,0,1,0,0,0,0,0,1,2,1],
+            [1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1],
+            [1,0,0,0,2,0,1,0,0,0,0,0,1,0,2,0,1,0,0,0,2,0,1,0,0,0,1],
+            [1,1,1,0,1,0,1,1,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,1,1,1,1],
+            [1,0,0,0,1,0,0,0,2,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,1],
+            [1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1],
+            [1,2,0,0,0,0,1,0,0,0,0,0,2,0,0,0,1,0,2,0,0,0,0,0,1,0,1],
+            [1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,0,1],
+            [1,0,0,0,2,0,1,0,0,0,2,0,0,0,1,0,0,0,0,0,2,0,1,0,0,0,1],
+            [1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,2,1],
+            [1,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        // Petakan Pintu (Tile 2) ke 30 Soal
+        const gateQuestionsMap = {};
+        let questionCounter = 0;
+        let totalGates = 0;
+
+        for (let r = 0; r < mazeGrid.length; r++) {
+            for (let c = 0; c < mazeGrid[r].length; c++) {
+                if (mazeGrid[r][c] === 2) {
+                    gateQuestionsMap[`${r}_${c}`] = questions[questionCounter];
+                    questionCounter++;
+                    totalGates++;
+                }
+            }
+        }
+
+        // State Player & Game
+        const TILE_SIZE = 40;
+        let player = { gridX: 1, gridY: 1, px: 1 * TILE_SIZE, py: 1 * TILE_SIZE };
+        let activeGateTarget = null;
+        let unlockedGatesCount = 0;
+        let totalScore = 0;
+        let userAnswers = {};
+
+        const canvas = document.getElementById("rpgCanvas");
+        const ctx = canvas.getContext("2d");
+
+        function resizeCanvas() {
+            const container = document.getElementById("game-canvas-container");
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Key Listeners
+        window.addEventListener("keydown", (e) => {
+            if (document.getElementById("quiz-modal").style.display === "flex") return;
+            if (["ArrowUp", "KeyW"].includes(e.code)) tryMove(0, -1);
+            if (["ArrowDown", "KeyS"].includes(e.code)) tryMove(0, 1);
+            if (["ArrowLeft", "KeyA"].includes(e.code)) tryMove(-1, 0);
+            if (["ArrowRight", "KeyD"].includes(e.code)) tryMove(1, 0);
+        });
+
+        function tryMove(dx, dy) {
+            let targetX = player.gridX + dx;
+            let targetY = player.gridY + dy;
+
+            if (targetY < 0 || targetY >= mazeGrid.length || targetX < 0 || targetX >= mazeGrid[0].length) return;
+
+            let tileType = mazeGrid[targetY][targetX];
+
+            // 1 = Dinding (Tidak bisa lewat)
+            if (tileType === 1) return;
+
+            // 2 = Pintu Terkunci Soal
+            if (tileType === 2) {
+                activeGateTarget = { r: targetY, c: targetX, dx, dy };
+                openGateQuizModal(targetY, targetX);
+                return;
+            }
+
+            // 9 = Finish Line
+            if (tileType === 9) {
+                if (unlockedGatesCount < totalGates) {
+                    alert(`⚠️ FINISH TERKUNCI! Kamu baru menemukan & membuka ${unlockedGatesCount} dari ${totalGates} pintu. Jelajahi labirin lebih jauh!`);
+                    return;
+                }
+
+                player.gridX = targetX;
+                player.gridY = targetY;
+                player.px = targetX * TILE_SIZE;
+                player.py = targetY * TILE_SIZE;
+                finishGame();
+                return;
+            }
+
+            // 0 / 3 = Jalan Terbuka
+            player.gridX = targetX;
+            player.gridY = targetY;
+            player.px = targetX * TILE_SIZE;
+            player.py = targetY * TILE_SIZE;
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Gambar Dunia/Labirin (Kamera Mengikuti Karakter)
+            ctx.save();
+            let camX = canvas.width / 2 - (player.px + TILE_SIZE / 2);
+            let camY = canvas.height / 2 - (player.py + TILE_SIZE / 2);
+            ctx.translate(camX, camY);
+
+            for (let r = 0; r < mazeGrid.length; r++) {
+                for (let c = 0; c < mazeGrid[r].length; c++) {
+                    let tile = mazeGrid[r][c];
+                    let x = c * TILE_SIZE;
+                    let y = r * TILE_SIZE;
+
+                    if (tile === 1) {
+                        ctx.fillStyle = "#1e293b";
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                        ctx.strokeStyle = "#0f172a";
+                        ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
+                    } else if (tile === 0 || tile === 3) {
+                        ctx.fillStyle = tile === 3 ? "#15803d" : "#334155";
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                        ctx.strokeStyle = "#475569";
+                        ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
+
+                        if (tile === 3) {
+                            ctx.fillStyle = "#ffffff";
+                            ctx.font = "bold 12px sans-serif";
+                            ctx.fillText("✓", x + 14, y + 24);
+                        }
+                    } else if (tile === 2) {
+                        ctx.fillStyle = "#991b1b";
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                        ctx.fillStyle = "#dc2626";
+                        ctx.fillRect(x + 4, y + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = "bold 14px sans-serif";
+                        ctx.textAlign = "center";
+                        ctx.fillText("🔒", x + TILE_SIZE / 2, y + TILE_SIZE / 2 + 5);
+                    } else if (tile === 9) {
+                        ctx.fillStyle = (unlockedGatesCount === totalGates) ? "#f59e0b" : "#475569";
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = "bold 16px sans-serif";
+                        ctx.textAlign = "center";
+                        ctx.fillText(unlockedGatesCount === totalGates ? "🏆" : "🔒", x + TILE_SIZE / 2, y + TILE_SIZE / 2 + 6);
+                    }
+                }
+            }
+
+            drawPlayer(player.px, player.py);
+            ctx.restore();
+
+            // 2. Efek Senter / Fog of War (Darkness Gradient Over Screen)
+            let centerX = canvas.width / 2;
+            let centerY = canvas.height / 2;
+            let radiusLight = 170; // Radius sorotan senter
+
+            let flashlight = ctx.createRadialGradient(centerX, centerY, 30, centerX, centerY, radiusLight);
+            flashlight.addColorStop(0, "rgba(0, 0, 0, 0)");
+            flashlight.addColorStop(0.65, "rgba(2, 6, 23, 0.75)");
+            flashlight.addColorStop(1, "rgba(2, 6, 23, 0.99)");
+
+            ctx.fillStyle = flashlight;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            requestAnimationFrame(drawGame);
+        }
+
+        function drawPlayer(x, y) {
+            ctx.fillStyle = "rgba(0,0,0,0.4)";
+            ctx.beginPath();
+            ctx.ellipse(x + 20, y + 36, 12, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Badan & Helm Karakter Senter
+            ctx.fillStyle = "#818cf8";
+            ctx.beginPath();
+            ctx.arc(x + 20, y + 20, 14, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = "#fbbf24";
+            ctx.beginPath();
+            ctx.arc(x + 20, y + 12, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            let name = document.getElementById("student-name").value || "Siswa";
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 10px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(name, x + 20, y - 4);
+        }
+
+        requestAnimationFrame(drawGame);
+
+        function openGateQuizModal(r, c) {
+            let q = gateQuestionsMap[`${r}_${c}`];
+            if (!q) return;
+
+            document.getElementById("modal-stage-num").innerText = `PINTU SOAL #${q.id} LABIRIN`;
+            document.getElementById("modal-q-text").innerText = q.q;
+            document.getElementById("feedback-msg").style.display = "none";
+
+            let badge = document.getElementById("modal-q-badge");
+            if (q.type === "pg") badge.innerText = "Pilihan Ganda";
+            else if (q.type === "pg_kompleks") badge.innerText = "PG Kompleks";
+            else if (q.type === "isian") badge.innerText = "Isian Singkat";
+            else if (q.type === "essai") badge.innerText = "Soal Essai";
+
+            let container = document.getElementById("modal-options-container");
+            container.innerHTML = "";
+
+            if (q.type === "pg") {
+                let div = document.createElement("div");
+                div.className = "options-list";
+                q.o.forEach((optText, optIdx) => {
+                    let item = document.createElement("label");
+                    item.className = "option-item";
+                    item.innerHTML = `<input type="radio" name="gate_ans" value="${optIdx}"> ${String.fromCharCode(65 + optIdx)}. ${optText}`;
+                    div.appendChild(item);
+                });
+                container.appendChild(div);
+            } else if (q.type === "pg_kompleks") {
+                let div = document.createElement("div");
+                div.className = "options-list";
+                q.o.forEach((optText, optIdx) => {
+                    let item = document.createElement("label");
+                    item.className = "option-item";
+                    item.innerHTML = `<input type="checkbox" name="gate_ans_k" value="${optIdx}"> ${String.fromCharCode(65 + optIdx)}. ${optText}`;
+                    div.appendChild(item);
+                });
+                container.appendChild(div);
+            } else if (q.type === "isian" || q.type === "essai") {
+                let isEssai = q.type === "essai";
+                container.innerHTML = isEssai 
+                    ? `<textarea id="gate-text-val" rows="4" placeholder="Tuliskan jawaban penjelasan essai kamu..."></textarea>`
+                    : `<input type="text" id="gate-text-val" class="text-input" placeholder="Ketik jawaban singkat...">`;
+            }
+
+            document.getElementById("quiz-modal").style.display = "flex";
+        }
+
+        function submitGateAnswer() {
+            let { r, c } = activeGateTarget;
+            let q = gateQuestionsMap[`${r}_${c}`];
+            let isCorrect = false;
+
+            if (q.type === "pg") {
+                let selected = document.querySelector('input[name="gate_ans"]:checked');
+                if (!selected) { alert("Pilih jawaban dulu!"); return; }
+                let userVal = parseInt(selected.value);
+                userAnswers[q.id] = userVal;
+                isCorrect = (userVal === q.a);
+            } else if (q.type === "pg_kompleks") {
+                let checkedBoxes = document.querySelectorAll('input[name="gate_ans_k"]:checked');
+                let userVal = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+                userAnswers[q.id] = userVal;
+                isCorrect = ([...userVal].sort().join(',') === [...q.a].sort().join(','));
+            } else if (q.type === "isian") {
+                let userVal = document.getElementById("gate-text-val").value.trim();
+                if (!userVal) { alert("Ketik jawaban kamu!"); return; }
+                userAnswers[q.id] = userVal;
+                isCorrect = userVal.toLowerCase().includes(q.a.toLowerCase());
+            } else if (q.type === "essai") {
+                let userVal = document.getElementById("gate-text-val").value.trim();
+                if (!userVal) { alert("Tuliskan jawaban essai kamu!"); return; }
+                userAnswers[q.id] = userVal;
+                isCorrect = true;
+            }
+
+            let feedback = document.getElementById("feedback-msg");
+            feedback.style.display = "block";
+
+            if (isCorrect) {
+                feedback.style.color = "#10b981";
+                feedback.innerText = "✅ JAWABAN BENAR! Pintu Terbuka 🔓";
+
+                mazeGrid[r][c] = 3;
+                unlockedGatesCount++;
+                totalScore += 10;
+
+                document.getElementById("gate-badge").innerText = `🚪 Pintu Terbuka: ${unlockedGatesCount} / ${totalGates}`;
+                document.getElementById("score-badge").innerText = `⭐ Skor: ${totalScore}`;
+
+                setTimeout(() => {
+                    document.getElementById("quiz-modal").style.display = "none";
+                    player.gridX = c;
+                    player.gridY = r;
+                    player.px = c * TILE_SIZE;
+                    player.py = r * TILE_SIZE;
+                }, 700);
+
+            } else {
+                feedback.style.color = "#ef4444";
+                feedback.innerText = "❌ JAWABAN SALAH! Pintu Tetap Terkunci 🔒 Coba periksa lagi!";
+
+                setTimeout(() => {
+                    document.getElementById("quiz-modal").style.display = "none";
+                }, 1200);
+            }
+        }
+
+        function finishGame() {
+            let name = document.getElementById("student-name").value.trim() || "Siswa";
+            let sClass = document.getElementById("student-class").value.trim() || "Kelas 5";
+
+            document.getElementById("result-modal").style.display = "block";
+            document.getElementById("res-name").innerText = name;
+            document.getElementById("res-class").innerText = sClass;
+            document.getElementById("res-score").innerText = `${totalScore} / 250`;
+
+            evaluateGeminiEssays(name, sClass, totalScore);
+        }
+
+        async function evaluateGeminiEssays(studentName, sClass, autoScore) {
+            let apiKey = document.getElementById("gemini-key").value.trim();
+            let aiLoading = document.getElementById("ai-loading");
+            let aiFeedback = document.getElementById("ai-feedback-text");
+
+            let essayAnswers = [];
+            questions.filter(q => q.type === "essai").forEach((q, idx) => {
+                let ans = userAnswers[q.id] || "(Belum dijawab)";
+                essayAnswers.push(`Soal Essai ${idx + 1}: ${q.q}\nJawaban Siswa: ${ans}`);
+            });
+
+            if (!apiKey) {
+                aiFeedback.innerHTML = "⚠️ API Key Gemini tidak diisi.";
+                return;
+            }
+
+            aiLoading.style.display = "block";
+
+            let promptText = `Kamu adalah guru TIK SD Kelas 5. Berikan evaluasi komprehensif untuk 5 jawaban essai dari siswa bernama ${studentName} (${sClass}).
+
+Skor Otomatis (25 Soal PG, PG Kompleks & Isian): ${autoScore} / 250.
+
+Jawaban Essai Siswa:
+${essayAnswers.join("\n\n")}
+
+Tugas Guru Gemini:
+1. Berikan nilai per soal essai (Maksimal 20 poin per soal essai, total 100 poin essai).
+2. Tuliskan analisis kelebihan dan saran perbaikan belajar siswa.
+3. Berikan Nilai Akhir Gabungan (Skor Otomatis + Skor Essai = Maksimal 350 poin).`;
+
+            try {
+                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }]
+                    })
+                });
+
+                let data = await response.json();
+                if (!response.ok) throw new Error(data.error?.message || "Gagal menghubungi Gemini API");
+
+                let resultText = data.candidates[0].content.parts[0].text;
+                aiLoading.style.display = "none";
+                aiFeedback.innerText = resultText;
+            } catch (err) {
+                aiLoading.style.display = "none";
+                aiFeedback.innerHTML = `❌ <strong>Error Gemini AI:</strong> ${err.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
