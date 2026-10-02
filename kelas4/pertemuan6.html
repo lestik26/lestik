@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Petualangan Tabel Google Docs 3D</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;font-family:system-ui,Segoe UI,Arial,sans-serif;background:#8fd3ff;touch-action:none}
+canvas{display:block;position:fixed;inset:0}
+.ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(20,40,90,.85);z-index:20;padding:12px;overflow:auto}
+.card{background:#fff;border-radius:20px;padding:22px;max-width:640px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 10px 40px #0006}
+.card h1{margin:0 0 10px;color:#1d4ed8;font-size:22px}.card h3{margin:12px 0 4px;color:#111}.card ul{margin:4px 0;padding-left:20px;font-size:14px;line-height:1.5}
+.btn{background:#22c55e;color:#fff;border:0;border-radius:14px;padding:12px 22px;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 4px 0 #15803d}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #15803d}.btn.b{background:#3b82f6;box-shadow:0 4px 0 #1d4ed8}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px;border:2px solid #cbd5e1;border-radius:12px;background:#f8fafc;font-size:15px;cursor:pointer}
+.opt:hover{border-color:#3b82f6}.opt.ok{background:#bbf7d0;border-color:#16a34a}.opt.no{background:#fecaca;border-color:#dc2626}
+.hud{position:fixed;z-index:10;color:#fff;font-weight:700}
+#top{top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.pill{background:#0008;padding:8px 14px;border-radius:99px;font-size:14px}
+.sm{pointer-events:auto;background:#7c3aed;border:2px solid #fff;color:#fff;border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer}
+#talk{bottom:130px;left:50%;transform:translateX(-50%);display:none}
+#joy{left:22px;bottom:26px;width:120px;height:120px;border-radius:50%;background:#fff3;border:3px solid #fff8;touch-action:none}
+#knob{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:#fffc}
+#jump{right:24px;bottom:30px;width:74px;height:74px;border-radius:50%;background:#3b82f6;border:3px solid #fff;color:#fff;font-weight:800;font-size:13px}
+#run{right:110px;bottom:30px;width:60px;height:60px;border-radius:50%;background:#f59e0b;border:3px solid #fff;color:#fff;font-weight:800;font-size:12px}
+#msg{top:70px;left:50%;transform:translateX(-50%);background:#000a;padding:8px 16px;border-radius:12px;display:none;z-index:15}
+#load{z-index:30;background:#1e3a8a;color:#fff;font-size:20px}
+.btn:disabled{background:#94a3b8;box-shadow:none;cursor:not-allowed}
+#map{position:fixed;right:10px;bottom:112px;width:130px;height:130px;border-radius:12px;border:3px solid #fff;z-index:10;display:none}
+#zb{top:110px;left:50%;transform:translateX(-50%);background:#7f1d1dcc;padding:10px 18px;border-radius:14px;font-size:18px;display:none;text-align:center;z-index:16}
+.cs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}.cs .opt{margin:0;text-align:center;font-size:13px}.cs .opt.sel{background:#bfdbfe;border-color:#2563eb}
+</style></head><body>
+<div id="load" class="ov">Memuat dunia 3D…</div>
+
+<div id="intro" class="ov" style="display:none"><div class="card">
+<h1>📘 Rangkuman Pertemuan 8 – Membuat Tabel di Google Docs</h1>
+<h3>A. Pengertian Tabel</h3><ul><li>Tabel adalah kumpulan kotak yang tersusun rapi dalam bentuk baris dan kolom.</li><li>Fungsinya menyusun data agar lebih rapi, teratur, dan mudah dibaca.</li></ul>
+<h3>B. Bagian-Bagian Tabel</h3><ul><li><b>Baris (Row):</b> susunan kotak mendatar/horizontal dari kiri ke kanan.</li><li><b>Kolom (Column):</b> susunan kotak tegak/vertikal dari atas ke bawah.</li><li><b>Sel (Cell):</b> satu kotak kecil, pertemuan antara baris dan kolom tempat mengetik data.</li></ul>
+<h3>C. Cara Membuat Tabel</h3><ul><li>Klik menu <b>Insert</b> (Sisipkan) di bagian atas.</li><li>Pilih <b>Table</b> (Tabel).</li><li>Geser mouse untuk menentukan jumlah kolom dan baris, lalu klik.</li></ul>
+<h3>D. Cara Mengisi Data</h3><ul><li>Klik di dalam sel, lalu ketik data.</li><li>Tombol <b>Tab</b> untuk pindah ke sel sebelah kanan dengan cepat.</li></ul>
+<h3>E. Cara Mengatur Tabel (Klik Kanan)</h3><ul><li><b>Menambah baris:</b> Insert row</li><li><b>Menambah kolom:</b> Insert column</li><li><b>Menghapus baris:</b> Delete row</li><li><b>Menghapus kolom:</b> Delete column</li><li><b>Menghapus semua tabel:</b> Delete table</li></ul>
+<p style="text-align:center;font-weight:700;color:#b45309">⏱ Baca dulu selama 3 menit sebelum bermain!</p><p style="text-align:center"><button class="btn" id="go">▶ Mulai Petualangan</button></p>
+<p style="font-size:13px;color:#555">Kontrol: WASD/panah = jalan • Shift = lari • Spasi = lompat • E = bicara • Seret layar/mouse = putar kamera. HP: joystick di kiri.</p>
+</div></div>
+
+<div id="top" class="hud" style="display:none">
+<div><button class="sm" id="bmat">📖 Materi</button></div>
+<div class="pill" id="prog">NPC: 0/20</div>
+<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><div class="pill">🪙 <span id="coin">0</span></div><button class="sm" id="bshop">🛒 Kostum</button></div></div>
+<div id="msg" class="hud"></div>
+<button id="hide" class="hud btn" style="bottom:190px;left:50%;transform:translateX(-50%);display:none;background:#b45309;box-shadow:0 4px 0 #78350f">🛖 Sembunyi (F)</button>
+<button id="talk" class="hud btn b">💬 Bicara (E)</button>
+<div id="joy" class="hud" style="display:none"><div id="knob"></div></div>
+<button id="run" class="hud" style="display:none">LARI</button>
+<canvas id="map" width="130" height="130"></canvas><div id="zb" class="hud"></div>
+<button id="jump" class="hud" style="display:none">LOMPAT</button>
+
+<div id="quiz" class="ov" style="display:none"><div class="card"><div id="who" style="color:#7c3aed;font-weight:700"></div><h2 id="q" style="margin:6px 0 10px"></h2><div id="opts"></div><p id="fb" style="font-weight:600"></p><button class="btn b" id="qclose" style="display:none">Lanjut</button></div></div>
+<div id="shop" class="ov" style="display:none"><div class="card"><h1>🛒 Toko Kostum</h1><div id="items"></div><p style="text-align:center"><button class="btn b" id="sclose">Tutup</button></p></div></div>
+<div id="win" class="ov" style="display:none"><div class="card" style="text-align:center"><h1>🏆 Selamat! Semua NPC selesai!</h1><p>Kamu sudah paham cara membuat dan mengatur tabel di Google Docs. Koin tersimpan: <b id="fin"></b> 🪙 — kamu bisa main lagi tanpa kehilangan koin.</p><button class="btn" onclick="location.reload()">Main Lagi</button></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const qg=(q,o,a)=>({t:'pg',q,o,a}),qk=(q,o,a)=>({t:'pk',q,o,a}),qi=(q,a)=>({t:'is',q,a});
+const PG=[
+qg("Apa yang dimaksud dengan tabel?",["Kumpulan kotak yang tersusun rapi dalam baris dan kolom","Kumpulan gambar acak","Tulisan yang dimiringkan"],0),
+qg("Apa fungsi utama tabel?",["Mengubah warna layar","Menyusun data agar rapi, teratur, dan mudah dibaca","Menghapus dokumen"],1),
+qg("Baris (Row) adalah susunan kotak yang…",["Tegak dari atas ke bawah","Miring ke kanan","Mendatar dari kiri ke kanan"],2),
+qg("Kolom (Column) adalah susunan kotak yang…",["Tegak/vertikal dari atas ke bawah","Mendatar dari kiri ke kanan","Berbentuk lingkaran"],0),
+qg("Sel (Cell) adalah…",["Judul dokumen","Pertemuan antara baris dan kolom tempat mengetik data","Tombol di keyboard"],1),
+qg("Menu apa yang diklik pertama untuk membuat tabel?",["Format","Tools","Insert (Sisipkan)"],2),
+qg("Setelah klik Insert, kita memilih…",["Table (Tabel)","Drawing","Comment"],0),
+qg("Tombol apa untuk pindah cepat ke sel sebelah kanan?",["Enter","Tab","Esc"],1),
+qg("Cara menambah baris di tabel?",["Klik kanan → Delete row","Klik kanan → Insert row","Klik kanan → Delete table"],1),
+qg("Cara menghapus seluruh tabel?",["Klik kanan → Delete table","Klik kanan → Insert column","Klik kanan → Delete row"],0),
+qg("Cara menambah kolom di tabel?",["Klik kanan → Insert column","Klik kanan → Delete column","Klik kanan → Insert row"],0),
+qg("Cara menghapus satu baris?",["Klik kanan → Insert row","Klik kanan → Delete table","Klik kanan → Delete row"],2),
+qg("Cara menghapus satu kolom?",["Klik kanan → Delete column","Klik kanan → Insert column","Klik kanan → Delete row"],0),
+qg("Bagaimana menentukan ukuran tabel saat membuatnya?",["Mengetik angka di keyboard","Menggeser mouse untuk memilih jumlah kolom dan baris, lalu klik","Menekan tombol Tab dua kali"],1),
+qg("Bagaimana cara mengisi data ke dalam tabel?",["Klik di dalam sel, lalu ketik data","Klik kanan lalu Delete table","Menutup Google Docs"],0),
+qg("Insert dalam bahasa Indonesia berarti…",["Hapus","Sisipkan","Simpan"],1),
+qg("Tabel dengan 3 baris dan 4 kolom memiliki berapa sel?",["7","10","12"],2),
+qg("Klik kanan pada tabel digunakan untuk…",["Mengatur tabel (tambah/hapus baris, kolom, tabel)","Mematikan komputer","Mengganti nama file"],0),
+qg("Mana yang BUKAN bagian dari tabel?",["Baris","Slide","Kolom"],1),
+qg("Dalam bahasa Inggris, 'Table' berarti…",["Tabel","Sel","Kolom"],0)];
+const PK=[
+qk("Pilih semua yang termasuk bagian-bagian tabel:",["Baris (Row)","Kolom (Column)","Sel (Cell)","Slide","Margin printer"],[0,1,2]),
+qk("Pilih manfaat tabel:",["Data lebih rapi","Data lebih teratur","Data mudah dibaca","Mengubah ukuran printer"],[0,1,2]),
+qk("Pilih langkah yang benar untuk MEMBUAT tabel:",["Klik menu Insert","Pilih Table","Geser mouse menentukan baris dan kolom, lalu klik","Klik kanan → Delete table"],[0,1,2]),
+qk("Pilih opsi klik kanan untuk MENAMBAH bagian tabel:",["Insert row","Insert column","Delete row","Delete table"],[0,1]),
+qk("Pilih opsi klik kanan untuk MENGHAPUS bagian tabel:",["Delete row","Delete column","Delete table","Insert row"],[0,1,2]),
+qk("Pilih pernyataan yang benar tentang baris:",["Susunan kotak mendatar","Berjalan dari kiri ke kanan","Susunan kotak tegak","Dibaca dari atas ke bawah"],[0,1]),
+qk("Pilih pernyataan yang benar tentang kolom:",["Susunan kotak tegak/vertikal","Berjalan dari atas ke bawah","Susunan kotak mendatar"],[0,1]),
+qk("Pilih pernyataan yang benar tentang sel:",["Satu kotak kecil dalam tabel","Pertemuan baris dan kolom","Tempat mengetik data","Judul dokumen"],[0,1,2]),
+qk("Pilih cara yang benar saat mengisi data:",["Klik di dalam sel lalu ketik","Tab untuk pindah ke sel kanan","Klik kanan → Insert row untuk mengetik","Menutup dokumen"],[0,1]),
+qk("Pilih pasangan istilah yang benar:",["Row = baris","Column = kolom","Cell = sel","Table = gambar"],[0,1,2])];
+const IS=[
+qi("Menu apa (bahasa Inggris) yang diklik pertama untuk membuat tabel?",["insert"]),
+qi("Satu kotak kecil pertemuan baris dan kolom disebut …",["sel","cell"]),
+qi("Tombol keyboard untuk pindah ke sel sebelah kanan adalah …",["tab"]),
+qi("Susunan kotak yang tegak dari atas ke bawah disebut …",["kolom","column"]),
+qi("Susunan kotak yang mendatar dari kiri ke kanan disebut …",["baris","row"]),
+qi("Untuk menghapus seluruh tabel, klik kanan lalu pilih Delete …",["table","tabel"]),
+qi("Untuk menambah kolom, klik kanan lalu pilih Insert …",["column","kolom"])];
+const EX=[];{let c=0,i=0;while(c<10||i<7){for(let r=0;r<2&&c<10;r++)EX.push(PK[c++]);if(i<7)EX.push(IS[i++])}}
+const NAMES=["Budi","Sari","Andi","Dewi","Rama","Putri","Joko","Maya","Dito","Lina","Fajar","Nia","Eko","Tika","Bayu","Rani","Hana","Gilang","Siti","Yoga"];
+let cbf=()=>{};
+let started=false,paused=true,coins=0,done=0,shirt=0x3b82f6,near=null,yaw=0,pitch=.45;
+
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x8fd3ff);scene.fog=new THREE.Fog(0x8fd3ff,40,120);
+const cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,300);
+const ren=new THREE.WebGLRenderer({antialias:true});ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.setSize(innerWidth,innerHeight);ren.shadowMap.enabled=true;document.body.prepend(ren.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x6b8e4e,.9));
+const sun=new THREE.DirectionalLight(0xffffff,.8);sun.position.set(30,50,20);sun.castShadow=true;sun.shadow.camera.left=-40;sun.shadow.camera.right=40;sun.shadow.camera.top=40;sun.shadow.camera.bottom=-40;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+const M=(c,r=.7)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
+const ground=new THREE.Mesh(new THREE.CircleGeometry(60,48),M(0x7bc96f));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+// path ring (kotak-kotak tabel di tanah)
+for(let i=-6;i<=6;i++){const l=new THREE.Mesh(new THREE.PlaneGeometry(.15,60),M(0xffffff));l.rotation.x=-Math.PI/2;l.position.set(i*8,.02,0);scene.add(l);const l2=l.clone();l2.rotation.z=Math.PI/2;l2.position.set(0,.02,i*8);scene.add(l2)}
+const blockers=[];
+function tree(x,z){const g=new THREE.Group();const t=new THREE.Mesh(new THREE.CylinderGeometry(.3,.4,2,10),M(0x8b5a2b));t.position.y=1;t.castShadow=true;g.add(t);
+for(let i=0;i<3;i++){const c=new THREE.Mesh(new THREE.SphereGeometry(1.6-i*.3,14,12),M(0x2f9e44));c.position.y=2.6+i*.9;c.castShadow=true;g.add(c)}g.position.set(x,0,z);scene.add(g);blockers.push([x,z,1.2])}
+for(let i=0;i<34;i++){const a=i*2.4,r=24+(i%5)*7;{const x=Math.cos(a)*r,z=Math.sin(a)*r;if(Math.abs(x+36)>6&&z>-38)tree(x,z)}}
+
+function face(){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');g.fillStyle='#000';g.beginPath();g.arc(42,56,7,0,7);g.arc(86,56,7,0,7);g.fill();g.lineWidth=6;g.lineCap='round';g.strokeStyle='#000';g.beginPath();g.arc(64,72,26,.25,Math.PI-.25);g.stroke();return new THREE.CanvasTexture(c)}
+const FT=face();
+function limb(len,r,col,top){const p=new THREE.Group();const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r*.9,len,14),M(col));m.position.y=-len/2;m.castShadow=true;p.add(m);const e=new THREE.Mesh(new THREE.SphereGeometry(r*.92,14,12),M(col));e.position.y=-len;p.add(e);const s=new THREE.Mesh(new THREE.SphereGeometry(r,14,12),M(col));p.add(s);p.position.y=top;return p}
+function makeChar(sh,skin=0xffd29c,pants=0x334155){const g=new THREE.Group();
+const torso=new THREE.Mesh(new THREE.CylinderGeometry(.5,.42,1.1,18),M(sh));torso.position.y=1.65;torso.castShadow=true;g.add(torso);g.torso=torso;
+const head=new THREE.Mesh(new THREE.SphereGeometry(.5,24,20),M(skin));head.position.y=2.65;head.castShadow=true;g.add(head);
+const f=new THREE.Mesh(new THREE.CircleGeometry(.4,24),new THREE.MeshBasicMaterial({map:FT,transparent:true}));f.position.set(0,2.65,.49);g.add(f);
+const hair=new THREE.Mesh(new THREE.SphereGeometry(.53,24,12,0,Math.PI*2,0,Math.PI*.45),M(0x3b2a1a));hair.position.y=2.68;hair.rotation.x=-.25;g.add(hair);
+g.armL=limb(.9,.17,skin,2.1);g.armL.position.x=-.72;g.armR=limb(.9,.17,skin,2.1);g.armR.position.x=.72;
+g.legL=limb(1,.2,pants,1.1);g.legL.position.x=-.25;g.legR=limb(1,.2,pants,1.1);g.legR.position.x=.25;
+g.add(g.armL,g.armR,g.legL,g.legR);return g}
+function label(t,col){const c=document.createElement('canvas');c.width=256;c.height=64;const g=c.getContext('2d');g.fillStyle=col;g.beginPath();g.roundRect?g.roundRect(4,4,248,56,28):g.rect(4,4,248,56);g.fill();g.fillStyle='#fff';g.font='bold 34px sans-serif';g.textAlign='center';g.fillText(t,128,45);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));s.scale.set(2.4,.6,1);s.position.y=3.6;s.renderOrder=9;return s}
+
+const player=makeChar(shirt);player.position.set(0,0,6);scene.add(player);
+const npcs=[];
+NAMES.forEach((nm,i)=>{const a=i/20*Math.PI*2,r=14+(i%3)*5;const n=makeChar(new THREE.Color().setHSL(i/20,.65,.5).getHex(),[0xffd29c,0xe0ac69,0xf1c27d][i%3],0x1e293b);n.position.set(Math.cos(a)*r,0,Math.sin(a)*r);n.rotation.y=Math.atan2(-n.position.x,-n.position.z);
+n.tag=label('❗ '+nm,'#7c3aed');n.add(n.tag);n.qs=[PG[i]];if(i>=3)n.qs.push(EX[i-3]);n.q=1;n.step=0;n.done=false;n.name=nm;scene.add(n);npcs.push(n)});
+
+// ===== dunia tambahan =====
+const wand=[];
+function wander(o,sp,rad){o.home=o.position.clone();o.sp=sp;o.rad=rad;o.tgt=null;o.wt=Math.random()*3;o.flee=0;wand.push(o)}
+npcs.forEach(n=>wander(n,1.8,4));
+function step(o,tx,tz,sp,dt){const dx=tx-o.position.x,dz=tz-o.position.z,d=Math.hypot(dx,dz);if(d<.3)return false;o.position.x+=dx/d*sp*dt;o.position.z+=dz/d*sp*dt;let da=Math.atan2(dx,dz)-o.rotation.y;da=Math.atan2(Math.sin(da),Math.cos(da));o.rotation.y+=da*Math.min(1,dt*8);return true}
+function updW(dt,t){wand.forEach((o,i)=>{let mv=false;
+if(o.flee>0){o.flee-=dt;const dx=o.position.x-player.position.x,dz=o.position.z-player.position.z,d=Math.hypot(dx,dz)||1;let nx=o.position.x+dx/d*8*dt,nz=o.position.z+dz/d*8*dt;const r=Math.hypot(nx,nz);if(r>50){nx*=50/r;nz*=50/r}o.position.x=nx;o.position.z=nz;o.rotation.y=Math.atan2(dx,dz);mv=true;if(o.flee<=0){if(!o.q)o.home.copy(o.position);o.tgt=[o.home.x,o.home.z];o.wt=10}}
+else if(!(o.q&&!o.done&&player.position.distanceTo(o.position)<5)){o.wt-=dt;if(!o.tgt||o.wt<=0){o.tgt=[o.home.x+(Math.random()-.5)*2*o.rad,o.home.z+(Math.random()-.5)*2*o.rad];o.wt=3+Math.random()*4}mv=step(o,o.tgt[0],o.tgt[1],o.sp*(o.q&&Math.hypot(o.position.x-o.home.x,o.position.z-o.home.z)>8?3:1),dt)}
+o.position.y=mv?Math.abs(Math.sin(t*9+i))*.12:0;
+if(o.legL){const s=mv?Math.sin(t*10+i)*.7:0;o.legL.rotation.x=s;o.legR.rotation.x=-s;o.armL.rotation.x=-s;o.armR.rotation.x=s;if(o.q)o.armR.rotation.z=(!mv&&!o.done)?-2.6+Math.sin(t*5+i)*.4:0}})}
+// sungai, jembatan, lembah, rumah, hewan
+const river=new THREE.Mesh(new THREE.PlaneGeometry(7,125),new THREE.MeshStandardMaterial({color:0x38bdf8,emissive:0x0c4a6e,roughness:.2}));river.rotation.x=-Math.PI/2;river.position.set(-36,.04,0);scene.add(river);
+const br=new THREE.Mesh(new THREE.BoxGeometry(9,.3,5),M(0x92613a));br.position.set(-36,.2,0);scene.add(br);
+const rl=label('🌊 Sungai','#0284c7');rl.position.set(-36,3,10);rl.scale.set(4,1,1);scene.add(rl);
+[-14,14].forEach(x=>{const h=new THREE.Mesh(new THREE.SphereGeometry(12,24,16),M(0x3f8f45));h.scale.y=.6;h.position.set(x,0,-48);scene.add(h);blockers.push([x,-48,10])});
+const vl=label('⛰ Lembah','#15803d');vl.position.set(0,6,-48);vl.scale.set(6,1.5,1);scene.add(vl);
+const HUTS=[[8,-7],[-8,-6],[-7,9],[8,10]];
+HUTS.forEach(([x,z])=>{const g=new THREE.Group();const w=new THREE.Mesh(new THREE.BoxGeometry(3,2,3),M(0xf4d58d));w.position.y=1;w.castShadow=true;g.add(w);const r=new THREE.Mesh(new THREE.ConeGeometry(2.9,1.7,4),M(0xb91c1c));r.position.y=2.85;r.rotation.y=Math.PI/4;g.add(r);const d=new THREE.Mesh(new THREE.BoxGeometry(.8,1.3,.1),M(0x5b3a1e));d.position.set(0,.65,1.55);g.add(d);g.add(label('🛖 Sembunyi','#92400e'));g.position.set(x,0,z);g.children[3].position.y=4.4;scene.add(g);blockers.push([x,z,2.2])});
+let inHut=null;const hideNow=()=>!!inHut;
+const nearHut=()=>HUTS.find(h=>Math.hypot(player.position.x-h[0],player.position.z-h[1])<4.5);
+function toggleHide(){if(paused)return;if(inHut){player.position.set(inHut[0],0,inHut[1]+2.9);player.visible=true;inHut=null;msg('🚪 Kamu keluar dari gubuk')}else{const h=nearHut();if(h){inHut=h;player.position.set(h[0],0,h[1]);player.visible=false;msg('🛖 Kamu bersembunyi di dalam gubuk')}}}
+$('hide').onclick=toggleHide;addEventListener('keydown',e=>{if(e.code==='KeyF')toggleHide()});
+function animal(c,sc,hc){const g=new THREE.Group(),b=new THREE.Mesh(new THREE.SphereGeometry(1,14,12),M(c));b.scale.set(.6,.5,.9);b.position.y=.8;b.castShadow=true;g.add(b);const h=new THREE.Mesh(new THREE.SphereGeometry(.32,14,12),M(hc||c));h.position.set(0,1.05,.85);g.add(h);
+[[-.3,.45],[.3,.45],[-.3,-.45],[.3,-.45]].forEach(([x,z])=>{const l=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.55,8),M(0x57534e));l.position.set(x,.28,z);g.add(l)});g.scale.setScalar(sc);return g}
+const AN=[[0xf5f5f4,1,0x44403c],[0xf9a8d4,.9],[0xe5e7eb,1.2,0x1f2937],[0xfde047,.45],[0xd6a67a,1]];
+for(let i=0;i<14;i++){const a=animal(...AN[i%5]);let x,z;do{const an=Math.random()*6.28,r=6+Math.random()*44;x=Math.cos(an)*r;z=Math.sin(an)*r}while(Math.abs(x+36)<6||z<-36);a.position.set(x,0,z);scene.add(a);wander(a,1.1,5)}
+// koin
+const pk=[];for(let i=0;i<40;i++){const c=new THREE.Mesh(new THREE.CylinderGeometry(.4,.4,.1,16),new THREE.MeshStandardMaterial({color:0xfacc15,emissive:0x8a6a00,metalness:.6,roughness:.3}));c.rotation.x=Math.PI/2;const g=new THREE.Group();g.add(c);let x,z;do{const a=Math.random()*6.28,r=4+Math.random()*48;x=Math.cos(a)*r;z=Math.sin(a)*r}while(Math.abs(x+36)<5||z<-34);g.position.set(x,1,z);g.t=0;scene.add(g);pk.push(g)}
+// zombie
+let zomb=[],ev=0,evT=0;const EVN=300;
+function startZ(){ev=10;for(let i=0;i<7;i++){const a=i/7*6.28,z=makeChar(0x6b7f3a,0x7fb069,0x4a5d23);z.position.set(player.position.x+Math.cos(a)*26,0,player.position.z+Math.sin(a)*26);z.armL.rotation.x=z.armR.rotation.x=-1.5;scene.add(z);zomb.push(z)}scene.background.setHex(0x5b2a3a);scene.fog.color.setHex(0x5b2a3a);$('zb').style.display='block'}
+function endZ(ok){ev=0;zomb.forEach(z=>scene.remove(z));zomb=[];scene.background.setHex(0x8fd3ff);scene.fog.color.setHex(0x8fd3ff);if(ok){coins+=100;msg('✅ Selamat dari zombie! +100 koin')}else{const l=Math.floor(coins/2);coins-=l;player.position.set(0,0,6);msg('🧟 Kamu digigit! Koin -'+l)}$('coin').textContent=coins;$('zb').style.display='none'}
+function extras(dt,t){pk.forEach(g=>{g.rotation.y+=dt*3;if(g.t>0){g.t-=dt;if(g.t<=0)g.visible=true}else if(!paused&&player.position.y<2&&Math.hypot(g.position.x-player.position.x,g.position.z-player.position.z)<1.5){g.visible=false;g.t=20;coins+=10;$('coin').textContent=coins}});
+if(coins!==lastC){lastC=coins;sv()}
+if(paused)return;{const nh=inHut||nearHut();$('hide').style.display=nh?'block':'none';$('hide').textContent=inHut?'🚪 Keluar Gubuk (F)':'🛖 Masuk & Sembunyi (F)'}const dd=Math.hypot(player.position.x,player.position.z+30);if(dOpen&&dd<2.5)return finish();if(!dOpen&&dd<3&&t-lastM>3){lastM=t;msg('🔒 Selesaikan semua NPC dulu!')}evT+=dt;if(!ev&&evT>=EVN){evT=0;startZ()}
+if(ev){ev-=dt;const hid=hideNow();$('zb').innerHTML='🧟 WABAH ZOMBIE! '+(hid?'🛖 Kamu bersembunyi — aman!':'Dekati gubuk 🛖 lalu tekan tombol Sembunyi!')+'<br>⏱ '+Math.max(0,Math.ceil(ev))+' dtk';let bit=false;
+zomb.forEach((z,i)=>{const dx=player.position.x-z.position.x,dz=player.position.z-z.position.z,d=Math.hypot(dx,dz);if(d>(hid?5:1.1)){z.position.x+=dx/d*5.2*dt;z.position.z+=dz/d*5.2*dt}z.rotation.y=Math.atan2(dx,dz);z.position.y=Math.abs(Math.sin(t*6+i))*.1;if(!hid&&d<1.4)bit=true});
+if(bit)endZ(false);else if(ev<=0)endZ(true)}}
+const mc=$('map').getContext('2d');
+function drawMap(){const s=65/60,X=x=>65+x*s,Z=z=>65+z*s;mc.fillStyle='#4ca25a';mc.fillRect(0,0,130,130);mc.fillStyle='#38bdf8';mc.fillRect(X(-39.5),0,7*s,130);mc.fillStyle='#2f7d3a';[-14,14].forEach(x=>{mc.beginPath();mc.arc(X(x),Z(-48),12*s,0,7);mc.fill()});mc.fillStyle='#92400e';HUTS.forEach(h=>mc.fillRect(X(h[0])-4,Z(h[1])-4,8,8));
+mc.fillStyle=dOpen?'#facc15':'#6b7280';mc.fillRect(X(0)-4,Z(-30)-4,8,8);npcs.forEach(n=>{mc.fillStyle=n.done?'#16a34a':'#ef4444';mc.beginPath();mc.arc(X(n.position.x),Z(n.position.z),3.5,0,7);mc.fill()});mc.fillStyle='#a855f7';zomb.forEach(z=>mc.fillRect(X(z.position.x)-2,Z(z.position.z)-2,4,4));
+const px=X(player.position.x),pz=Z(player.position.z);mc.strokeStyle='#fff';mc.lineWidth=2;mc.beginPath();mc.moveTo(px,pz);mc.lineTo(px+Math.sin(player.rotation.y)*9,pz+Math.cos(player.rotation.y)*9);mc.stroke();mc.fillStyle='#fff';mc.strokeStyle='#000';mc.beginPath();mc.arc(px,pz,4,0,7);mc.fill();mc.stroke()}
+// kostum
+const S=(c,x,y,z,a,b=a,d=a,o={})=>({t:'s',c,x,y,z,a,b,d,...o}),K=(c,x,y,z,a,b)=>({t:'c',c,x,y,z,a,b}),pr=(f,...a)=>[f(...a),f(...a.map((v,i)=>i===1?-v:v))];
+const tail=(c,l=.5)=>S(c,0,1.2,-.55,.12,.12,l);
+const COS=[
+['🐔 Ayam',50,0xfde047,[S(0xf97316,0,2.55,.5,.14,.1,.2),S(0xdc2626,0,3.2,0,.14),S(0xdc2626,0,3.1,.15,.1),S(0xfacc15,0,1.3,-.5,.3)]],
+['🐱 Kucing',100,0x9ca3af,[...pr(K,0x9ca3af,.3,3.15,0,.17,.2),tail(0x9ca3af)]],
+['🐶 Anjing',150,0xb45309,[...pr(S,0x78350f,.55,2.7,0,.15,.3,.2),S(0x111111,0,2.5,.5,.12)]],
+['🐰 Kelinci',200,0xf5f5f4,[...pr(S,0xffffff,.2,3.45,0,.12,.45,.1),S(0xffffff,0,1.2,-.5,.2)]],
+['🐼 Panda',250,0xf8fafc,[...pr(S,0x111827,.38,3.05,0,.18),...pr(S,0x111827,.2,2.7,.44,.1,.12,.04)]],
+['🐻 Beruang',300,0x92400e,[...pr(S,0x78350f,.4,3.05,0,.18),S(0xd6a67a,0,2.5,.48,.2,.15,.12)]],
+['🦁 Singa',400,0xf59e0b,[S(0xb45309,0,2.65,-.12,.78,.78,.55),...pr(S,0xf59e0b,.42,3.15,0,.15),tail(0xb45309,.6)]],
+['🐯 Harimau',500,0xf97316,[...pr(K,0xf97316,.3,3.15,0,.17,.2),S(0x111111,0,1.9,.4,.45,.05,.04),S(0x111111,0,1.6,.42,.45,.05,.04),S(0x111111,0,1.3,.38,.4,.05,.04),tail(0xf97316,.6)]],
+['🐺 Serigala',650,0x475569,[...pr(K,0x334155,.28,3.2,0,.16,.3),S(0x94a3b8,0,2.5,.5,.18,.14,.2),tail(0x64748b,.6)]],
+['🐲 Naga',900,0x16a34a,[...pr(K,0xfacc15,.25,3.2,0,.08,.3),...pr(S,0xdc2626,.9,2.2,-.5,.6,.5,.06),tail(0x15803d,.8),K(0x14532d,0,3.2,0,.1,.25)]],
+['👸 Putri Barbie',250,0xf472b6,[S(0xfde68a,0,2.55,-.22,.62,.7,.45),...pr(S,0xec4899,.18,3.15,.1,.17,.12,.1),S(0xec4899,0,3.15,.1,.08),S(0xf9a8d4,0,1.15,0,.7,.4,.7)]],
+['🧚 Putri Peri',300,0xc4b5fd,[...pr(S,0xe9d5ff,.8,2.2,-.45,.45,.6,.05),K(0xfacc15,0,3.25,0,.18,.2),S(0xddd6fe,0,1.15,0,.7,.4,.7)]],
+['🦄 Unicorn',350,0xffffff,[K(0xfacc15,0,3.4,.1,.1,.35),...pr(K,0xfbcfe8,.32,3.1,-.05,.12,.2),S(0xf472b6,0,2.9,-.4,.2),S(0x60a5fa,0,2.5,-.45,.2),S(0xa78bfa,0,2.1,-.45,.2)]],
+['🎀 Kelinci Pink',400,0xf9a8d4,[...pr(S,0xf9a8d4,.2,3.45,0,.12,.45,.1),...pr(S,0xf43f5e,.28,2.52,.45,.09,.06,.03),S(0xffffff,0,1.2,-.5,.2)]],
+['🍦 Ratu Es Krim',450,0x67e8f9,[S(0xf9a8d4,0,3.3,0,.3),S(0xa7f3d0,0,3.7,0,.25),S(0xdc2626,0,4,0,.1)]],
+['👑 Raja Emas',1500,0xfacc15,[...Array.from({length:5},(_,i)=>K(0xfde047,(i-2)*.2,3.25+(2-Math.abs(i-2))*.06,0,.09,.25)),S(0xdc2626,0,1.7,-.5,.55,.9,.08)],1],
+['🚀 Astronot Galaxy',3000,0xf1f5f9,[S(0x93c5fd,0,2.65,0,.7,.7,.7,{glass:1}),S(0x94a3b8,0,1.7,-.55,.4,.55,.2),K(0xef4444,0,3.5,0,.05,.3)],1],
+['⚡ Dewa Petir',5000,0x4c1d95,[...Array.from({length:5},(_,i)=>K(0xfde047,(i-2)*.2,3.2+(2-Math.abs(i-2))*.1,0,.1,.3)),S(0x60a5fa,0,1.8,0,1,1.6,1,{glass:1})],1]];
+const owned=new Set();let cur=-1;
+function dress(i){if(player.out)player.remove(player.out);player.out=null;cur=i;if(i<0){player.torso.material.color.setHex(0x3b82f6);return}
+const [n,p,sh,parts,sp]=COS[i],g=new THREE.Group();parts.forEach(q=>{const m=new THREE.MeshStandardMaterial({color:q.c,roughness:.6});if(sp)m.emissive=new THREE.Color(q.c).multiplyScalar(.4);if(q.glass){m.transparent=true;m.opacity=.28;m.depthWrite=false}
+const me=new THREE.Mesh(q.t==='c'?new THREE.ConeGeometry(q.a,q.b*2,12):new THREE.SphereGeometry(1,14,12),m);if(q.t==='s')me.scale.set(q.a,q.b,q.d);me.position.set(q.x,q.y,q.z);g.add(me)});player.add(g);player.out=g;player.torso.material.color.setHex(sh)}
+function renderShop(){const el=$('items');el.innerHTML='<p>Koinmu: <b>'+coins+'</b> 🪙 — kumpulkan koin emas di dunia & jawab soal!</p>';
+const mk=i=>{const c=COS[i]||['👕 Biasa',0],b=document.createElement('button'),own=i<0||owned.has(i);b.className='opt'+(cur===i?' sel':'');b.innerHTML='<b>'+c[0]+'</b><br>'+(cur===i?'✔ Dipakai':own?'Pakai':'🪙 '+c[1]);b.onclick=()=>{if(!own){if(coins<c[1]){el.firstChild.textContent='❌ Koin kurang untuk kostum ini!';return}coins-=c[1];owned.add(i);$('coin').textContent=coins}dress(i);sv();renderShop()};return b};
+[['🐾 Kostum Hewan',0,10],['🎀 Kostum Imut',10,15],['✨ Kostum Spesial',15,18],['',-1,0]].forEach(([h,a,z])=>{if(h){const t=document.createElement('h3');t.textContent=h;el.appendChild(t)}const g=document.createElement('div');g.className='cs';if(a<0)g.appendChild(mk(-1));else for(let i=a;i<z;i++)g.appendChild(mk(i));el.appendChild(g)})}
+// pintu keluar & simpan lokal
+const door=new THREE.Group();[-1.6,1.6].forEach(x=>{const p=new THREE.Mesh(new THREE.BoxGeometry(.6,4.5,.6),M(0x6b7280));p.position.set(x,2.25,0);door.add(p)});const lt=new THREE.Mesh(new THREE.BoxGeometry(4.4,.7,.7),M(0x6b7280));lt.position.y=4.6;door.add(lt);
+const dp=new THREE.Mesh(new THREE.PlaneGeometry(2.6,4.2),new THREE.MeshBasicMaterial({color:0xef4444,transparent:true,opacity:.55,side:THREE.DoubleSide}));dp.position.y=2.2;door.add(dp);const dl=label('🔒 Pintu Keluar','#b91c1c');dl.position.y=6;dl.scale.set(4,1,1);door.add(dl);door.position.set(0,0,-30);scene.add(door);
+let dOpen=false,lastM=0,wins=0;const KEY='edugame_tabel_v1';
+function doorOpen(){dOpen=true;dp.material.color.setHex(0x22c55e);dl.material.map=label('🚪 Pintu Keluar','#16a34a').material.map;msg('🎉 Semua NPC selesai! Pintu keluar terbuka — temukan di peta (kotak kuning)!')}
+function sv(){try{localStorage.setItem(KEY,JSON.stringify({coins,owned:[...owned],cur,wins}))}catch(e){}}
+function finish(){if(paused)return;wins++;coins+=200;$('coin').textContent=coins;sv();setPaused(true);$('fin').textContent=coins;show('win',1)}
+try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d){coins=d.coins||0;wins=d.wins||0;(d.owned||[]).forEach(i=>owned.add(i));if(d.cur>=0&&owned.has(d.cur))dress(d.cur)}}catch(e){}
+$('coin').textContent=coins;let lastC=coins;
+// input
+const keys={};let joy={x:0,y:0},sprint=false,vy=0,onGround=true;
+addEventListener('keydown',e=>{keys[e.code]=1;if(e.code==='KeyE')talk();if(e.code==='Space')jump();e.preventDefault&&['Space','ArrowUp','ArrowDown'].includes(e.code)&&e.preventDefault()});
+addEventListener('keyup',e=>keys[e.code]=0);
+function jump(){if(onGround&&!paused){vy=7.5;onGround=false}}
+let drag=null;
+ren.domElement.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY}});
+addEventListener('pointermove',e=>{if(drag){yaw-=(e.clientX-drag.x)*.006;pitch=Math.max(.1,Math.min(1.2,pitch+(e.clientY-drag.y)*.005));drag={x:e.clientX,y:e.clientY}}});
+addEventListener('pointerup',()=>drag=null);
+const joyEl=$('joy'),knob=$('knob');let jid=null;
+function jm(e){const r=joyEl.getBoundingClientRect();let dx=e.clientX-(r.left+60),dy=e.clientY-(r.top+60);const d=Math.hypot(dx,dy),m=45;if(d>m){dx*=m/d;dy*=m/d}knob.style.left=35+dx+'px';knob.style.top=35+dy+'px';joy.x=dx/m;joy.y=dy/m}
+joyEl.addEventListener('pointerdown',e=>{jid=e.pointerId;joyEl.setPointerCapture(jid);jm(e);e.stopPropagation()});
+joyEl.addEventListener('pointermove',e=>{if(e.pointerId===jid)jm(e)});
+const jend=()=>{jid=null;joy={x:0,y:0};knob.style.left=knob.style.top='35px'};joyEl.addEventListener('pointerup',jend);joyEl.addEventListener('pointercancel',jend);
+$('run').onpointerdown=()=>sprint=true;$('run').onpointerup=()=>sprint=false;$('jump').onpointerdown=jump;
+['run','jump','talk','hide'].forEach(i=>$(i).addEventListener('pointerdown',e=>e.stopPropagation()));
+
+function msg(t){const m=$('msg');m.textContent=t;m.style.display='block';clearTimeout(msg.t);msg.t=setTimeout(()=>m.style.display='none',2200)}
+function show(id,v){$(id).style.display=v?'flex':'none'}
+function setPaused(v){paused=v}
+$('go').onclick=()=>{show('intro',0);['top','joy','run','jump','map'].forEach(i=>$(i).style.display=i==='top'?'flex':'block');started=true;setPaused(false)};
+$('bmat').onclick=()=>{setPaused(true);show('intro',1);$('go').textContent='▶ Lanjut Main'};
+$('bshop').onclick=()=>{setPaused(true);renderShop();show('shop',1)};$('sclose').onclick=()=>{show('shop',0);setPaused(false)};
+
+function talk(){if(paused||inHut||!near||near.done)return;setPaused(true);const n=near;n.step=0;ask(n);show('quiz',1)}
+function ask(n){const k=n.qs[n.step],o=$('opts'),cb=$('qclose');$('who').textContent='💬 '+n.name+' — pertanyaan '+(n.step+1)+'/'+n.qs.length;$('q').textContent=k.q;$('fb').textContent='';cb.style.display='none';o.innerHTML='';
+const res=ok=>{[...o.querySelectorAll('button,input')].forEach(x=>x.disabled=true);cb.style.display='inline-block';
+if(ok){coins+=25;if(n.step<n.qs.length-1){$('fb').textContent='✅ Benar! +25 koin';cb.textContent='Pertanyaan berikutnya ▶';cbf=()=>{n.step++;ask(n)}}
+else{coins+=25;n.done=true;n.tag.material.map=label('✔ '+n.name,'#16a34a').material.map;done++;$('prog').textContent='NPC: '+done+'/20';$('fb').textContent='🎉 NPC selesai! +50 koin';cb.textContent='Lanjut';cbf=()=>{show('quiz',0);if(done===20)doorOpen();setPaused(false)}}$('coin').textContent=coins}
+else{n.flee=5;n.step=0;$('fb').textContent='❌ Salah! '+n.name+' kabur ketakutan 🏃💨 Dia akan kembali ke tempatnya — ajak bicara lagi nanti!';cb.textContent='Tutup';cbf=()=>{show('quiz',0);setPaused(false)}}};
+if(k.t==='pg'){k.o.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=String.fromCharCode(65+i)+'. '+t;b.onclick=()=>{b.classList.add(i===k.a?'ok':'no');res(i===k.a)};o.appendChild(b)})}
+else if(k.t==='pk'){const bs=[];k.o.forEach(t=>{const l=document.createElement('label');l.className='opt';l.style.display='block';l.innerHTML='<input type="checkbox" style="margin-right:8px"> '+t;bs.push(l);o.appendChild(l)});const sb=document.createElement('button');sb.className='btn b';sb.textContent='Kirim Jawaban';sb.onclick=()=>{const sel=bs.map((l,i)=>l.firstChild.checked?i:-1).filter(i=>i>=0);res(sel.length===k.a.length&&k.a.every(x=>sel.includes(x)))};o.appendChild(sb)}
+else{const inp=document.createElement('input');inp.className='opt';inp.placeholder='Ketik jawabanmu…';const sb=document.createElement('button');sb.className='btn b';sb.textContent='Kirim Jawaban';const go=()=>{const v=inp.value.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();if(v)res(k.a.some(x=>v===x||v.endsWith(' '+x)))};sb.onclick=go;inp.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter')go()};o.append(inp,sb);setTimeout(()=>inp.focus(),60)}}
+$('talk').onclick=talk;
+$('qclose').onclick=()=>cbf();
+
+const clock=new THREE.Clock();let walk=0;
+function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
+if(!paused){let ix=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0)+joy.x,iz=(keys.KeyS||keys.ArrowDown?1:0)-(keys.KeyW||keys.ArrowUp?1:0)+joy.y;
+const len=Math.hypot(ix,iz);let moving=len>.1&&!inHut;
+if(moving){if(len>1){ix/=len;iz/=len}const sp=(keys.ShiftLeft||keys.ShiftRight||sprint?11:6)*(Math.abs(player.position.x+36)<3.5&&Math.abs(player.position.z)>3?.45:1);
+const s=Math.sin(yaw),c=Math.cos(yaw);const dx=(ix*c+iz*s)*sp*dt,dz=(-ix*s+iz*c)*sp*dt;
+let nx=player.position.x+dx,nz=player.position.z+dz;
+for(const [bx,bz,br] of blockers){const d=Math.hypot(nx-bx,nz-bz);if(d<br+.5){nx+=(nx-bx)/d*(br+.5-d);nz+=(nz-bz)/d*(br+.5-d)}}
+const r=Math.hypot(nx,nz);if(r>55){nx*=55/r;nz*=55/r}player.position.x=nx;player.position.z=nz;
+let ta=Math.atan2(dx,dz),da=ta-player.rotation.y;da=Math.atan2(Math.sin(da),Math.cos(da));player.rotation.y+=da*Math.min(1,dt*12);walk+=dt*(sp>8?14:9)}
+const sw=moving?Math.sin(walk)*.8:0;player.legL.rotation.x=sw;player.legR.rotation.x=-sw;player.armL.rotation.x=-sw;player.armR.rotation.x=sw;
+vy-=20*dt;player.position.y+=vy*dt;if(player.position.y<=0){player.position.y=0;vy=0;onGround=true}
+near=null;let best=4;npcs.forEach(n=>{const d=n.position.distanceTo(player.position);if(!n.done&&!(n.flee>0)&&d<best){best=d;near=n}});
+$('talk').style.display=near?'block':'none';}
+if(!paused)updW(dt,t);extras(dt,t);npcs.forEach((n,i)=>{n.tag.position.y=3.6+Math.sin(t*3+i)*.1});drawMap();
+const d=8;cam.position.set(player.position.x+Math.sin(yaw)*Math.cos(pitch)*d,player.position.y+1.8+Math.sin(pitch)*d,player.position.z+Math.cos(yaw)*Math.cos(pitch)*d);cam.lookAt(player.position.x,player.position.y+2,player.position.z);
+ren.render(scene,cam)}
+addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
+loop();show('load',0);show('intro',1);
+let rt=180;$('go').disabled=true;$('go').textContent='⏳ Baca dulu: 3:00';const ri=setInterval(()=>{rt--;if(rt<=0){clearInterval(ri);$('go').disabled=false;$('go').textContent='▶ Mulai Petualangan'}else $('go').textContent='⏳ Baca dulu: '+Math.floor(rt/60)+':'+String(rt%60).padStart(2,'0')},1000);
+</script></body></html>
