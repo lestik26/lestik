@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduGame 3D - Petualangan Google Sheets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; background-color: #87CEEB; }
+        .ui-layer { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; }
+        .pointer-events-auto { pointer-events: auto; }
+        .glass-panel { background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(10px); }
+        .hidden { display: none !important; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* ===== Gaya Google Sheets ===== */
+        .gs-wrap { border: 1px solid #d1d5db; border-radius: 8px; overflow: auto; background: #fff; }
+        .gs-table { border-collapse: collapse; width: 100%; min-width: 680px; font-size: 14px; color: #202124; font-family: Arial, 'Inter', sans-serif; }
+        .gs-table th { background: #f8f9fa; border: 1px solid #e1e3e6; font-weight: 500; color: #5f6368; padding: 3px 8px; position: sticky; top: 0; z-index: 2; font-size: 12px; }
+        .gs-table td { border: 1px solid #e1e3e6; padding: 0 8px; height: 30px; white-space: nowrap; }
+        .gs-table td.rn { background: #f8f9fa; color: #5f6368; text-align: center; width: 38px; font-size: 12px; padding: 0; }
+        .gs-table tr.hdr td:not(.rn) { background: #e8f0fe; font-weight: 700; }
+        .gs-table tr.dim td:not(.rn) { color: #5f6368; }
+        .gs-table td.inp { padding: 0; }
+        .gs-table td.inp input { width: 100%; height: 30px; border: none; outline: none; background: #fffef0; padding: 0 8px; font: inherit; color: #202124; }
+        .gs-table td.inp:focus-within { outline: 2px solid #1a73e8; outline-offset: -2px; }
+        .gs-menu span { margin-right: 14px; font-size: 13px; color: #3c4043; }
+        .hearts { letter-spacing: 2px; }
+    </style>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+</head>
+<body>
+    <!-- Layar Mulai -->
+    <div id="start-screen" class="ui-layer flex items-center justify-center bg-blue-900/90 pointer-events-auto z-50 overflow-y-auto">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-2xl w-full mx-4 my-8">
+            <h1 class="text-3xl font-extrabold text-green-700 mb-2 border-b-4 border-green-500 pb-2">📗 Petualangan Google Sheets</h1>
+            <p class="text-gray-600 mb-4">Kumpulkan data 40 siswa lalu kalahkan Boss Grafik!</p>
+            <ol class="list-decimal pl-6 space-y-1 text-gray-700">
+                <li>Temukan NPC dan tekan <b>[E]</b> / klik untuk berbicara. NPC akan menyebutkan datanya.</li>
+                <li>Klik <b>Oke</b>, lalu isi data tersebut ke <b>lembar kerja</b> (seperti Google Sheets).</li>
+                <li>Data benar: NPC senang 😊. Data salah: NPC <b>kabur</b> — kejar dan isi ulang!</li>
+                <li>Data yang benar tersimpan di tombol <b>📋 Lembar Tugas</b>.</li>
+                <li>Setelah 40 NPC selesai, <b>BOSS</b> muncul: buat grafik sesuai perintahnya dan jawab 10 soal tren data.</li>
+                <li>Kamu punya <b>3 nyawa</b>. Jika habis, Boss mendorongmu dan kamu harus mengulang.</li>
+                <li>Tiap <b>5 menit</b>, 🧟 <b>zombie</b> muncul dari 4 penjuru map dan sangat cepat! Lari ke <b>zona sinar PINK</b> untuk bersembunyi. Zombie hilang setelah 10 detik.</li>
+            </ol>
+            <p class="text-sm text-gray-500 mt-4">W/A/S/D gerak · Mouse lihat · Spasi lompat · SHIFT lari · Tab Lembar Tugas · T Toko Kostum</p>
+            <div class="mt-6 text-center">
+                <button id="btn-start-game" disabled class="bg-gray-400 text-white font-bold py-3 px-8 rounded-full shadow-lg transition text-xl cursor-not-allowed">Memuat Game 3D...</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Utama -->
+    <div id="main-ui" class="ui-layer hidden flex flex-col justify-between p-4">
+        <div class="flex justify-between items-start pointer-events-auto">
+            <button id="btn-task" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md border-2 border-white transition transform hover:scale-105">
+                📋 Lembar Tugas (Tab) <span id="task-badge" class="ml-1 bg-white text-green-700 rounded-full px-2 text-sm">0</span>
+            </button>
+            <div class="flex flex-col items-end gap-3">
+                <div class="bg-yellow-400 text-yellow-900 font-extrabold py-2 px-4 rounded-lg shadow-md border-2 border-white flex items-center gap-2">
+                    <span class="text-xl">🪙</span> <span id="coin-display">0</span> Koin
+                </div>
+                <button id="btn-shop" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-5 rounded-xl shadow-lg border-2 border-white transition transform hover:scale-110 flex flex-col items-center">
+                    <span class="text-xl">🛒</span><span class="text-sm">Toko Kostum (T)</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="boss-hud" class="hidden absolute top-4 left-1/2 -translate-x-1/2 bg-red-700 text-white font-bold px-5 py-2 rounded-full shadow-lg border-2 border-white pointer-events-none flex items-center gap-3">
+            👹 BOSS <span id="boss-arrow" style="display:inline-block;font-size:22px">⬆️</span> <span><span id="boss-dist">0</span> m</span>
+        </div>
+
+        <div id="zombie-hud" class="absolute top-16 left-4 text-white font-bold px-4 py-2 rounded-full shadow-lg border-2 border-white pointer-events-none flex items-center gap-3" style="background:rgba(30,80,30,0.85)">
+            <span id="zombie-label">🧟 Zombie berikutnya 5:00</span>
+            <span id="safe-wrap" class="hidden">🛡️ <span id="safe-arrow" style="display:inline-block">⬆️</span> <span id="safe-dist"></span></span>
+        </div>
+
+        <div class="w-full flex justify-between items-end pointer-events-auto pb-4 px-4">
+            <div class="w-20"></div>
+            <div class="bg-black/60 backdrop-blur-sm text-white px-6 py-2 rounded-full font-semibold pointer-events-none mb-4">
+                NPC Diselesaikan: <span id="progress-display" class="text-green-400">0</span> / 40
+            </div>
+            <button id="btn-sprint" class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-bold w-20 h-20 rounded-full shadow-lg border-4 border-white transition flex flex-col items-center justify-center select-none mb-4">
+                <span class="text-3xl">🏃</span><span class="text-xs mt-1">LARI</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Layar Jeda -->
+    <div id="pause-screen" class="ui-layer hidden flex items-center justify-center bg-black/50 pointer-events-auto z-40 backdrop-blur-sm">
+        <div class="text-center text-white">
+            <h2 class="text-4xl font-bold mb-4">Game Dijeda</h2>
+            <p class="text-lg mb-6">Klik di mana saja untuk melanjutkan petualangan</p>
+            <p class="text-sm text-gray-300">W,A,S,D untuk bergerak, SHIFT (tahan) atau tombol LARI untuk berlari.<br>Mouse untuk melihat, Spasi untuk lompat.<br>[E] atau Klik Kiri untuk berbicara, [Tab] untuk Lembar Tugas, [T] untuk Toko Kostum.</p>
+        </div>
+    </div>
+
+    <!-- Prompt Interaksi -->
+    <div id="interact-prompt" class="absolute top-2/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl bg-black/50 px-4 py-2 rounded-lg hidden z-10 pointer-events-none text-center">
+        Tekan [E] atau Klik<br><span id="interact-text" class="text-sm font-normal">Berinteraksi</span>
+    </div>
+
+    <!-- Dialog NPC -->
+    <div id="npc-modal" class="ui-layer hidden flex items-center justify-center bg-black/60 pointer-events-auto z-50">
+        <div class="glass-panel p-6 rounded-2xl shadow-2xl max-w-md w-full mx-4 border-t-8 border-blue-500">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="text-4xl">🧑‍🎓</div>
+                <h2 id="npc-title" class="text-2xl font-bold text-gray-800">NPC</h2>
+            </div>
+            <p class="text-gray-700 mb-3">Halo! Ini dataku. Tolong catat di lembar kerja ya!</p>
+            <div id="npc-data" class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 space-y-1 text-gray-800"></div>
+            <div class="mt-5 flex justify-end gap-3">
+                <button id="btn-npc-later" class="px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">Nanti</button>
+                <button id="btn-npc-ok" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-md">Oke</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Lembar Kerja (Google Sheets) -->
+    <div id="sheet-modal" class="ui-layer hidden flex items-center justify-center bg-black/60 pointer-events-auto z-50">
+        <form id="sheet-form" autocomplete="off" class="glass-panel rounded-2xl shadow-2xl max-w-4xl w-full mx-4 overflow-hidden max-h-[92vh] flex flex-col">
+            <div class="bg-white border-b px-4 pt-3 pb-2">
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">📗</div>
+                    <div>
+                        <div class="font-bold text-gray-800 text-lg">Data Siswa — Lembar Kerja</div>
+                        <div class="gs-menu"><span>File</span><span>Edit</span><span>Lihat</span><span>Sisipkan</span><span>Format</span><span>Data</span><span>Alat</span></div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mt-2 text-sm">
+                    <div id="formula-ref" class="border rounded px-3 py-1 bg-gray-50 font-mono w-16 text-center">B2</div>
+                    <div class="text-gray-400 italic">fx</div>
+                    <div id="formula-text" class="flex-1 border rounded px-3 py-1 bg-gray-50 min-h-[28px] truncate"></div>
+                </div>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div class="gs-wrap">
+                    <table class="gs-table">
+                        <thead><tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th></tr></thead>
+                        <tbody id="sheet-body"></tbody>
+                    </table>
+                </div>
+                <div class="mt-4 bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-yellow-800">💬 <span id="sheet-npc-name">NPC</span> berkata:</span>
+                        <button type="button" id="btn-toggle-note" class="text-sm text-yellow-800 underline">Sembunyikan</button>
+                    </div>
+                    <div id="sheet-note" class="text-gray-800 text-sm mt-2"></div>
+                </div>
+            </div>
+            <div class="px-4 py-3 border-t bg-white flex justify-end gap-3">
+                <button type="button" id="btn-sheet-cancel" class="px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">Batal</button>
+                <button type="submit" class="px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition shadow-md">Simpan Data</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Lembar Tugas -->
+    <div id="task-modal" class="ui-layer hidden flex items-center justify-center bg-black/60 pointer-events-auto z-50">
+        <div class="glass-panel rounded-2xl shadow-2xl max-w-4xl w-full mx-4 overflow-hidden max-h-[92vh] flex flex-col">
+            <div class="bg-white border-b px-4 py-3 flex items-center gap-3">
+                <div class="text-3xl">📋</div>
+                <div>
+                    <div class="font-bold text-gray-800 text-lg">Lembar Tugas — Data Siswa</div>
+                    <div class="text-sm text-gray-500"><span id="task-count">0</span> / 40 data tersimpan</div>
+                </div>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div class="gs-wrap" style="max-height:60vh">
+                    <table class="gs-table">
+                        <thead><tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th></tr></thead>
+                        <tbody id="task-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="px-4 py-3 border-t bg-white flex justify-end">
+                <button id="btn-task-close" class="px-6 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Intro Boss -->
+    <div id="boss-modal" class="ui-layer hidden flex items-center justify-center bg-black/70 pointer-events-auto z-50">
+        <div class="glass-panel p-6 rounded-2xl shadow-2xl max-w-lg w-full mx-4 border-t-8 border-red-600">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="text-5xl">👹</div>
+                <h2 class="text-2xl font-extrabold text-red-700">BOSS GRAFIK</h2>
+            </div>
+            <p class="text-gray-700 mb-3">Hmph! Kamu berhasil mengumpulkan semua data. Sekarang buktikan kemampuanmu membaca tren!</p>
+            <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 text-gray-800">
+                <b>Perintah Boss:</b>
+                <div id="boss-task-text" class="mt-1"></div>
+                <div class="mt-2 text-sm">Lalu jawab <b>10 soal pilihan ganda</b> berdasarkan tren tabel. Nyawa: <span id="boss-lives-intro" class="hearts"></span></div>
+            </div>
+            <div class="mt-5 flex justify-end gap-3">
+                <button id="btn-boss-later" class="px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">Nanti</button>
+                <button id="btn-boss-start" class="px-6 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition shadow-md">Mulai Tantangan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editor Grafik -->
+    <div id="chart-modal" class="ui-layer hidden flex items-center justify-center bg-black/70 pointer-events-auto z-50">
+        <div class="glass-panel rounded-2xl shadow-2xl max-w-3xl w-full mx-4 overflow-hidden max-h-[94vh] flex flex-col">
+            <div class="bg-white border-b px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">📊</div>
+                    <div class="font-bold text-gray-800 text-lg">Editor Grafik</div>
+                </div>
+                <div class="hearts text-xl" id="chart-lives"></div>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div class="bg-red-50 border-2 border-red-200 rounded-xl p-3 mb-4 text-gray-800">
+                    👹 <b>Perintah Boss:</b> <span id="chart-task-text"></span>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="space-y-3">
+                        <label class="block text-sm font-bold text-gray-700">Kolom data (jumlah siswa per kategori)
+                            <select id="chart-col" class="mt-1 w-full border-2 border-gray-300 rounded-lg p-2 font-normal">
+                                <option value="kelas">Kelas</option>
+                                <option value="mapel">Mata Pelajaran Favorit</option>
+                                <option value="hobi">Hobi</option>
+                                <option value="cita">Cita-cita</option>
+                            </select>
+                        </label>
+                        <label class="block text-sm font-bold text-gray-700">Jenis grafik
+                            <select id="chart-type" class="mt-1 w-full border-2 border-gray-300 rounded-lg p-2 font-normal">
+                                <option value="bar">Diagram Batang</option>
+                                <option value="pie">Diagram Lingkaran</option>
+                                <option value="line">Diagram Garis</option>
+                            </select>
+                        </label>
+                        <p class="text-xs text-gray-500">Pratinjau di samping berubah sesuai pilihanmu. Salah pilih = kehilangan 1 nyawa.</p>
+                    </div>
+                    <div class="border rounded-xl bg-white p-2"><div id="chart-preview"></div></div>
+                </div>
+            </div>
+            <div class="px-4 py-3 border-t bg-white flex justify-end gap-3">
+                <button id="btn-chart-cancel" class="px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">Batal</button>
+                <button id="btn-chart-insert" class="px-6 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition shadow-md">Sisipkan Grafik</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kuis Boss -->
+    <div id="quiz-modal" class="ui-layer hidden flex items-center justify-center bg-black/70 pointer-events-auto z-50">
+        <div class="glass-panel rounded-2xl shadow-2xl max-w-5xl w-full mx-4 overflow-hidden max-h-[94vh] flex flex-col border-t-8 border-red-600">
+            <div class="bg-white border-b px-4 py-3 flex justify-between items-center">
+                <div class="font-bold text-gray-800 text-lg">👹 Soal <span id="quiz-num">1</span> / 10</div>
+                <div class="hearts text-xl" id="quiz-lives"></div>
+            </div>
+            <div class="p-4 overflow-y-auto grid md:grid-cols-2 gap-4">
+                <div class="border rounded-xl bg-white p-2">
+                    <div class="text-center font-bold text-gray-700 text-sm mb-1" id="quiz-chart-title"></div>
+                    <div id="quiz-chart"></div>
+                </div>
+                <form id="quiz-form" class="flex flex-col">
+                    <p id="quiz-text" class="text-gray-800 font-semibold text-lg mb-3"></p>
+                    <div id="quiz-options" class="space-y-2 flex flex-col"></div>
+                    <div class="mt-5 flex justify-end">
+                        <button type="submit" class="px-6 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition shadow-md">Jawab</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toko -->
+    <div id="shop-modal" class="ui-layer hidden flex items-center justify-center bg-black/60 pointer-events-auto z-50">
+        <div class="glass-panel rounded-2xl shadow-2xl max-w-3xl w-full mx-4 border-t-8 border-purple-500 flex flex-col max-h-[92vh]">
+            <div class="px-6 pt-5 pb-3 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">🛒 Toko Kostum</h2>
+                    <p class="text-gray-600 text-sm">Tukar koinmu dengan kostum baru! Tekan <b>T</b> untuk menutup.</p>
+                </div>
+                <div class="bg-yellow-400 text-yellow-900 font-extrabold py-2 px-4 rounded-lg shadow">🪙 <span id="shop-coins">0</span></div>
+            </div>
+            <div class="px-6 flex gap-2" id="shop-tabs"></div>
+            <div class="px-6 py-4 overflow-y-auto border-t">
+                <div id="shop-banner"></div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="shop-items"></div>
+            </div>
+            <div class="px-6 py-3 border-t flex justify-end">
+                <button id="btn-shop-close" class="px-6 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">Tutup (T)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layar Menang -->
+    <div id="win-screen" class="ui-layer hidden flex items-center justify-center bg-white/90 pointer-events-auto z-50">
+        <div class="text-center bg-white p-10 rounded-3xl shadow-2xl max-w-md border-4 border-yellow-400">
+            <h1 class="text-5xl mb-4">🏆</h1>
+            <h2 class="text-3xl font-extrabold text-gray-800 mb-2">Boss Dikalahkan!</h2>
+            <p class="text-gray-600 mb-4">Kamu berhasil mengisi 40 data, membuat grafik, dan membaca tren dengan tepat. Sisa nyawa: <span id="win-lives" class="hearts"></span></p>
+            <div class="bg-yellow-100 text-yellow-800 font-bold py-3 px-6 rounded-xl mb-6 inline-block">
+                Koin Terkumpul: <span id="win-coins">0</span> 🪙
+            </div>
+            <br>
+            <button id="btn-restart" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 text-lg">Main Lagi (Simpan Koin)</button>
+        </div>
+    </div>
+
+    <div id="damage-flash" class="fixed inset-0 pointer-events-none z-[55] bg-red-600 transition-opacity duration-300" style="opacity:0"></div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-full font-bold shadow-xl transition-opacity duration-300 opacity-0 z-[60] pointer-events-none text-center max-w-[90vw]">Pesan</div>
+
+    <div id="three-canvas-container"></div>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // ===================== DATA 40 SISWA =====================
+        function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+        function seededShuffle(arr, seed) { const r = mulberry32(seed); const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+        function expand(pairs) { const out = []; pairs.forEach(([k, n]) => { for (let i = 0; i < n; i++) out.push(k); }); return out; }
+
+        const NAMES = ['Andi Pratama','Budi Santoso','Citra Lestari','Dewi Anggraini','Eko Wijaya','Fitri Handayani','Galih Saputra','Hana Permata','Indra Kusuma','Jihan Aulia',
+            'Kevin Maulana','Lina Marlina','Mira Septiani','Naufal Hakim','Olivia Putri','Putra Ramadhan','Qori Amelia','Rizky Firmansyah','Sinta Dewi','Tegar Nugroho',
+            'Umar Fadli','Vina Oktavia','Wahyu Hidayat','Xena Safira','Yusuf Alamsyah','Zahra Nabila','Aldi Setiawan','Bella Anjani','Chandra Gunawan','Dina Rahmawati',
+            'Farhan Zulkifli','Gita Purnama','Hendra Kurniawan','Intan Maharani','Joko Susilo','Kirana Azzahra','Lutfi Ramadhani','Maya Sari','Nanda Prakoso','Rani Wulandari'];
+        const KELAS = seededShuffle(expand([['7A', 8], ['7B', 8], ['8A', 8], ['8B', 8], ['9A', 8]]), 11);
+        const MAPEL = seededShuffle(expand([['Matematika', 12], ['IPA', 9], ['Informatika', 8], ['Bahasa Indonesia', 6], ['Olahraga', 3], ['Seni Budaya', 2]]), 22);
+        const HOBI = seededShuffle(expand([['Bermain Game', 11], ['Membaca', 8], ['Sepak Bola', 7], ['Menggambar', 6], ['Memasak', 5], ['Menyanyi', 3]]), 33);
+        const CITA = seededShuffle(expand([['Programmer', 10], ['Dokter', 9], ['Guru', 7], ['Pilot', 6], ['Desainer', 5], ['Atlet', 3]]), 44);
+        const STUDENTS = NAMES.map((n, i) => ({ id: i + 1, nama: n, kelas: KELAS[i], mapel: MAPEL[i], hobi: HOBI[i], cita: CITA[i] }));
+        const TOTAL_NPC = STUDENTS.length; // 40
+
+        const COL_LABEL = { kelas: 'Kelas', mapel: 'Mata Pelajaran Favorit', hobi: 'Hobi', cita: 'Cita-cita' };
+        const TYPE_LABEL = { bar: 'Diagram Batang', pie: 'Diagram Lingkaran', line: 'Diagram Garis' };
+        const norm = s => String(s).toLowerCase().replace(/\s+/g, ' ').trim();
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+        const pick = a => a[Math.floor(Math.random() * a.length)];
+
+        // ===================== STATE =====================
+        const store = {
+            get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
+            set(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+        };
+        let coins = parseInt(store.get('eduGameCoins', '0')) || 0;
+        let currentCostumeHex = store.get('eduGameCostume', '#FFFFFF');
+        let purchasedCostumes; try { purchasedCostumes = JSON.parse(store.get('eduGamePurchases', '["#FFFFFF"]')); } catch (e) { purchasedCostumes = ['#FFFFFF']; }
+        const completed = []; // siswa yang datanya benar, berurutan
+        let isGameRunning = false;
+        let activeNpc = null;
+        let interactionTarget = null;
+        let isSprinting = false;
+        let bossObj = null;
+        let bossAttempt = null; // { lives, task:{col,type}, questions, idx, chartData }
+        let pushT = 0;
+        const pushDir = new THREE.Vector3();
+        const BOSS_POS = new THREE.Vector3(45, 0, 0);
+
+        const $ = id => document.getElementById(id);
+        const hearts = n => '❤️'.repeat(Math.max(0, n)) + '🖤'.repeat(Math.max(0, 3 - n));
+
+        let toastTimer = null;
+        function showToast(msg, duration = 3000) {
+            const t = $('toast'); t.innerText = msg; t.style.opacity = '1';
+            clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.style.opacity = '0'; }, duration);
+        }
+
+        function updateUI() {
+            $('coin-display').innerText = coins;
+            $('progress-display').innerText = completed.length;
+            $('task-badge').innerText = completed.length;
+            store.set('eduGameCoins', coins);
+        }
+
+        // ===================== THREE.JS =====================
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB);
+        scene.fog = new THREE.Fog(0x87CEEB, 20, 150);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        $('three-canvas-container').appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        dirLight.position.set(100, 200, 50);
+        dirLight.castShadow = true;
+        Object.assign(dirLight.shadow.camera, { left: -150, right: 150, top: 150, bottom: -150 });
+        scene.add(dirLight);
+
+        // ===== Karakter ala Roblox =====
+        function makeFaceTexture(skinHex, zombie) {
+            const c = document.createElement('canvas'); c.width = c.height = 128;
+            const x = c.getContext('2d');
+            x.fillStyle = '#' + skinHex.toString(16).padStart(6, '0'); x.fillRect(0, 0, 128, 128);
+            if (zombie) {
+                x.fillStyle = '#ff1744';
+                x.beginPath(); x.ellipse(44, 52, 9, 9, 0, 0, Math.PI * 2); x.fill();
+                x.beginPath(); x.ellipse(84, 52, 9, 9, 0, 0, Math.PI * 2); x.fill();
+                x.fillStyle = '#111';
+                x.beginPath(); x.arc(44, 52, 3, 0, Math.PI * 2); x.fill();
+                x.beginPath(); x.arc(84, 52, 3, 0, Math.PI * 2); x.fill();
+                x.fillStyle = '#2b0000'; x.fillRect(34, 86, 60, 16);
+                x.fillStyle = '#e8e8d0'; for (let i = 0; i < 6; i++) x.fillRect(36 + i * 10, 86, 6, 6);
+                x.strokeStyle = '#33691e'; x.lineWidth = 4; x.beginPath();
+                x.moveTo(30, 36); x.lineTo(56, 42); x.moveTo(98, 36); x.lineTo(72, 42); x.stroke();
+                return new THREE.CanvasTexture(c);
+            }
+            x.fillStyle = '#1b1b1b';
+            x.beginPath(); x.ellipse(44, 52, 7, 11, 0, 0, Math.PI * 2); x.fill();
+            x.beginPath(); x.ellipse(84, 52, 7, 11, 0, 0, Math.PI * 2); x.fill();
+            x.strokeStyle = '#1b1b1b'; x.lineWidth = 6; x.lineCap = 'round';
+            x.beginPath(); x.arc(64, 70, 28, 0.15 * Math.PI, 0.85 * Math.PI); x.stroke();
+            x.fillStyle = 'rgba(255,120,120,0.35)';
+            x.beginPath(); x.arc(26, 78, 9, 0, Math.PI * 2); x.fill();
+            x.beginPath(); x.arc(102, 78, 9, 0, Math.PI * 2); x.fill();
+            return new THREE.CanvasTexture(c);
+        }
+        function buildRoblox(o) {
+            const root = new THREE.Group();
+            const M = c => new THREE.MeshLambertMaterial({ color: c });
+            const shirtMat = M(o.shirt), pantsMat = M(o.pants), skinMat = M(o.skin), hairMat = M(o.hair), shoeMat = M(0x222222);
+            const box = (w, h, d, mat, x, y, z, parent = root) => {
+                const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+                m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m;
+            };
+            box(1.0, 1.0, 0.5, shirtMat, 0, 1.4, 0);                 // badan
+            box(1.02, 0.14, 0.52, M(0xffd54f), 0, 1.62, 0);          // strip dada
+            const mkArm = s => { const p = new THREE.Group(); p.position.set(s * 0.72, 1.9, 0);
+                box(0.4, 0.5, 0.46, shirtMat, 0, -0.25, 0, p); box(0.36, 0.45, 0.42, skinMat, 0, -0.72, 0, p); root.add(p); return p; };
+            const mkLeg = s => { const p = new THREE.Group(); p.position.set(s * 0.25, 0.9, 0);
+                box(0.46, 0.75, 0.5, pantsMat, 0, -0.375, 0, p); box(0.48, 0.15, 0.54, shoeMat, 0, -0.825, 0.02, p); root.add(p); return p; };
+            const armL = mkArm(-1), armR = mkArm(1), legL = mkLeg(-1), legR = mkLeg(1);
+            const faceMat = new THREE.MeshLambertMaterial({ map: makeFaceTexture(o.skin, o.zombie) });
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), [skinMat, skinMat, skinMat, skinMat, faceMat, skinMat]);
+            head.position.y = 2.3; head.castShadow = true; root.add(head);
+            const hairMeshes = [box(0.86, 0.2, 0.86, hairMat, 0, 2.72, 0), box(0.86, 0.5, 0.14, hairMat, 0, 2.45, -0.36), box(0.86, 0.12, 0.12, hairMat, 0, 2.62, 0.37)];
+            root.userData.rig = { armL, armR, legL, legR, shirtMat, pantsMat, skinMat, hairMat, faceMat, hairMeshes, phase: 0, zombie: !!o.zombie };
+            return root;
+        }
+        function animateRig(root, speed, dt, cheer) {
+            const r = root.userData.rig;
+            r.phase += speed * dt * 1.0;
+            const swing = Math.sin(r.phase) * 0.9 * Math.min(1, speed / 3);
+            r.legL.rotation.x = swing; r.legR.rotation.x = -swing;
+            if (r.zombie) {
+                const w = Math.sin(r.phase * 0.5) * 0.08;
+                r.armL.rotation.x = -1.45 + w; r.armR.rotation.x = -1.45 - w;
+                r.armL.rotation.z = 0.05; r.armR.rotation.z = -0.05;
+            } else if (cheer) {
+                const w = Math.sin(performance.now() / 80) * 0.2;
+                r.armL.rotation.x = -Math.PI * 0.9 + w; r.armR.rotation.x = -Math.PI * 0.9 - w;
+                r.armL.rotation.z = 0.25; r.armR.rotation.z = -0.25;
+            } else {
+                r.armL.rotation.x = -swing; r.armR.rotation.x = swing;
+                r.armL.rotation.z = 0; r.armR.rotation.z = 0;
+            }
+        }
+
+        // Pemain (titik pusat = kaki)
+        const playerContainer = new THREE.Group();
+        playerContainer.position.set(0, 0, 0);
+        scene.add(playerContainer);
+        const playerRig = buildRoblox({ shirt: 0xffffff, pants: 0x2b3a67, skin: 0xffd9a0, hair: 0x3a2412 });
+        playerRig.rotation.y = Math.PI; // wajah menghadap depan (menjauhi kamera)
+        playerContainer.add(playerRig);
+
+        const cameraPivot = new THREE.Group();
+        cameraPivot.position.set(0, 2.4, 0);
+        playerContainer.add(cameraPivot);
+        cameraPivot.add(camera);
+        camera.position.set(0, 1.5, 8);
+        camera.lookAt(0, -0.8, 0);
+
+        // Pointer lock
+        let isLocked = false;
+        const OVERLAYS = ['npc-modal', 'sheet-modal', 'task-modal', 'boss-modal', 'chart-modal', 'quiz-modal', 'shop-modal', 'win-screen', 'start-screen'];
+        const overlayOpen = () => OVERLAYS.some(id => !$(id).classList.contains('hidden'));
+        const lockPointer = () => { if (!isLocked && isGameRunning && !overlayOpen()) document.body.requestPointerLock(); };
+        const unlockPointer = () => { if (document.exitPointerLock) document.exitPointerLock(); };
+        const lockSoon = () => setTimeout(lockPointer, 100);
+
+        const moveState = { forward: false, backward: false, left: false, right: false, canJump: false };
+        function resetKeys() { moveState.forward = moveState.backward = moveState.left = moveState.right = false; isSprinting = false; }
+
+        document.addEventListener('pointerlockchange', () => {
+            isLocked = document.pointerLockElement === document.body;
+            if (isLocked) { $('pause-screen').classList.add('hidden'); }
+            else {
+                resetKeys();
+                if (isGameRunning && !overlayOpen()) $('pause-screen').classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isLocked) return;
+            playerContainer.rotation.y -= (e.movementX || 0) * 0.002;
+            cameraPivot.rotation.x -= (e.movementY || 0) * 0.002;
+            cameraPivot.rotation.x = Math.max(-0.7, Math.min(0.35, cameraPivot.rotation.x));
+        });
+
+
+        const obstacles = [];
+        const npcs = [];
+        const collectibles = [];
+        let velY = 0;
+        const velLocal = { x: 0, z: 0 };
+        const playerHeight = 2.7, playerRadius = 0.6;
+
+        function createCollider(x, y, z, w, h, d) {
+            const box = new THREE.Box3();
+            box.setFromCenterAndSize(new THREE.Vector3(x, y, z), new THREE.Vector3(w, h, d));
+            obstacles.push(box);
+            return box;
+        }
+
+        function buildMap() {
+            const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshLambertMaterial({ color: 0x4B8B3B }));
+            ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+
+            const river = new THREE.Mesh(new THREE.PlaneGeometry(300, 20), new THREE.MeshLambertMaterial({ color: 0x1E90FF, transparent: true, opacity: 0.8 }));
+            river.rotation.x = -Math.PI / 2; river.position.y = 0.1; scene.add(river);
+
+            const mtnGeo = new THREE.ConeGeometry(20, 40, 4);
+            const mtnMat = new THREE.MeshLambertMaterial({ color: 0x555555 });
+            for (let i = 0; i < 30; i++) {
+                const angle = (i / 30) * Math.PI * 2;
+                const mtn = new THREE.Mesh(mtnGeo, mtnMat);
+                mtn.position.set(Math.cos(angle) * 140, 20, Math.sin(angle) * 140);
+                mtn.rotation.y = Math.random() * Math.PI;
+                scene.add(mtn);
+                createCollider(mtn.position.x, 20, mtn.position.z, 20, 40, 20);
+            }
+
+            const houseMat = new THREE.MeshLambertMaterial({ color: 0xD2B48C });
+            const roofMat = new THREE.MeshLambertMaterial({ color: 0x8B0000 });
+            const trunkMat = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const leafMat = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+            for (let i = 0; i < 40; i++) {
+                let rx = (Math.random() - 0.5) * 200;
+                let rz = (Math.random() - 0.5) * 200;
+                if (Math.abs(rz) < 20) rz += 30 * Math.sign(rz || 1);
+                if (Math.random() > 0.5) {
+                    const w = 5 + Math.random() * 5, h = 5, d = 5 + Math.random() * 5;
+                    const house = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), houseMat);
+                    house.position.set(rx, h / 2, rz); house.castShadow = true; house.receiveShadow = true; scene.add(house);
+                    const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * 0.7, 4, 4), roofMat);
+                    roof.position.set(rx, h + 2, rz); roof.rotation.y = Math.PI / 4; roof.castShadow = true; scene.add(roof);
+                    createCollider(rx, h / 2, rz, w, h, d);
+                } else {
+                    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 4), trunkMat);
+                    trunk.position.set(rx, 2, rz); trunk.castShadow = true; scene.add(trunk);
+                    const leaves = new THREE.Mesh(new THREE.DodecahedronGeometry(2.5), leafMat);
+                    leaves.position.set(rx, 5, rz); leaves.castShadow = true; scene.add(leaves);
+                    createCollider(rx, 2, rz, 1.5, 4, 1.5);
+                }
+            }
+        }
+
+        // Label nama di atas kepala
+        function makeLabel(group, y, w, h, text, bg) {
+            const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            const tex = new THREE.CanvasTexture(canvas);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
+            sprite.position.y = y; sprite.scale.set(w, h, 1);
+            group.add(sprite);
+            group.userData.labelCtx = ctx; group.userData.labelTex = tex; group.userData.label = sprite;
+            drawLabel(group, text, bg);
+        }
+        function drawLabel(group, text, bg) {
+            const c = group.userData.labelCtx;
+            c.clearRect(0, 0, 256, 64);
+            c.fillStyle = bg; c.fillRect(6, 6, 244, 52);
+            c.fillStyle = '#fff'; c.font = 'bold 26px Inter, sans-serif'; c.textAlign = 'center';
+            c.fillText(text, 128, 42);
+            group.userData.labelTex.needsUpdate = true;
+        }
+
+        const NPC_BASE = { body: new THREE.MeshLambertMaterial({ color: 0x1565C0 }), head: new THREE.MeshLambertMaterial({ color: 0xFFE082 }) };
+        const NPC_DONE = new THREE.MeshLambertMaterial({ color: 0x2ECC71 });
+
+        function spawnEntities() {
+            const order = shuffle(STUDENTS);
+            order.forEach((st, i) => {
+                const SHIRTS = { '7A': 0xE53935, '7B': 0x1E88E5, '8A': 0xFB8C00, '8B': 0x8E24AA, '9A': 0x00ACC1 };
+                const PANTS = [0x2b3a67, 0x3e2723, 0x37474f, 0x455a64];
+                const HAIRS = [0x2b1b12, 0x111111, 0x6d4c41, 0xf5c542, 0x8d1a1a];
+                const SKINS = [0xffd9a0, 0xf1c27d, 0xd9a066, 0xe0ac69];
+                const g = buildRoblox({ shirt: SHIRTS[st.kelas] || 0x1565C0, pants: PANTS[st.id % PANTS.length], skin: SKINS[st.id % SKINS.length], hair: HAIRS[(st.id * 3) % HAIRS.length] });
+
+                let nx, nz, ok = false, tries = 0;
+                while (!ok && tries++ < 200) {
+                    nx = (Math.random() - 0.5) * 220; nz = (Math.random() - 0.5) * 220;
+                    ok = (Math.abs(nx) > 15 || Math.abs(nz) > 15) && Math.hypot(nx - BOSS_POS.x, nz - BOSS_POS.z) > 12 && !hitsObstacle(nx, nz, 2);
+                }
+                g.position.set(nx, 0, nz);
+                g.userData = { type: 'npc', student: st, name: `NPC ${st.id}`, answered: false, running: false, runDir: new THREE.Vector3(), runTimer: 0, happyT: 0, rig: g.userData.rig, wanderDir: new THREE.Vector3(), wanderT: Math.random() * 2, moving: false };
+                makeLabel(g, 3.6, 4, 1, `NPC ${st.id}`, 'rgba(0,0,0,0.55)');
+                scene.add(g); npcs.push(g);
+            });
+
+            const coinGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.1, 16);
+            const coinMat = new THREE.MeshLambertMaterial({ color: 0xFFD700 });
+            for (let i = 0; i < 10; i++) {
+                const coin = new THREE.Mesh(coinGeo, coinMat);
+                coin.rotation.x = Math.PI / 2;
+                coin.position.set((Math.random() - 0.5) * 240, 1, (Math.random() - 0.5) * 240);
+                scene.add(coin);
+                collectibles.push({ mesh: coin, value: 5, active: true });
+            }
+        }
+
+        function hitsObstacle(x, z, r) {
+            for (const b of obstacles) if (x > b.min.x - r && x < b.max.x + r && z > b.min.z - r && z < b.max.z + r) return true;
+            return false;
+        }
+        function playerBlocked(p) {
+            for (const b of obstacles) {
+                if (p.x > b.min.x - playerRadius && p.x < b.max.x + playerRadius && p.z > b.min.z - playerRadius && p.z < b.max.z + playerRadius && p.y < b.max.y && p.y + playerHeight > b.min.y) return true;
+            }
+            return false;
+        }
+        function tryMove(dx, dz) {
+            const p = playerContainer.position;
+            p.x += dx; if (playerBlocked(p)) p.x -= dx;
+            p.z += dz; if (playerBlocked(p)) p.z -= dz;
+            p.x = Math.max(-130, Math.min(130, p.x)); p.z = Math.max(-130, Math.min(130, p.z));
+        }
+
+        // ===================== ZOMBIE & ZONA AMAN =====================
+        const ZONE_R = 6;
+        const zones = [], zoneBeams = [], zombies = [];
+        const WALK_SPEED = 6;                 // kecepatan jalan pemain (unit/detik)
+        const ZOMBIE_SPEED = WALK_SPEED * 3;  // zombie 3x lebih cepat
+        const WAVE_INTERVAL = 300;            // 5 menit
+        const ZOMBIE_LIFE = 10;               // hilang setelah 10 detik
+        let waveTimer = WAVE_INTERVAL, hitCooldown = 0, stunT = 0;
+
+        const inZone = (x, z) => zones.some(q => Math.hypot(q.x - x, q.z - z) < q.r);
+
+        function buildZones() {
+            zones.push({ x: -22, z: 12, r: ZONE_R });
+            let tries = 0;
+            while (zones.length < 10 && tries++ < 800) {
+                const x = (Math.random() - 0.5) * 220, z = (Math.random() - 0.5) * 220;
+                if (hitsObstacle(x, z, ZONE_R + 1.5)) continue;
+                if (Math.hypot(x - BOSS_POS.x, z - BOSS_POS.z) < 14) continue;
+                if (zones.some(q => Math.hypot(q.x - x, q.z - z) < 30)) continue;
+                zones.push({ x, z, r: ZONE_R });
+            }
+            zones.forEach(q => {
+                const g = new THREE.Group(); g.position.set(q.x, 0, q.z);
+                const disc = new THREE.Mesh(new THREE.CircleGeometry(q.r, 48), new THREE.MeshBasicMaterial({ color: 0xff4fa3, transparent: true, opacity: 0.55, depthWrite: false }));
+                disc.rotation.x = -Math.PI / 2; disc.position.y = 0.15; g.add(disc);
+                const ring = new THREE.Mesh(new THREE.RingGeometry(q.r - 0.5, q.r, 48), new THREE.MeshBasicMaterial({ color: 0xffa6d5, side: THREE.DoubleSide }));
+                ring.rotation.x = -Math.PI / 2; ring.position.y = 0.18; g.add(ring);
+                const beam = new THREE.Mesh(new THREE.CylinderGeometry(q.r * 0.92, q.r * 0.92, 45, 32, 1, true), new THREE.MeshBasicMaterial({ color: 0xff4fa3, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false }));
+                beam.position.y = 22.5; g.add(beam); zoneBeams.push(beam);
+                g.userData = {};
+                makeLabel(g, 7, 5, 1.2, '🛡️ ZONA AMAN', 'rgba(220,40,130,0.85)');
+                scene.add(g);
+            });
+        }
+
+        function spawnWave() {
+            ['kanan', 'kiri', 'atas', 'bawah'].forEach(edge => {
+                let x = 0, z = 0, t = 0;
+                do {
+                    const s = (Math.random() - 0.5) * 160;
+                    if (edge === 'kanan') { x = 125; z = s; } else if (edge === 'kiri') { x = -125; z = s; }
+                    else if (edge === 'atas') { x = s; z = -125; } else { x = s; z = 125; }
+                } while (t++ < 30 && (hitsObstacle(x, z, 1.5) || inZone(x, z)));
+                const zb = buildRoblox({ shirt: 0x4e6b3a, pants: 0x3b3b4f, skin: 0x7fae5a, hair: 0x1c1c1c, zombie: true });
+                zb.position.set(x, 0, z); zb.scale.set(1.1, 1.1, 1.1);
+                zb.userData.life = ZOMBIE_LIFE;
+                makeLabel(zb, 3.6, 3.2, 0.8, '🧟 ZOMBIE', 'rgba(40,100,40,0.85)');
+                scene.add(zb); zombies.push(zb);
+            });
+            showToast('🧟 ZOMBIE muncul dari 4 penjuru! Lari ke sinar PINK!', 5000);
+        }
+
+        function flashDamage() { const f = $('damage-flash'); f.style.opacity = '0.45'; setTimeout(() => { f.style.opacity = '0'; }, 180); }
+
+        function updateZombies(delta) {
+            waveTimer -= delta;
+            if (waveTimer <= 0) { waveTimer = WAVE_INTERVAL; spawnWave(); }
+            if (hitCooldown > 0) hitCooldown -= delta;
+            if (stunT > 0) stunT -= delta;
+            const p = playerContainer.position;
+            const safe = inZone(p.x, p.z);
+            for (let i = zombies.length - 1; i >= 0; i--) {
+                const zb = zombies[i];
+                zb.userData.life -= delta;
+                if (zb.userData.life <= 0) {
+                    scene.remove(zb); zombies.splice(i, 1);
+                    if (zombies.length === 0) showToast('Zombie menghilang. Aman! 😮‍💨', 2500);
+                    continue;
+                }
+                let dx = p.x - zb.position.x, dz = p.z - zb.position.z;
+                const d = Math.hypot(dx, dz) || 1;
+                dx /= d; dz /= d;
+                const sx = dx * ZOMBIE_SPEED * delta, sz = dz * ZOMBIE_SPEED * delta;
+                if (!hitsObstacle(zb.position.x + sx, zb.position.z, 1)) zb.position.x += sx;
+                if (!hitsObstacle(zb.position.x, zb.position.z + sz, 1)) zb.position.z += sz;
+                // zombie tidak boleh masuk zona pink
+                for (const q of zones) {
+                    const ex = zb.position.x - q.x, ez = zb.position.z - q.z, ed = Math.hypot(ex, ez);
+                    const lim = q.r + 1.6;
+                    if (ed < lim) { const k = lim / (ed || 0.001); zb.position.x = q.x + ex * k; zb.position.z = q.z + ez * k; }
+                }
+                zb.rotation.y = Math.atan2(dx, dz);
+                animateRig(zb, ZOMBIE_SPEED, delta, false);
+                if (!safe && hitCooldown <= 0 && d < 1.3 && p.y < 2.2) {
+                    hitCooldown = 3; stunT = 1.0;
+                    coins = Math.max(0, coins - 25); updateUI();
+                    pushDir.set(p.x - zb.position.x, 0, p.z - zb.position.z);
+                    if (pushDir.lengthSq() < 0.01) pushDir.set(1, 0, 0);
+                    pushDir.normalize(); pushT = 0.45; velY = 7; moveState.canJump = false;
+                    flashDamage();
+                    showToast('🧟 Digigit zombie! -25 koin. Lari ke zona PINK!', 2500);
+                }
+            }
+        }
+
+        function updateZombieHud() {
+            const hud = $('zombie-hud'), label = $('zombie-label'), wrap = $('safe-wrap');
+            const p = playerContainer.position;
+            if (zombies.length > 0) {
+                const life = Math.max(...zombies.map(z => z.userData.life));
+                hud.style.background = 'rgba(183,28,28,0.92)';
+                label.innerText = `🧟 ZOMBIE! Hilang dalam ${Math.max(0, Math.ceil(life))} dtk`;
+                wrap.classList.remove('hidden');
+                if (inZone(p.x, p.z)) { $('safe-arrow').style.display = 'none'; $('safe-dist').innerText = 'AMAN di zona pink'; }
+                else if (zones.length) {
+                    let best = null, bd = Infinity;
+                    zones.forEach(q => { const d = Math.hypot(q.x - p.x, q.z - p.z); if (d < bd) { bd = d; best = q; } });
+                    const dx = best.x - p.x, dz = best.z - p.z, th = playerContainer.rotation.y;
+                    const fx = -Math.sin(th), fz = -Math.cos(th), rx = Math.cos(th), rz = -Math.sin(th);
+                    const a = Math.atan2(dx * rx + dz * rz, dx * fx + dz * fz);
+                    $('safe-arrow').style.display = 'inline-block'; $('safe-arrow').style.transform = `rotate(${a}rad)`;
+                    $('safe-dist').innerText = Math.round(Math.max(0, bd - best.r)) + ' m';
+                }
+            } else {
+                hud.style.background = 'rgba(30,80,30,0.85)';
+                const t = Math.max(0, Math.ceil(waveTimer));
+                label.innerText = `🧟 Zombie berikutnya ${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
+                wrap.classList.add('hidden');
+            }
+        }
+
+        // ===================== BOSS =====================
+        function spawnBoss() {
+            const g = new THREE.Group();
+            const redMat = new THREE.MeshLambertMaterial({ color: 0xC62828 });
+            const body = new THREE.Mesh(new THREE.BoxGeometry(3, 4, 2.2), redMat); body.position.y = 2; body.castShadow = true; g.add(body);
+            const head = new THREE.Mesh(new THREE.BoxGeometry(2, 1.6, 2), new THREE.MeshLambertMaterial({ color: 0x8E0000 })); head.position.y = 4.8; head.castShadow = true; g.add(head);
+            const hornMat = new THREE.MeshLambertMaterial({ color: 0xFFF3C0 });
+            [-0.7, 0.7].forEach(x => { const h = new THREE.Mesh(new THREE.ConeGeometry(0.3, 1.1, 8), hornMat); h.position.set(x, 6.1, 0); g.add(h); });
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
+            [-0.5, 0.5].forEach(x => { const e = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.25, 0.1), eyeMat); e.position.set(x, 4.9, 1.02); g.add(e); });
+            g.position.copy(BOSS_POS);
+            g.rotation.y = -Math.PI / 2; // menghadap barat (ke arah pemain mulai)
+            g.userData = { type: 'boss', name: 'BOSS' };
+            makeLabel(g, 8, 6, 1.5, '👹 BOSS', 'rgba(150,0,0,0.85)');
+            scene.add(g); bossObj = g;
+            createCollider(BOSS_POS.x, 2, BOSS_POS.z, 3.4, 4.4, 2.6);
+            $('boss-hud').classList.remove('hidden');
+            showToast('👹 BOSS muncul! Ikuti panah merah di atas layar.', 5000);
+        }
+
+        // ===================== INTERAKSI =====================
+        function tryInteract() {
+            if (!interactionTarget || overlayOpen()) return;
+            if (interactionTarget.userData.type === 'npc') openNpcDialog(interactionTarget);
+            else if (interactionTarget.userData.type === 'boss') openBossIntro();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyT' && !e.repeat && !$('shop-modal').classList.contains('hidden')) { closeShop(); return; }
+            if (!isLocked) return;
+            switch (e.code) {
+                case 'ArrowUp': case 'KeyW': moveState.forward = true; break;
+                case 'ArrowLeft': case 'KeyA': moveState.left = true; break;
+                case 'ArrowDown': case 'KeyS': moveState.backward = true; break;
+                case 'ArrowRight': case 'KeyD': moveState.right = true; break;
+                case 'ShiftLeft': case 'ShiftRight': isSprinting = true; break;
+                case 'Space': if (moveState.canJump) { velY = 12; moveState.canJump = false; } e.preventDefault(); break;
+                case 'KeyE': tryInteract(); break;
+                case 'KeyT': openShop(); break;
+                case 'Tab': e.preventDefault(); openTaskSheet(); break;
+            }
+        });
+        document.addEventListener('keyup', (e) => {
+            switch (e.code) {
+                case 'ArrowUp': case 'KeyW': moveState.forward = false; break;
+                case 'ArrowLeft': case 'KeyA': moveState.left = false; break;
+                case 'ArrowDown': case 'KeyS': moveState.backward = false; break;
+                case 'ArrowRight': case 'KeyD': moveState.right = false; break;
+                case 'ShiftLeft': case 'ShiftRight': isSprinting = false; break;
+            }
+        });
+        document.addEventListener('mousedown', (e) => { if (isLocked && e.button === 0 && !e.target.closest('button')) tryInteract(); });
+
+        const btnSprint = $('btn-sprint');
+        btnSprint.addEventListener('mousedown', () => isSprinting = true);
+        btnSprint.addEventListener('mouseup', () => isSprinting = false);
+        btnSprint.addEventListener('mouseleave', () => isSprinting = false);
+        btnSprint.addEventListener('touchstart', (e) => { e.preventDefault(); isSprinting = true; });
+        btnSprint.addEventListener('touchend', (e) => { e.preventDefault(); isSprinting = false; });
+
+        // ===================== LOOP =====================
+        let prevTime = performance.now();
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = performance.now();
+            const delta = Math.min(0.05, (time - prevTime) / 1000);
+            prevTime = time;
+
+            if (isGameRunning) {
+                updateNpcs(delta);
+                if (isLocked && !overlayOpen()) updateZombies(delta);
+                zoneBeams.forEach(b => { b.material.opacity = 0.14 + 0.06 * Math.sin(time / 300); });
+                if (bossObj) bossObj.scale.y = 1 + Math.sin(time / 300) * 0.03;
+
+                const p = playerContainer.position;
+
+                collectibles.forEach(col => {
+                    if (!col.active) return;
+                    col.mesh.rotation.z += 2 * delta; col.mesh.rotation.x += delta;
+                    if (Math.hypot(p.x - col.mesh.position.x, p.z - col.mesh.position.z) < 2.5 && p.y < 3) {
+                        col.active = false; col.mesh.visible = false;
+                        coins += col.value; updateUI(); showToast(`+${col.value} Koin Tersembunyi!`, 2000);
+                    }
+                });
+
+                // Gravitasi & lompat
+                velY -= 30 * delta;
+                p.y += velY * delta;
+                if (p.y <= 0) { p.y = 0; velY = 0; moveState.canJump = true; }
+
+                if (isLocked) {
+                    velLocal.x -= velLocal.x * 10 * delta;
+                    velLocal.z -= velLocal.z * 10 * delta;
+                    const fwd = stunT > 0 ? 0 : Number(moveState.forward) - Number(moveState.backward);
+                    const str = stunT > 0 ? 0 : Number(moveState.right) - Number(moveState.left);
+                    const len = Math.hypot(fwd, str) || 1;
+                    const accel = isSprinting ? 120 : 60;
+                    velLocal.z -= (fwd / len) * accel * delta; // maju = -Z lokal
+                    velLocal.x += (str / len) * accel * delta;
+                    const lx = velLocal.x * delta, lz = velLocal.z * delta;
+                    const yaw = playerContainer.rotation.y;
+                    tryMove(lx * Math.cos(yaw) + lz * Math.sin(yaw), -lx * Math.sin(yaw) + lz * Math.cos(yaw));
+                }
+
+                animateRig(playerRig, isLocked ? Math.hypot(velLocal.x, velLocal.z) : 0, delta, false);
+                (playerRig.userData.fx || []).forEach(f => { f.rotation.y += delta * 2; });
+
+                // Dorongan Boss
+                if (pushT > 0) {
+                    pushT -= delta;
+                    tryMove(pushDir.x * 35 * delta, pushDir.z * 35 * delta);
+                }
+
+                // Cari target interaksi terdekat
+                interactionTarget = null;
+                let best = Infinity;
+                if (!overlayOpen()) {
+                    npcs.forEach(n => {
+                        if (n.userData.answered || n.userData.running) return;
+                        const d = Math.hypot(n.position.x - p.x, n.position.z - p.z);
+                        if (d < 5 && d < best) { best = d; interactionTarget = n; }
+                    });
+                    if (bossObj) {
+                        const d = Math.hypot(bossObj.position.x - p.x, bossObj.position.z - p.z);
+                        if (d < 8 && d < best) { best = d; interactionTarget = bossObj; }
+                    }
+                }
+                const promptEl = $('interact-prompt');
+                if (interactionTarget) {
+                    $('interact-text').innerText = interactionTarget.userData.type === 'boss' ? 'Hadapi BOSS' : 'Bicara dengan ' + interactionTarget.userData.name;
+                    promptEl.classList.remove('hidden');
+                } else promptEl.classList.add('hidden');
+
+                // Kompas Boss
+                if (bossObj) {
+                    const dx = bossObj.position.x - p.x, dz = bossObj.position.z - p.z;
+                    const th = playerContainer.rotation.y;
+                    const fx = -Math.sin(th), fz = -Math.cos(th), rx = Math.cos(th), rz = -Math.sin(th);
+                    const a = Math.atan2(dx * rx + dz * rz, dx * fx + dz * fz);
+                    $('boss-arrow').style.transform = `rotate(${a}rad)`;
+                    $('boss-dist').innerText = Math.round(Math.hypot(dx, dz));
+                }
+                updateZombieHud();
+            }
+            renderer.render(scene, camera);
+        }
+
+        function updateNpcs(delta) {
+            const pp = playerContainer.position;
+            const active = isLocked && !overlayOpen();
+            npcs.forEach(n => {
+                const u = n.userData;
+                let speedAnim = 0;
+                if (active) {
+                    if (u.running) {
+                        const dir = u.runDir;
+                        const nx = n.position.x + dir.x * 8 * delta, nz = n.position.z + dir.z * 8 * delta;
+                        if (hitsObstacle(nx, nz, 0.8) || Math.abs(nx) > 130 || Math.abs(nz) > 130) {
+                            const s = Math.random() < 0.5 ? 1 : -1, c = Math.cos(s * Math.PI / 2), sn = Math.sin(s * Math.PI / 2);
+                            dir.set(dir.x * c - dir.z * sn, 0, dir.x * sn + dir.z * c);
+                        } else { n.position.x = nx; n.position.z = nz; }
+                        speedAnim = 8;
+                        u.runTimer -= delta;
+                        if (u.runTimer <= 0) { u.running = false; u.wanderT = 1; u.moving = false; drawLabel(n, u.name, 'rgba(0,0,0,0.55)'); }
+                    } else {
+                        // mondar-mandir
+                        u.wanderT -= delta;
+                        if (u.wanderT <= 0) {
+                            u.moving = !u.moving;
+                            if (u.moving) { const a = Math.random() * Math.PI * 2; u.wanderDir.set(Math.sin(a), 0, Math.cos(a)); u.wanderT = 2 + Math.random() * 4; }
+                            else u.wanderT = 0.8 + Math.random() * 2;
+                        }
+                        if (u.moving) {
+                            const nx = n.position.x + u.wanderDir.x * 2.5 * delta, nz = n.position.z + u.wanderDir.z * 2.5 * delta;
+                            if (hitsObstacle(nx, nz, 0.9) || Math.abs(nx) > 125 || Math.abs(nz) > 125) {
+                                const a = Math.random() * Math.PI * 2; u.wanderDir.set(Math.sin(a), 0, Math.cos(a));
+                            } else { n.position.x = nx; n.position.z = nz; speedAnim = 4; }
+                        }
+                    }
+                    if (u.happyT > 0) {
+                        u.happyT -= delta;
+                        n.position.y = Math.abs(Math.sin(u.happyT * 10)) * 0.9;
+                        if (u.happyT <= 0) n.position.y = 0;
+                    }
+                }
+                if (u.running) n.rotation.y = Math.atan2(u.runDir.x, u.runDir.z);
+                else if (u.moving && active) n.rotation.y = Math.atan2(u.wanderDir.x, u.wanderDir.z);
+                else if (!u.answered) n.rotation.y = Math.atan2(pp.x - n.position.x, pp.z - n.position.z);
+                animateRig(n, speedAnim, delta, u.happyT > 0);
+            });
+        }
+
+        // ===================== DIALOG NPC =====================
+        function openNpcDialog(npc) {
+            unlockPointer();
+            activeNpc = npc;
+            const st = npc.userData.student;
+            $('npc-title').innerText = npc.userData.name + ' — ' + st.nama;
+            $('npc-data').innerHTML = `
+                <div>👤 <b>Nama:</b> ${esc(st.nama)}</div>
+                <div>🏫 <b>Kelas:</b> ${esc(st.kelas)}</div>
+                <div>📚 <b>Mata pelajaran favorit:</b> ${esc(st.mapel)}</div>
+                <div>🎯 <b>Hobi:</b> ${esc(st.hobi)}</div>
+                <div>🌟 <b>Cita-cita:</b> ${esc(st.cita)}</div>`;
+            $('npc-modal').classList.remove('hidden');
+        }
+        $('btn-npc-later').addEventListener('click', () => { $('npc-modal').classList.add('hidden'); lockSoon(); });
+        $('btn-npc-ok').addEventListener('click', () => { $('npc-modal').classList.add('hidden'); openSheet(activeNpc); });
+
+        // ===================== LEMBAR KERJA =====================
+        const HEADERS = ['No', 'Nama', 'Kelas', 'Mata Pelajaran Favorit', 'Hobi', 'Cita-cita'];
+        const FIELDS = ['nama', 'kelas', 'mapel', 'hobi', 'cita'];
+        const COLS = ['A', 'B', 'C', 'D', 'E', 'F'];
+        const rowCells = (cells, cls = '') => cells.map(c => `<td>${esc(c)}</td>`).join('');
+        function studentRowHtml(st, no, rowNum, cls) {
+            return `<tr class="${cls}"><td class="rn">${rowNum}</td><td>${no}</td><td>${esc(st.nama)}</td><td>${esc(st.kelas)}</td><td>${esc(st.mapel)}</td><td>${esc(st.hobi)}</td><td>${esc(st.cita)}</td></tr>`;
+        }
+
+        function openSheet(npc) {
+            const st = npc.userData.student;
+            const n = completed.length;
+            const curRow = n + 2;
+            let html = `<tr class="hdr"><td class="rn">1</td>${HEADERS.map(h => `<td>${h}</td>`).join('')}</tr>`;
+            if (n > 2) html += `<tr class="dim"><td class="rn">⋮</td><td colspan="6" style="text-align:center;color:#9aa0a6">… ${n - 2} baris sebelumnya …</td></tr>`;
+            completed.slice(-2).forEach((s, i, arr) => {
+                const idx = n - arr.length + i;
+                html += studentRowHtml(s, idx + 1, idx + 2, 'dim');
+            });
+            html += `<tr><td class="rn">${curRow}</td><td>${n + 1}</td>` +
+                FIELDS.map((f, i) => `<td class="inp"><input name="${f}" data-cell="${COLS[i + 1]}${curRow}" required placeholder="${HEADERS[i + 1]}"></td>`).join('') + `</tr>`;
+            $('sheet-body').innerHTML = html;
+            $('sheet-npc-name').innerText = npc.userData.name;
+            $('sheet-note').innerHTML = `Aku <b>${esc(st.nama)}</b>, kelas <b>${esc(st.kelas)}</b>. Pelajaran favoritku <b>${esc(st.mapel)}</b>, hobiku <b>${esc(st.hobi)}</b>, dan cita-citaku jadi <b>${esc(st.cita)}</b>.`;
+            $('sheet-note').classList.remove('hidden'); $('btn-toggle-note').innerText = 'Sembunyikan';
+            $('formula-ref').innerText = 'B' + curRow; $('formula-text').innerText = '';
+            $('sheet-modal').classList.remove('hidden');
+            setTimeout(() => { const f = $('sheet-form').elements['nama']; if (f) f.focus(); }, 50);
+        }
+
+        $('sheet-body').addEventListener('focusin', (e) => {
+            if (e.target.matches('input')) { $('formula-ref').innerText = e.target.dataset.cell; $('formula-text').innerText = e.target.value; }
+        });
+        $('sheet-body').addEventListener('input', (e) => { if (e.target.matches('input')) $('formula-text').innerText = e.target.value; });
+        $('btn-toggle-note').addEventListener('click', () => {
+            const note = $('sheet-note'); const hide = !note.classList.contains('hidden');
+            note.classList.toggle('hidden', hide); $('btn-toggle-note').innerText = hide ? 'Tampilkan' : 'Sembunyikan';
+        });
+        $('btn-sheet-cancel').addEventListener('click', () => { $('sheet-modal').classList.add('hidden'); lockSoon(); });
+
+        $('sheet-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const npc = activeNpc, st = npc.userData.student, form = $('sheet-form');
+            const ok = FIELDS.every(f => norm(form.elements[f].value) === norm(st[f]));
+            $('sheet-modal').classList.add('hidden');
+            if (ok) {
+                completed.push(st);
+                npc.userData.answered = true; npc.userData.happyT = 2.5;
+                npc.userData.rig.shirtMat.color.setHex(0x2ECC71);
+                drawLabel(npc, '😊 Senang!', 'rgba(20,120,60,0.85)');
+                coins += 10; updateUI();
+                showToast(`😊 ${st.nama}: "Terima kasih, datanya benar!" +10 Koin`, 3000);
+                if (completed.length >= TOTAL_NPC) setTimeout(spawnBoss, 1800);
+            } else {
+                npc.userData.running = true; npc.userData.runTimer = 6;
+                npc.userData.runDir.subVectors(npc.position, playerContainer.position); npc.userData.runDir.y = 0;
+                if (npc.userData.runDir.lengthSq() < 0.01) npc.userData.runDir.set(1, 0, 0);
+                npc.userData.runDir.normalize();
+                drawLabel(npc, '😱 Kabur!', 'rgba(180,40,40,0.85)');
+                showToast('❌ Data tidak sesuai! NPC kabur — kejar dia (tahan SHIFT untuk lari)!', 4000);
+            }
+            lockSoon();
+        });
+
+        // ===================== LEMBAR TUGAS =====================
+        function openTaskSheet() {
+            unlockPointer();
+            let html = `<tr class="hdr"><td class="rn">1</td>${HEADERS.map(h => `<td>${h}</td>`).join('')}</tr>`;
+            for (let i = 0; i < TOTAL_NPC; i++) {
+                if (completed[i]) html += studentRowHtml(completed[i], i + 1, i + 2, '');
+                else html += `<tr><td class="rn">${i + 2}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+            }
+            $('task-body').innerHTML = html;
+            $('task-count').innerText = completed.length;
+            $('task-modal').classList.remove('hidden');
+        }
+        $('btn-task').addEventListener('click', () => { if (overlayOpen()) return; openTaskSheet(); });
+        $('btn-task-close').addEventListener('click', () => { $('task-modal').classList.add('hidden'); lockSoon(); });
+
+        // ===================== GRAFIK =====================
+        const PALETTE = ['#4285F4', '#DB4437', '#F4B400', '#0F9D58', '#AB47BC', '#FF7043', '#26A69A', '#8D6E63'];
+        function categoryCounts(col) {
+            const m = new Map();
+            STUDENTS.forEach(s => m.set(s[col], (m.get(s[col]) || 0) + 1));
+            return [...m.entries()];
+        }
+        function renderChartSVG(type, data) {
+            const W = 420, H = 280;
+            const total = data.reduce((a, d) => a + d[1], 0);
+            if (type === 'pie') {
+                const cx = 120, cy = 140, r = 100; let a0 = -Math.PI / 2;
+                let s = `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" font-family="Arial">`;
+                data.forEach((d, i) => {
+                    const a1 = a0 + (d[1] / total) * Math.PI * 2;
+                    const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0), x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+                    s += `<path d="M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${x1},${y1} Z" fill="${PALETTE[i % 8]}" stroke="#fff" stroke-width="2"/>`;
+                    s += `<rect x="248" y="${40 + i * 26}" width="14" height="14" fill="${PALETTE[i % 8]}"/><text x="268" y="${52 + i * 26}" font-size="13" fill="#202124">${esc(d[0])} (${d[1]})</text>`;
+                    a0 = a1;
+                });
+                return s + '</svg>';
+            }
+            const L = 36, B = 70, T = 20, R = 10;
+            const max = Math.max(...data.map(d => d[1]));
+            const top = Math.max(4, Math.ceil(max / 4) * 4);
+            const cw = (W - L - R) / data.length, ch = H - T - B;
+            const yOf = v => T + ch * (1 - v / top);
+            let s = `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" font-family="Arial">`;
+            for (let k = 0; k <= 4; k++) {
+                const v = top / 4 * k, y = yOf(v);
+                s += `<line x1="${L}" y1="${y}" x2="${W - R}" y2="${y}" stroke="#e1e3e6"/><text x="${L - 6}" y="${y + 4}" font-size="11" text-anchor="end" fill="#5f6368">${v}</text>`;
+            }
+            if (type === 'bar') {
+                data.forEach((d, i) => {
+                    const x = L + i * cw + cw * 0.15, w = cw * 0.7, y = yOf(d[1]);
+                    s += `<rect x="${x}" y="${y}" width="${w}" height="${H - B - y}" fill="${PALETTE[i % 8]}"/>`;
+                    s += `<text x="${x + w / 2}" y="${y - 4}" font-size="12" font-weight="bold" text-anchor="middle" fill="#202124">${d[1]}</text>`;
+                });
+            } else {
+                const pts = data.map((d, i) => [L + i * cw + cw / 2, yOf(d[1])]);
+                s += `<polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="#4285F4" stroke-width="3"/>`;
+                pts.forEach((p, i) => { s += `<circle cx="${p[0]}" cy="${p[1]}" r="5" fill="#4285F4"/><text x="${p[0]}" y="${p[1] - 9}" font-size="12" font-weight="bold" text-anchor="middle" fill="#202124">${data[i][1]}</text>`; });
+            }
+            data.forEach((d, i) => {
+                const x = L + i * cw + cw / 2, y = H - B + 14;
+                s += `<text transform="translate(${x},${y}) rotate(-30)" font-size="11" text-anchor="end" fill="#202124">${esc(d[0])}</text>`;
+            });
+            s += `<line x1="${L}" y1="${H - B}" x2="${W - R}" y2="${H - B}" stroke="#9aa0a6"/><line x1="${L}" y1="${T}" x2="${L}" y2="${H - B}" stroke="#9aa0a6"/>`;
+            return s + '</svg>';
+        }
+
+        function updateChartPreview() {
+            $('chart-preview').innerHTML = renderChartSVG($('chart-type').value, categoryCounts($('chart-col').value));
+        }
+        $('chart-col').addEventListener('change', updateChartPreview);
+        $('chart-type').addEventListener('change', updateChartPreview);
+
+        // ===================== SOAL BOSS =====================
+        function buildQuestions(col) {
+            const S = categoryCounts(col).sort((a, b) => b[1] - a[1]);
+            const n = S.length, N = TOTAL_NPC, cl = COL_LABEL[col].toLowerCase();
+            const nums = (c, offs = [-3, -2, -1, 1, 2, 3, 4]) => {
+                const cand = shuffle(offs.map(o => c + o).filter(v => v > 0 && v !== c)).slice(0, 3);
+                return shuffle([c, ...cand]).map(String);
+            };
+            const catOpts = (c) => shuffle([c, ...shuffle(S.map(x => x[0]).filter(x => x !== c)).slice(0, 3)]);
+            const fmtPct = v => String(v).replace('.', ',') + '%';
+            const pct = S[0][1] / N * 100;
+            const pctOpts = shuffle([pct, ...shuffle([-10, -5, -2.5, 2.5, 5, 10].map(o => pct + o).filter(v => v > 0 && v !== pct)).slice(0, 3)]).map(fmtPct);
+            const avg = N / n, above = S.filter(x => x[1] > avg).length;
+            const qs = [
+                { q: `Berdasarkan grafik, ${cl} manakah yang paling banyak dipilih siswa?`, options: catOpts(S[0][0]), ans: S[0][0] },
+                { q: `Berdasarkan grafik, ${cl} manakah yang paling sedikit dipilih siswa?`, options: catOpts(S[n - 1][0]), ans: S[n - 1][0] },
+                { q: `Berapa jumlah siswa dengan ${cl} "${S[0][0]}"?`, options: nums(S[0][1]), ans: String(S[0][1]) },
+                { q: `Berapa jumlah siswa dengan ${cl} "${S[2][0]}"?`, options: nums(S[2][1]), ans: String(S[2][1]) },
+                { q: `Berapa selisih jumlah siswa antara "${S[0][0]}" dan "${S[n - 1][0]}"?`, options: nums(S[0][1] - S[n - 1][1]), ans: String(S[0][1] - S[n - 1][1]) },
+                { q: `Rata-rata siswa per kategori adalah ${(N / n).toFixed(1).replace('.', ',')}. Berapa banyak kategori yang jumlah siswanya di atas rata-rata?`, options: nums(above, [-2, -1, 1, 2, 3]), ans: String(above) },
+                { q: `Kategori manakah yang berada di urutan terbanyak ke-2?`, options: catOpts(S[1][0]), ans: S[1][0] },
+                { q: `Berapa persen siswa yang memilih "${S[0][0]}" dari seluruh ${N} siswa?`, options: pctOpts, ans: fmtPct(pct) },
+                { q: `Manakah pernyataan yang BENAR berdasarkan tren grafik?`, options: shuffle([
+                    `"${S[1][0]}" lebih banyak daripada "${S[3][0]}"`,
+                    `"${S[3][0]}" lebih banyak daripada "${S[1][0]}"`,
+                    `"${S[n - 1][0]}" lebih banyak daripada "${S[0][0]}"`,
+                    `"${S[4][0]}" lebih banyak daripada "${S[2][0]}"`]), ans: `"${S[1][0]}" lebih banyak daripada "${S[3][0]}"` },
+                { q: `Berapa jumlah siswa dari dua kategori teratas ("${S[0][0]}" dan "${S[1][0]}") jika digabung?`, options: nums(S[0][1] + S[1][1]), ans: String(S[0][1] + S[1][1]) }
+            ];
+            return shuffle(qs);
+        }
+
+        // ===================== ALUR BOSS =====================
+        function newBossAttempt() {
+            bossAttempt = { lives: 3, task: { col: pick(['mapel', 'hobi', 'cita']), type: pick(['bar', 'pie']) }, questions: null, idx: 0 };
+        }
+        const taskText = t => `Buatlah <b>${TYPE_LABEL[t.type]}</b> yang menunjukkan jumlah siswa berdasarkan kolom <b>${COL_LABEL[t.col]}</b>.`;
+
+        function openBossIntro() {
+            unlockPointer();
+            if (!bossAttempt) newBossAttempt();
+            $('boss-task-text').innerHTML = taskText(bossAttempt.task);
+            $('boss-lives-intro').innerText = hearts(bossAttempt.lives);
+            $('boss-modal').classList.remove('hidden');
+        }
+        $('btn-boss-later').addEventListener('click', () => { $('boss-modal').classList.add('hidden'); lockSoon(); });
+        $('btn-boss-start').addEventListener('click', () => {
+            $('boss-modal').classList.add('hidden');
+            $('chart-task-text').innerHTML = taskText(bossAttempt.task);
+            $('chart-lives').innerText = hearts(bossAttempt.lives);
+            $('chart-col').value = 'kelas'; $('chart-type').value = 'bar';
+            updateChartPreview();
+            $('chart-modal').classList.remove('hidden');
+        });
+        $('btn-chart-cancel').addEventListener('click', () => { $('chart-modal').classList.add('hidden'); lockSoon(); });
+
+        $('btn-chart-insert').addEventListener('click', () => {
+            const col = $('chart-col').value, type = $('chart-type').value, t = bossAttempt.task;
+            if (col === t.col && type === t.type) {
+                $('chart-modal').classList.add('hidden');
+                bossAttempt.questions = buildQuestions(t.col);
+                bossAttempt.idx = 0;
+                $('quiz-chart-title').innerText = `${TYPE_LABEL[t.type]} — ${COL_LABEL[t.col]}`;
+                $('quiz-chart').innerHTML = renderChartSVG(t.type, categoryCounts(t.col));
+                showToast('✅ Grafik benar! Sekarang jawab 10 soal tren data.', 3000);
+                showQuestion();
+                $('quiz-modal').classList.remove('hidden');
+            } else {
+                bossAttempt.lives--;
+                $('chart-lives').innerText = hearts(bossAttempt.lives);
+                if (bossAttempt.lives <= 0) { failBoss(); }
+                else showToast(`❌ Grafik tidak sesuai perintah Boss! Nyawa tersisa ${bossAttempt.lives}`, 3000);
+            }
+        });
+
+        function showQuestion() {
+            const q = bossAttempt.questions[bossAttempt.idx];
+            $('quiz-num').innerText = bossAttempt.idx + 1;
+            $('quiz-lives').innerText = hearts(bossAttempt.lives);
+            $('quiz-text').innerText = q.q;
+            const box = $('quiz-options'); box.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center p-3 border-2 rounded-lg hover:bg-red-50 cursor-pointer transition';
+                const input = document.createElement('input');
+                input.type = 'radio'; input.name = 'qa'; input.value = opt; input.required = true; input.className = 'w-5 h-5';
+                const span = document.createElement('span'); span.className = 'ml-3 text-gray-800'; span.textContent = opt;
+                label.append(input, span); box.append(label);
+            });
+        }
+
+        $('quiz-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const q = bossAttempt.questions[bossAttempt.idx];
+            const chosen = new FormData($('quiz-form')).get('qa');
+            if (chosen === q.ans) {
+                coins += 5; updateUI(); showToast('✅ Benar! +5 Koin', 1800);
+            } else {
+                bossAttempt.lives--;
+                showToast(`❌ Salah! Jawaban benar: ${q.ans}. Nyawa tersisa ${Math.max(0, bossAttempt.lives)}`, 3500);
+            }
+            $('quiz-lives').innerText = hearts(bossAttempt.lives);
+            if (bossAttempt.lives <= 0) { failBoss(); return; }
+            bossAttempt.idx++;
+            if (bossAttempt.idx >= bossAttempt.questions.length) winBoss();
+            else showQuestion();
+        });
+
+        function failBoss() {
+            ['chart-modal', 'quiz-modal', 'boss-modal'].forEach(id => $(id).classList.add('hidden'));
+            bossAttempt = null;
+            const p = playerContainer.position;
+            pushDir.set(p.x - BOSS_POS.x, 0, p.z - BOSS_POS.z);
+            if (pushDir.lengthSq() < 0.01) pushDir.set(-1, 0, 0);
+            pushDir.normalize();
+            pushT = 0.9; velY = 10; moveState.canJump = false;
+            drawLabel(bossObj, '😈 Hahaha!', 'rgba(120,0,0,0.9)');
+            setTimeout(() => drawLabel(bossObj, '👹 BOSS', 'rgba(150,0,0,0.85)'), 3000);
+            showToast('😈 Nyawa habis! Boss mendorongmu. Ulangi pembuatan grafik dan soalnya!', 4500);
+            lockSoon();
+        }
+
+        function winBoss() {
+            const lives = bossAttempt.lives;
+            coins += 100; updateUI();
+            $('quiz-modal').classList.add('hidden');
+            isGameRunning = false; unlockPointer();
+            drawLabel(bossObj, '😵 Kalah!', 'rgba(60,60,60,0.85)');
+            $('win-coins').innerText = coins; $('win-lives').innerText = hearts(lives);
+            $('win-screen').classList.remove('hidden');
+            $('interact-prompt').classList.add('hidden');
+        }
+        $('btn-restart').addEventListener('click', () => location.reload());
+
+        // ===================== TOKO KOSTUM =====================
+        const DEF_LOOK = { shirt: 0xffffff, pants: 0x2b3a67, skin: 0xffd9a0, hair: 0x3a2412 };
+        function setSkin(root, hex) {
+            const r = root.userData.rig; r.skinMat.color.setHex(hex);
+            if (r.faceMat.map) r.faceMat.map.dispose();
+            r.faceMat.map = makeFaceTexture(hex); r.faceMat.needsUpdate = true;
+        }
+        function costumeKit(root) {
+            const g = new THREE.Group(); root.add(g);
+            root.userData.acc = g; root.userData.fx = []; root.userData.extras = [];
+            const mat = (c, e) => new THREE.MeshLambertMaterial({ color: c, emissive: e || 0x000000 });
+            const put = (geo, c, x, y, z, e, parent) => {
+                const m = new THREE.Mesh(geo, mat(c, e)); m.position.set(x, y, z); m.castShadow = true;
+                (parent || g).add(m); if (parent) root.userData.extras.push(m); return m;
+            };
+            return {
+                box: (w, h, d, c, x, y, z, e, parent) => put(new THREE.BoxGeometry(w, h, d), c, x, y, z, e, parent),
+                cone: (r, h, c, x, y, z, e, seg, parent) => put(new THREE.ConeGeometry(r, h, seg || 4), c, x, y, z, e, parent),
+                cyl: (r, h, c, x, y, z, e, parent) => put(new THREE.CylinderGeometry(r, r, h, 14), c, x, y, z, e, parent),
+                ball: (r, c, x, y, z, e, parent) => put(new THREE.SphereGeometry(r, 14, 14), c, x, y, z, e, parent),
+                orbit: (c, e, n, rad, y) => {
+                    const og = new THREE.Group(); og.position.y = y;
+                    for (let i = 0; i < n; i++) {
+                        const a = i / n * Math.PI * 2;
+                        const m = new THREE.Mesh(new THREE.OctahedronGeometry(0.15), mat(c, e));
+                        m.position.set(Math.cos(a) * rad, Math.sin(a * 2) * 0.2, Math.sin(a) * rad); og.add(m);
+                    }
+                    g.add(og); root.userData.fx.push(og);
+                }
+            };
+        }
+
+        const COLOR_ITEMS = [
+            { id: '#FFFFFF', cat: 'warna', name: 'Putih (Dasar)', cost: 0 },
+            { id: '#FF0000', cat: 'warna', name: 'Merah Berani', cost: 50 },
+            { id: '#00FF00', cat: 'warna', name: 'Hijau Alam', cost: 80 },
+            { id: '#FFD700', cat: 'warna', name: 'Emas Murni', cost: 150 },
+            { id: '#00FFFF', cat: 'warna', name: 'Berlian Biru', cost: 250 }
+        ];
+
+        const ANIMAL_ITEMS = [
+            { id: 'dog', cat: 'hewan', emoji: '🐶', name: 'Anjing', cost: 300, apply: (P, r, S) => {
+                S(0xC68E5A); r.shirtMat.color.setHex(0xFFB74D); r.pantsMat.color.setHex(0x6D4C41);
+                P.box(0.22, 0.55, 0.32, 0x5D3A1A, -0.51, 2.25, 0); P.box(0.22, 0.55, 0.32, 0x5D3A1A, 0.51, 2.25, 0);
+                P.box(0.4, 0.28, 0.3, 0xE8C9A0, 0, 2.17, 0.5); P.box(0.14, 0.1, 0.06, 0x111111, 0, 2.28, 0.67);
+                P.box(0.14, 0.14, 0.55, 0xC68E5A, 0, 1.15, -0.5).rotation.x = 0.6; } },
+            { id: 'cat', cat: 'hewan', emoji: '🐱', name: 'Kucing', cost: 350, apply: (P, r, S) => {
+                S(0xF5A04B); r.shirtMat.color.setHex(0xFFE0B2); r.pantsMat.color.setHex(0xBF6B1F);
+                P.cone(0.2, 0.35, 0xF5A04B, -0.25, 2.85, 0, 0, 4); P.cone(0.2, 0.35, 0xF5A04B, 0.25, 2.85, 0, 0, 4);
+                P.box(0.1, 0.08, 0.05, 0xFF8A80, 0, 2.27, 0.41);
+                [-1, 1].forEach(s => [0, 1, 2].forEach(i => { P.box(0.35, 0.015, 0.015, 0xFFFFFF, s * 0.35, 2.2 + i * 0.04, 0.41).rotation.z = s * (i - 1) * 0.2; }));
+                P.box(0.12, 0.9, 0.12, 0xF5A04B, 0, 1.25, -0.45).rotation.x = -0.4; } },
+            { id: 'horse', cat: 'hewan', emoji: '🐴', name: 'Kuda', cost: 500, apply: (P, r, S) => {
+                S(0x8B5A2B); r.shirtMat.color.setHex(0x6D4C41); r.pantsMat.color.setHex(0x4E342E);
+                P.box(0.45, 0.42, 0.55, 0xA06A38, 0, 2.12, 0.55);
+                P.box(0.08, 0.1, 0.04, 0x222222, -0.12, 2.15, 0.84); P.box(0.08, 0.1, 0.04, 0x222222, 0.12, 2.15, 0.84);
+                P.cone(0.1, 0.3, 0x8B5A2B, -0.22, 2.85, 0, 0, 4); P.cone(0.1, 0.3, 0x8B5A2B, 0.22, 2.85, 0, 0, 4);
+                P.box(0.12, 0.35, 0.15, 0x2b1b12, 0, 2.7, -0.3); P.box(0.12, 0.35, 0.15, 0x2b1b12, 0, 2.4, -0.42); P.box(0.12, 0.35, 0.15, 0x2b1b12, 0, 2.1, -0.42);
+                P.box(0.2, 0.9, 0.14, 0x2b1b12, 0, 0.95, -0.4).rotation.x = -0.2; } },
+            { id: 'rabbit', cat: 'hewan', emoji: '🐰', name: 'Kelinci', cost: 600, apply: (P, r, S) => {
+                S(0xFFFFFF); r.shirtMat.color.setHex(0xFFC1E3); r.pantsMat.color.setHex(0x90A4AE);
+                [-1, 1].forEach(s => { P.box(0.18, 0.85, 0.1, 0xFFFFFF, s * 0.2, 3.15, 0); P.box(0.09, 0.65, 0.02, 0xFFB6C1, s * 0.2, 3.13, 0.06); });
+                P.box(0.1, 0.08, 0.05, 0xFF9AA2, 0, 2.27, 0.41); P.box(0.25, 0.25, 0.25, 0xFFFFFF, 0, 1.0, -0.38); } },
+            { id: 'pig', cat: 'hewan', emoji: '🐷', name: 'Babi', cost: 750, apply: (P, r, S) => {
+                S(0xF8B6C8); r.shirtMat.color.setHex(0xF48FB1); r.pantsMat.color.setHex(0xC2185B);
+                P.box(0.34, 0.24, 0.14, 0xF48FB1, 0, 2.2, 0.46); P.box(0.06, 0.1, 0.02, 0x6D2B3F, -0.07, 2.2, 0.54); P.box(0.06, 0.1, 0.02, 0x6D2B3F, 0.07, 2.2, 0.54);
+                P.box(0.22, 0.22, 0.08, 0xF8B6C8, -0.28, 2.76, 0.05).rotation.z = 0.5; P.box(0.22, 0.22, 0.08, 0xF8B6C8, 0.28, 2.76, 0.05).rotation.z = -0.5;
+                P.box(0.1, 0.1, 0.25, 0xF48FB1, 0, 1.0, -0.4); } },
+            { id: 'cow', cat: 'hewan', emoji: '🐮', name: 'Sapi', cost: 900, apply: (P, r, S) => {
+                S(0xFFFFFF); r.pantsMat.color.setHex(0x333333);
+                P.box(0.3, 0.3, 0.02, 0x222222, -0.2, 2.55, 0.405); P.box(0.22, 0.22, 0.02, 0x222222, 0.25, 2.2, 0.405);
+                P.cone(0.07, 0.25, 0xF5F5DC, -0.3, 2.82, 0, 0, 4); P.cone(0.07, 0.25, 0xF5F5DC, 0.3, 2.82, 0, 0, 4);
+                P.box(0.3, 0.14, 0.1, 0xFFFFFF, -0.55, 2.45, 0); P.box(0.3, 0.14, 0.1, 0xFFFFFF, 0.55, 2.45, 0);
+                P.box(0.45, 0.22, 0.12, 0xF8BBD0, 0, 2.15, 0.45);
+                P.box(0.3, 0.3, 0.02, 0x222222, -0.25, 1.55, 0.26); P.box(0.28, 0.25, 0.02, 0x222222, 0.2, 1.2, 0.26);
+                P.box(0.08, 0.8, 0.08, 0xFFFFFF, 0, 1.2, -0.4); P.box(0.12, 0.2, 0.12, 0x222222, 0, 0.75, -0.4); } },
+            { id: 'panda', cat: 'hewan', emoji: '🐼', name: 'Panda', cost: 1200, apply: (P, r, S) => {
+                S(0xFFFFFF); r.pantsMat.color.setHex(0x222222);
+                P.box(0.25, 0.25, 0.15, 0x111111, -0.32, 2.78, 0); P.box(0.25, 0.25, 0.15, 0x111111, 0.32, 2.78, 0);
+                [-1, 1].forEach(s => { P.box(0.2, 0.26, 0.02, 0x111111, s * 0.14, 2.38, 0.402); P.box(0.06, 0.06, 0.02, 0xFFFFFF, s * 0.14, 2.4, 0.415); });
+                P.box(0.12, 0.08, 0.04, 0x111111, 0, 2.25, 0.41);
+                P.box(0.42, 0.95, 0.48, 0x222222, 0, -0.475, 0, 0, r.armL); P.box(0.42, 0.95, 0.48, 0x222222, 0, -0.475, 0, 0, r.armR); } },
+            { id: 'frog', cat: 'hewan', emoji: '🐸', name: 'Katak', cost: 1500, apply: (P, r, S) => {
+                S(0x4CAF50); r.shirtMat.color.setHex(0x81C784); r.pantsMat.color.setHex(0x2E7D32);
+                [-1, 1].forEach(s => { P.box(0.24, 0.24, 0.24, 0xFFFFFF, s * 0.22, 2.78, 0.1); P.box(0.1, 0.1, 0.1, 0x111111, s * 0.22, 2.78, 0.24); });
+                P.box(0.6, 0.05, 0.02, 0x1B5E20, 0, 2.15, 0.405); } },
+            { id: 'penguin', cat: 'hewan', emoji: '🐧', name: 'Penguin', cost: 1800, apply: (P, r, S) => {
+                S(0x222222); r.shirtMat.color.setHex(0x222222); r.pantsMat.color.setHex(0x222222);
+                P.box(0.7, 0.8, 0.02, 0xFFFFFF, 0, 1.4, 0.26); P.box(0.55, 0.35, 0.02, 0xFFFFFF, 0, 2.28, 0.405);
+                [-1, 1].forEach(s => { P.box(0.16, 0.2, 0.02, 0xFFFFFF, s * 0.14, 2.375, 0.415); P.box(0.06, 0.1, 0.02, 0x111111, s * 0.14, 2.375, 0.426); });
+                const b = P.cone(0.12, 0.25, 0xFFA000, 0, 2.2, 0.52, 0, 4); b.rotation.x = Math.PI / 2; } },
+            { id: 'lion', cat: 'hewan', emoji: '🦁', name: 'Singa', cost: 2500, apply: (P, r, S) => {
+                S(0xE6A23C); r.shirtMat.color.setHex(0xF6C26B); r.pantsMat.color.setHex(0xB8791F);
+                P.box(1.1, 1.1, 0.4, 0x8B4A12, 0, 2.3, -0.2);
+                P.box(0.2, 0.2, 0.1, 0xE6A23C, -0.38, 2.78, 0.05); P.box(0.2, 0.2, 0.1, 0xE6A23C, 0.38, 2.78, 0.05);
+                P.box(0.36, 0.24, 0.2, 0xF3D49B, 0, 2.18, 0.45); P.box(0.12, 0.08, 0.05, 0x5D3A1A, 0, 2.27, 0.56);
+                P.box(0.1, 0.9, 0.1, 0xE6A23C, 0, 1.2, -0.45).rotation.x = -0.3; P.box(0.2, 0.25, 0.2, 0x8B4A12, 0, 0.7, -0.62); } }
+    ];
+
+        const SPECIAL_ITEMS = [
+            { id: 'robot', cat: 'spesial', emoji: '🤖', name: 'Robot Emas', cost: 5000, apply: (P, r, S) => {
+                S(0xE0B040); r.shirtMat.color.setHex(0xD4AF37); r.pantsMat.color.setHex(0xB8860B);
+                P.box(0.7, 0.2, 0.04, 0x00E5FF, 0, 2.35, 0.41, 0x00B8D4);
+                P.cyl(0.03, 0.4, 0xBDBDBD, 0, 2.9, 0); P.ball(0.08, 0xFF1744, 0, 3.12, 0, 0xFF1744);
+                P.box(0.35, 0.15, 0.5, 0xFFC107, -0.72, 1.95, 0); P.box(0.35, 0.15, 0.5, 0xFFC107, 0.72, 1.95, 0);
+                P.box(0.25, 0.25, 0.04, 0x00E5FF, 0, 1.45, 0.27, 0x00B8D4);
+                P.box(0.7, 0.8, 0.25, 0x9E9E9E, 0, 1.45, -0.38);
+                P.cone(0.1, 0.4, 0xFF6D00, -0.2, 0.9, -0.38, 0xFF6D00, 6).rotation.x = Math.PI;
+                P.cone(0.1, 0.4, 0xFF6D00, 0.2, 0.9, -0.38, 0xFF6D00, 6).rotation.x = Math.PI;
+                P.orbit(0x00E5FF, 0x00B8D4, 4, 1.5, 1.5); } },
+            { id: 'dragon', cat: 'spesial', emoji: '🐉', name: 'Naga Api', cost: 6500, apply: (P, r, S) => {
+                S(0x2E7D32); r.shirtMat.color.setHex(0xB71C1C); r.pantsMat.color.setHex(0x4E342E);
+                P.cone(0.1, 0.45, 0xFFE0B2, -0.25, 2.95, 0, 0, 4); P.cone(0.1, 0.45, 0xFFE0B2, 0.25, 2.95, 0, 0, 4);
+                P.box(0.4, 0.25, 0.2, 0x388E3C, 0, 2.15, 0.48); P.box(0.06, 0.06, 0.03, 0x111111, -0.1, 2.22, 0.59); P.box(0.06, 0.06, 0.03, 0x111111, 0.1, 2.22, 0.59);
+                [-1, 1].forEach(s => { P.box(0.05, 1.0, 1.0, 0xD32F2F, s * 0.9, 1.9, -0.5, 0x400000).rotation.y = s * 0.6; P.box(0.08, 0.1, 1.0, 0x7f0000, s * 0.9, 2.4, -0.5).rotation.y = s * 0.6; });
+                P.box(0.2, 0.2, 0.9, 0x2E7D32, 0, 1.0, -0.6); P.cone(0.15, 0.4, 0xD32F2F, 0, 1.0, -1.2, 0x400000, 4).rotation.x = -Math.PI / 2;
+                P.orbit(0xFF6D00, 0xFF3D00, 5, 1.6, 1.4); } },
+            { id: 'knight', cat: 'spesial', emoji: '🛡️', name: 'Ksatria Cahaya', cost: 8000, apply: (P, r, S) => {
+                r.shirtMat.color.setHex(0xCFD8DC); r.pantsMat.color.setHex(0x90A4AE);
+                P.box(0.12, 0.7, 0.02, 0xFFD700, 0, 1.4, 0.26, 0x6b5a00); P.box(0.5, 0.12, 0.02, 0xFFD700, 0, 1.55, 0.26, 0x6b5a00);
+                P.box(0.88, 0.3, 0.88, 0xB0BEC5, 0, 2.67, 0); P.box(0.88, 0.7, 0.12, 0xB0BEC5, 0, 2.3, -0.38);
+                P.box(0.1, 0.7, 0.8, 0xB0BEC5, -0.43, 2.3, 0); P.box(0.1, 0.7, 0.8, 0xB0BEC5, 0.43, 2.3, 0);
+                P.box(0.1, 0.45, 0.6, 0xE53935, 0, 3.0, -0.1);
+                const cape = P.box(0.95, 1.5, 0.05, 0x1565C0, 0, 1.3, -0.3); cape.rotation.x = 0.1;
+                P.box(0.08, 0.8, 0.55, 0x1565C0, -0.25, -0.5, 0, 0, r.armL); P.box(0.1, 0.4, 0.3, 0xFFD700, -0.3, -0.5, 0, 0x6b5a00, r.armL);
+                P.box(0.06, 0.06, 1.0, 0xECEFF1, 0, -0.75, 0.55, 0x303030, r.armR); P.box(0.3, 0.05, 0.05, 0xFFD700, 0, -0.75, 0.1, 0, r.armR);
+                P.orbit(0xFFF59D, 0xFFD54F, 4, 1.5, 1.5); } },
+            { id: 'wizard', cat: 'spesial', emoji: '🧙', name: 'Penyihir Galaksi', cost: 10000, apply: (P, r, S) => {
+                r.shirtMat.color.setHex(0x4A148C); r.pantsMat.color.setHex(0x311B92);
+                P.cone(0.5, 1.1, 0x4A148C, 0, 3.3, 0, 0, 12); P.cyl(0.72, 0.06, 0x311B92, 0, 2.72, 0);
+                P.box(0.08, 0.08, 0.02, 0xFFEB3B, 0, 3.05, 0.4, 0xFFC400); P.box(0.08, 0.08, 0.02, 0xFFEB3B, 0.14, 3.4, 0.25, 0xFFC400);
+                P.box(0.5, 0.5, 0.1, 0xF5F5F5, 0, 2.0, 0.4);
+                P.box(1.05, 0.9, 0.6, 0x4A148C, 0, 0.7, 0);
+                P.cyl(0.04, 2.2, 0x6D4C41, 0, -0.4, 0.4, 0, r.armR); P.ball(0.16, 0x40C4FF, 0, 0.8, 0.4, 0x0091EA, r.armR);
+                P.orbit(0xB388FF, 0x7C4DFF, 5, 1.6, 1.5); } },
+            { id: 'king', cat: 'spesial', emoji: '👑', name: 'Raja Diamond', cost: 15000, apply: (P, r, S) => {
+                r.shirtMat.color.setHex(0x00E5FF); r.shirtMat.emissive.setHex(0x004d5a); r.pantsMat.color.setHex(0x0097A7); r.pantsMat.emissive.setHex(0x00323a);
+                P.box(0.9, 0.2, 0.9, 0xFFD700, 0, 2.76, 0, 0x7a6200);
+                [[-0.4, -0.4], [0.4, -0.4], [-0.4, 0.4], [0.4, 0.4], [0, 0]].forEach(([x, z]) => P.cone(0.1, 0.32, 0xFFD700, x, 3.02, z, 0x7a6200, 4));
+                P.box(0.1, 0.1, 0.02, 0xFF1744, 0, 2.76, 0.46, 0x9b0000); P.box(0.1, 0.1, 0.02, 0x2979FF, 0.3, 2.76, 0.46, 0x0033aa);
+                P.box(1.0, 1.6, 0.06, 0xC62828, 0, 1.25, -0.3).rotation.x = 0.08; P.box(1.05, 0.2, 0.1, 0xFFFFFF, 0, 2.0, -0.3);
+                P.cyl(0.04, 1.6, 0xFFD700, 0, -0.5, 0.4, 0x7a6200, r.armR); P.ball(0.15, 0x00E5FF, 0, 0.4, 0.4, 0x00B8D4, r.armR);
+                P.orbit(0xE0F7FA, 0x80DEEA, 6, 1.7, 1.5); } }
+        ];
+        const ALL_ITEMS = [...COLOR_ITEMS, ...ANIMAL_ITEMS, ...SPECIAL_ITEMS];
+
+        function setCostume(id) {
+            const item = ALL_ITEMS.find(i => i.id === id) || ALL_ITEMS[0];
+            currentCostumeHex = item.id; store.set('eduGameCostume', item.id);
+            const ud = playerRig.userData, r = ud.rig;
+            if (ud.acc) { playerRig.remove(ud.acc); ud.acc = null; }
+            (ud.extras || []).forEach(m => m.parent && m.parent.remove(m));
+            ud.extras = []; ud.fx = [];
+            r.shirtMat.color.setHex(DEF_LOOK.shirt); r.shirtMat.emissive.setHex(0);
+            r.pantsMat.color.setHex(DEF_LOOK.pants); r.pantsMat.emissive.setHex(0);
+            r.hairMat.color.setHex(DEF_LOOK.hair);
+            r.hairMeshes.forEach(m => { m.visible = true; });
+            setSkin(playerRig, DEF_LOOK.skin);
+            if (item.cat === 'warna') r.shirtMat.color.setHex(parseInt(item.id.slice(1), 16));
+            else {
+                r.hairMeshes.forEach(m => { m.visible = false; });
+                item.apply(costumeKit(playerRig), r, hex => setSkin(playerRig, hex));
+            }
+        }
+
+        let shopTab = 'warna';
+        const SHOP_TABS = [['warna', '🎨 Warna'], ['hewan', '🐾 Hewan'], ['spesial', '✨ Spesial']];
+        function renderShop() {
+            $('shop-coins').innerText = coins;
+            $('shop-tabs').innerHTML = SHOP_TABS.map(([k, l]) => `<button onclick="window.setShopTab('${k}')" class="px-4 py-2 rounded-t-lg font-bold ${shopTab === k ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">${l}</button>`).join('');
+            $('shop-banner').innerHTML = shopTab === 'spesial'
+                ? '<div class="mb-4 rounded-xl p-3 font-bold text-yellow-900" style="background:linear-gradient(90deg,#ffe082,#ffb300)">🌟 TOKO SPESIAL — 5 kostum paling mahal (5.000+ koin) dengan efek berkilau!</div>'
+                : shopTab === 'hewan' ? '<div class="mb-4 rounded-xl p-3 font-bold text-green-900 bg-green-100">🐾 Kostum hewan — mulai dari 300 koin</div>' : '';
+            const c = $('shop-items'); c.innerHTML = '';
+            ALL_ITEMS.filter(i => i.cat === shopTab).forEach(item => {
+                const owned = purchasedCostumes.includes(item.id), eq = currentCostumeHex === item.id;
+                let btn;
+                if (eq) btn = `<button disabled class="w-full mt-2 py-1 bg-green-500 text-white rounded font-bold cursor-not-allowed">Dipakai</button>`;
+                else if (owned) btn = `<button onclick="window.equipCostume('${item.id}')" class="w-full mt-2 py-1 bg-blue-500 text-white rounded font-bold hover:bg-blue-600">Pakai</button>`;
+                else btn = `<button onclick="window.buyCostume('${item.id}')" class="w-full mt-2 py-1 ${coins >= item.cost ? 'bg-purple-500 hover:bg-purple-600' : 'bg-gray-400'} text-white rounded font-bold">${item.cost.toLocaleString('id-ID')} Koin</button>`;
+                const preview = item.cat === 'warna'
+                    ? `<div class="w-16 h-16 rounded-lg mb-2 shadow-inner border" style="background-color:${item.id}"></div>`
+                    : `<div class="w-16 h-16 flex items-center justify-center text-5xl mb-2">${item.emoji}</div>`;
+                const border = eq ? 'border-green-500 bg-green-50' : (item.cat === 'spesial' ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200');
+                c.innerHTML += `<div class="border-2 rounded-xl p-3 flex flex-col items-center ${border}">${preview}<span class="font-bold text-gray-800 text-center">${item.name}</span>${btn}</div>`;
+            });
+        }
+        window.setShopTab = (k) => { shopTab = k; renderShop(); };
+        window.buyCostume = (id) => {
+            const item = ALL_ITEMS.find(i => i.id === id); if (!item) return;
+            if (coins >= item.cost) {
+                coins -= item.cost; purchasedCostumes.push(id); store.set('eduGamePurchases', JSON.stringify(purchasedCostumes));
+                window.equipCostume(id); showToast(`Pembelian berhasil: ${item.name}!`, 2000);
+            } else showToast('Koin tidak cukup!', 2000);
+        };
+        window.equipCostume = (id) => { setCostume(id); renderShop(); updateUI(); };
+        function openShop() { if (overlayOpen()) return; unlockPointer(); renderShop(); $('shop-modal').classList.remove('hidden'); }
+        function closeShop() { $('shop-modal').classList.add('hidden'); lockSoon(); }
+        $('btn-shop').addEventListener('click', openShop);
+        $('btn-shop-close').addEventListener('click', closeShop);
+
+        // ===================== MULAI =====================
+        const btnStart = $('btn-start-game');
+        btnStart.addEventListener('click', () => {
+            $('start-screen').classList.add('hidden');
+            $('main-ui').classList.remove('hidden');
+            isGameRunning = true;
+            lockPointer();
+            showToast('Cari NPC dan tekan [E] untuk bicara! Tekan [T] untuk Toko Kostum.', 4000);
+        });
+        $('pause-screen').addEventListener('click', () => lockPointer());
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        buildMap();
+        buildZones();
+        spawnEntities();
+        setCostume(currentCostumeHex);
+        updateUI();
+        animate();
+
+        btnStart.disabled = false;
+        btnStart.innerText = 'Mulai Permainan';
+        btnStart.classList.remove('bg-gray-400', 'cursor-not-allowed');
+        btnStart.classList.add('bg-green-600', 'hover:bg-green-700');
+    </script>
+</body>
+</html>
