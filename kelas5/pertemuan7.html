@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lembar Kerja Siswa Praktikum Spreadsheet</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+
+        /* Spreadsheet Styling */
+        .sheet-container {
+            overflow: auto;
+            max-height: calc(100vh - 210px);
+            background-color: #f8fafc;
+        }
+
+        .sheet-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed;
+            background-color: white;
+        }
+
+        .sheet-table th, .sheet-table td {
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+            box-sizing: border-box;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Column and Row Headers */
+        .col-header {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            text-align: center;
+            height: 26px;
+            min-width: 80px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            border-top: 1px solid #cbd5e1;
+            border-bottom: 2px solid #cbd5e1 !important;
+        }
+
+        .row-header {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            text-align: center;
+            width: 40px;
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            border-left: 1px solid #cbd5e1;
+            border-right: 2px solid #cbd5e1 !important;
+        }
+
+        .corner-header {
+            background-color: #e2e8f0;
+            position: sticky;
+            top: 0;
+            left: 0;
+            z-index: 30;
+            width: 40px;
+            height: 26px;
+            border-top: 1px solid #cbd5e1;
+            border-left: 1px solid #cbd5e1;
+        }
+
+        /* Cell Selection Highlight */
+        .sheet-td.cell-selected {
+            outline: 2px solid #2563eb;
+            outline-offset: -2px;
+            z-index: 5;
+        }
+
+        .sheet-td.in-range {
+            background-color: rgba(37, 99, 235, 0.12) !important;
+        }
+
+        .sheet-td input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 12px;
+            padding: 2px 4px;
+            box-sizing: border-box;
+        }
+
+        /* Border custom styling when applied by student */
+        .cell-border-active {
+            border-top: 1px solid #000000 !important;
+            border-bottom: 1px solid #000000 !important;
+            border-left: 1px solid #000000 !important;
+            border-right: 1px solid #000000 !important;
+        }
+
+        /* Reference Table Styling */
+        .ref-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 11px;
+        }
+
+        .ref-table th, .ref-table td {
+            border: 1px solid #000000;
+            padding: 4px 6px;
+        }
+
+        .ref-header {
+            background-color: #2b78e4;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .ref-bg-magenta {
+            background-color: #ff00ff;
+            color: #000000;
+        }
+
+        .ref-bg-red {
+            background-color: #ff0000;
+            color: #000000;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- MAIN NAVIGATION & TIMER HEADER -->
+    <header class="bg-white border-b border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between gap-2 z-30 shadow-sm shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-emerald-600 text-white p-2 rounded-lg flex items-center justify-center shadow">
+                <i class="fa-solid fa-file-excel text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-slate-800 text-base md:text-lg leading-tight">Praktikum Spreadsheet: Pengolahan Data & Format Tabel</h1>
+                <p class="text-xs text-slate-500">Ketiklah data acuan dan terapkan format warna, border, serta merge cell dengan tepat.</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <!-- Countdown Timer Badge -->
+            <div id="timer-card" class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                <i class="fa-regular fa-clock text-slate-600 text-base"></i>
+                <div class="flex flex-col">
+                    <span class="text-[10px] text-slate-500 font-semibold uppercase leading-none">Sisa Waktu</span>
+                    <span id="timer-display" class="font-mono font-bold text-slate-800 text-lg leading-tight">45:00</span>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button id="btn-submit" onclick="confirmSubmission()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow transition flex items-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Selesai & Kumpulkan</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN WORKSPACE SIDE-BY-SIDE -->
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden p-2 gap-2">
+        
+        <!-- LEFT PANEL: REFERENCE SOAL -->
+        <section class="w-full lg:w-[42%] bg-white rounded-lg border border-slate-200 flex flex-col overflow-hidden shadow-sm">
+            <!-- Panel Header -->
+            <div class="bg-slate-50 border-b border-slate-200 px-3 py-2 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-book-bookmark text-blue-600 text-sm"></i>
+                    <span class="font-semibold text-xs md:text-sm text-slate-700">Tabel Acuan Soal (Harus Diketik & Diformat)</span>
+                </div>
+                <div class="flex gap-1">
+                    <button id="tab-ref-table" onclick="switchRefTab('table')" class="px-2.5 py-1 text-xs font-medium rounded bg-blue-600 text-white shadow-sm">Preview Tabel</button>
+                    <button id="tab-ref-guide" onclick="switchRefTab('guide')" class="px-2.5 py-1 text-xs font-medium rounded bg-slate-200 text-slate-700 hover:bg-slate-300">Petunjuk & Bobot</button>
+                </div>
+            </div>
+
+            <!-- Panel Content Area -->
+            <div id="ref-content-table" class="flex-1 overflow-auto p-3 bg-slate-50/50">
+                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm inline-block min-w-full">
+                    <p class="text-xs font-medium text-slate-500 mb-2 italic">Perhatikan huruf besar/kecil, warna sel, border hitam, dan merge cell judul:</p>
+                    
+                    <!-- Reference Table Render -->
+                    <table class="ref-table">
+                        <thead>
+                            <tr>
+                                <th colspan="7" class="text-center font-bold text-sm bg-white text-slate-900 border border-black py-1">Tabel Pengiriman Barang PT XYZ</th>
+                            </tr>
+                            <tr class="ref-header">
+                                <th>No</th>
+                                <th>Tanggal</th>
+                                <th>Kode Prod</th>
+                                <th>Nama Barang</th>
+                                <th>Kategori</th>
+                                <th>Jumlah</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ref-tbody">
+                            <!-- Populated dynamically via JS to guarantee accuracy -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reference Instructions Tab Content -->
+            <div id="ref-content-guide" class="hidden flex-1 overflow-auto p-4 space-y-3 text-xs leading-relaxed text-slate-700">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <h3 class="font-bold text-blue-900 mb-1 text-sm"><i class="fa-solid fa-circle-info mr-1"></i> Aturan Ketikan & Format</h3>
+                    <ul class="list-disc list-inside space-y-1 text-blue-800">
+                        <li>Semua teks bersifat <strong>Case Sensitive</strong> (membedakan huruf besar dan kecil).</li>
+                        <li><strong>Judul Tabel (Baris 1)</strong>: Di-merge pada sel <strong>A1:G1</strong> dengan teks <code class="bg-blue-100 px-1 rounded">Tabel Pengiriman Barang PT XYZ</code>.</li>
+                        <li><strong>Header Kolom (Baris 2)</strong>: Latar belakang warna <strong>Biru Header</strong> (Preset Toolbar).</li>
+                        <li><strong>Baris 'Dalam Proses'</strong>: Latar belakang warna <strong>Magenta/Pink</strong>.</li>
+                        <li><strong>Baris 'Pending'</strong>: Latar belakang warna <strong>Merah</strong>.</li>
+                        <li><strong>Borders</strong>: Semua sel dari judul hingga baris 30 harus diberi border hitam.</li>
+                    </ul>
+                </div>
+
+                <div class="border border-slate-200 rounded-lg p-3 bg-white">
+                    <h3 class="font-bold text-slate-800 mb-2 text-sm"><i class="fa-solid fa-chart-pie mr-1 text-emerald-600"></i> Rincian Bobot Penilaian (Total 100 Point)</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                            <span class="block text-slate-500 font-medium">Teks & Kapitalisasi</span>
+                            <span class="text-lg font-bold text-blue-600">40 Point</span>
+                        </div>
+                        <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                            <span class="block text-slate-500 font-medium">Warna Tabel</span>
+                            <span class="text-lg font-bold text-purple-600">20 Point</span>
+                        </div>
+                        <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                            <span class="block text-slate-500 font-medium">Penggunaan Border</span>
+                            <span class="text-lg font-bold text-emerald-600">20 Point</span>
+                        </div>
+                        <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                            <span class="block text-slate-500 font-medium">Merge Cell A1:G1</span>
+                            <span class="text-lg font-bold text-amber-600">20 Point</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: GOOGLE SHEETS WORKSHEET CLONE -->
+        <section class="w-full lg:w-[58%] bg-white rounded-lg border border-slate-200 flex flex-col overflow-hidden shadow-sm">
+            
+            <!-- GOOGLE SHEETS TOOLBAR -->
+            <div class="bg-slate-50 border-b border-slate-200 p-1.5 flex flex-wrap items-center gap-1 text-slate-700 text-xs shrink-0 select-none">
+                
+                <!-- Undo / Redo -->
+                <button onclick="undoAction()" class="p-1.5 hover:bg-slate-200 rounded text-slate-600 active:bg-slate-300" title="Undo (Ctrl+Z)">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+                <button onclick="redoAction()" class="p-1.5 hover:bg-slate-200 rounded text-slate-600 active:bg-slate-300" title="Redo (Ctrl+Y)">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+
+                <div class="h-4 w-[1px] bg-slate-300 mx-0.5"></div>
+
+                <!-- Text Style Formatting -->
+                <button id="btn-bold" onclick="toggleBold()" class="p-1.5 px-2 hover:bg-slate-200 rounded font-bold hover:text-black active:bg-slate-300" title="Cetak Tebal (Bold)">
+                    <i class="fa-solid fa-bold"></i>
+                </button>
+                <button id="btn-italic" onclick="toggleItalic()" class="p-1.5 px-2 hover:bg-slate-200 rounded italic hover:text-black active:bg-slate-300" title="Cetak Miring (Italic)">
+                    <i class="fa-solid fa-italic"></i>
+                </button>
+
+                <div class="h-4 w-[1px] bg-slate-300 mx-0.5"></div>
+
+                <!-- Text Alignment -->
+                <button onclick="setTextAlign('left')" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300" title="Rata Kiri">
+                    <i class="fa-solid fa-align-left"></i>
+                </button>
+                <button onclick="setTextAlign('center')" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300" title="Rata Tengah">
+                    <i class="fa-solid fa-align-center"></i>
+                </button>
+                <button onclick="setTextAlign('right')" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300" title="Rata Kanan">
+                    <i class="fa-solid fa-align-right"></i>
+                </button>
+
+                <div class="h-4 w-[1px] bg-slate-300 mx-0.5"></div>
+
+                <!-- Quick Color Swatches & Custom Fill -->
+                <div class="flex items-center gap-1 bg-white border border-slate-200 rounded p-0.5 shadow-sm">
+                    <span class="text-[10px] text-slate-500 font-semibold px-1">Isi Warna:</span>
+                    <button onclick="setFillColor('#2b78e4')" class="w-5 h-5 rounded border border-slate-300 bg-[#2b78e4] hover:scale-110 transition" title="Biru Header"></button>
+                    <button onclick="setFillColor('#ff00ff')" class="w-5 h-5 rounded border border-slate-300 bg-[#ff00ff] hover:scale-110 transition" title="Magenta (Dalam Proses)"></button>
+                    <button onclick="setFillColor('#ff0000')" class="w-5 h-5 rounded border border-slate-300 bg-[#ff0000] hover:scale-110 transition" title="Merah (Pending)"></button>
+                    <button onclick="setFillColor('#ffffff')" class="w-5 h-5 rounded border border-slate-300 bg-white hover:scale-110 transition flex items-center justify-center text-[10px] text-slate-400" title="Hapus Warna / Putih"><i class="fa-solid fa-ban"></i></button>
+                    <input type="color" id="fill-color-picker" onchange="setFillColor(this.value)" class="w-5 h-5 cursor-pointer border-0 bg-transparent p-0" title="Pilih Warna Bebas">
+                </div>
+
+                <div class="h-4 w-[1px] bg-slate-300 mx-0.5"></div>
+
+                <!-- Border Tools -->
+                <button onclick="applyBorders(true)" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300 flex items-center gap-1" title="Semua Border">
+                    <i class="fa-solid fa-border-all"></i>
+                    <span class="text-[11px] hidden sm:inline">Semua Border</span>
+                </button>
+                <button onclick="applyBorders(false)" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300" title="Hapus Border">
+                    <i class="fa-solid fa-border-none"></i>
+                </button>
+
+                <div class="h-4 w-[1px] bg-slate-300 mx-0.5"></div>
+
+                <!-- Merge Cell Tool -->
+                <button id="btn-merge" onclick="toggleMergeCells()" class="p-1.5 px-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded font-medium flex items-center gap-1 active:bg-blue-200" title="Gabungkan Sel (Merge Cells)">
+                    <i class="fa-solid fa-table-cells text-xs"></i>
+                    <span class="text-[11px]">Gabung Sel</span>
+                </button>
+            </div>
+
+            <!-- FORMULA BAR & CELL NAME BOX -->
+            <div class="bg-white border-b border-slate-200 px-2 py-1 flex items-center gap-2 text-xs shrink-0">
+                <div id="cell-name-box" class="font-mono bg-slate-100 border border-slate-300 px-2 py-1 rounded w-16 text-center font-bold text-slate-700">
+                    A1
+                </div>
+                <div class="text-slate-400 font-bold italic">fx</div>
+                <div class="flex-1">
+                    <input type="text" id="formula-input" oninput="onFormulaInput(this.value)" class="w-full px-2 py-0.5 border border-slate-200 rounded focus:border-blue-500 focus:outline-none font-sans" placeholder="Ketik isi sel...">
+                </div>
+            </div>
+
+            <!-- SPREADSHEET GRID -->
+            <div class="sheet-container flex-1 relative" id="sheet-wrapper">
+                <table class="sheet-table" id="spreadsheet-grid">
+                    <thead>
+                        <tr>
+                            <th class="corner-header"></th>
+                            <!-- Column Headers A to H -->
+                            <th class="col-header" data-col="0">A</th>
+                            <th class="col-header" data-col="1">B</th>
+                            <th class="col-header" data-col="2">C</th>
+                            <th class="col-header" data-col="3">D</th>
+                            <th class="col-header" data-col="4">E</th>
+                            <th class="col-header" data-col="5">F</th>
+                            <th class="col-header" data-col="6">G</th>
+                            <th class="col-header" data-col="7">H</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sheet-tbody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Grid Footer Bar -->
+            <div class="bg-slate-100 border-t border-slate-200 px-3 py-1 flex items-center justify-between text-[11px] text-slate-500 shrink-0">
+                <span id="grid-status-info">Aktif: Sel A1</span>
+                <span>Baris: 35 | Kolom: 8</span>
+            </div>
+        </section>
+    </main>
+
+    <!-- EVALUATION RESULT MODAL -->
+    <div id="result-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header -->
+            <div id="modal-header-bg" class="bg-emerald-600 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2.5 rounded-lg">
+                        <i class="fa-solid fa-award text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold">Hasil Evaluasi Praktikum</h2>
+                        <p class="text-xs text-white/80">Rincian pemeriksaan otomatis lembar kerja siswa</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="text-white/80 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-5 overflow-y-auto space-y-4 flex-1">
+                
+                <!-- Main Score Banner -->
+                <div class="flex flex-col sm:flex-row items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 gap-4">
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase font-semibold">Total Skor Kesesuaian</span>
+                        <div class="flex items-baseline gap-2">
+                            <span id="score-total" class="text-4xl font-extrabold text-slate-800">0</span>
+                            <span class="text-slate-400 font-bold">/ 100</span>
+                        </div>
+                    </div>
+                    <div id="grade-badge" class="px-5 py-2 rounded-xl text-center shadow">
+                        <span class="block text-[10px] uppercase font-bold tracking-wider">Predikat</span>
+                        <span id="grade-letter" class="text-2xl font-black">A</span>
+                    </div>
+                </div>
+
+                <!-- Aspect Score Cards -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div class="p-3 bg-white border border-slate-200 rounded-lg text-center shadow-sm">
+                        <span class="text-[11px] text-slate-500 block">Teks & Case</span>
+                        <span id="score-text" class="text-base font-bold text-blue-600">0 / 40</span>
+                    </div>
+                    <div class="p-3 bg-white border border-slate-200 rounded-lg text-center shadow-sm">
+                        <span class="text-[11px] text-slate-500 block">Warna Isi</span>
+                        <span id="score-color" class="text-base font-bold text-purple-600">0 / 20</span>
+                    </div>
+                    <div class="p-3 bg-white border border-slate-200 rounded-lg text-center shadow-sm">
+                        <span class="text-[11px] text-slate-500 block">Borders</span>
+                        <span id="score-border" class="text-base font-bold text-emerald-600">0 / 20</span>
+                    </div>
+                    <div class="p-3 bg-white border border-slate-200 rounded-lg text-center shadow-sm">
+                        <span class="text-[11px] text-slate-500 block">Merge A1:G1</span>
+                        <span id="score-merge" class="text-base font-bold text-amber-600">0 / 20</span>
+                    </div>
+                </div>
+
+                <!-- Feedback & Corrections List -->
+                <div class="border border-slate-200 rounded-lg overflow-hidden">
+                    <div class="bg-slate-100 px-3 py-2 border-b border-slate-200 font-bold text-xs text-slate-700 flex items-center justify-between">
+                        <span><i class="fa-solid fa-list-check mr-1 text-blue-600"></i> Catatan Koreksi & Kesalahan</span>
+                        <span id="feedback-count" class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium">0 Catatan</span>
+                    </div>
+                    <div id="feedback-list" class="p-3 max-h-48 overflow-y-auto space-y-1.5 text-xs text-slate-700">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="bg-slate-50 px-5 py-3 border-t border-slate-200 flex justify-end gap-2">
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-sm font-semibold transition">
+                    Tutup & Perbaiki
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* SPREADSHEET ENGINE & ACUAN DATA */
+        const TOTAL_ROWS = 35;
+        const TOTAL_COLS = 8; // A - H
+
+        // Master Reference Data
+        const MASTER_DATA = [
+            ["1", "01/10/2026", "PRD-001", "Laptop Office 14 Inch", "Elektronik", "5", "Selesai"],
+            ["2", "01/10/2026", "PRD-002", "Mouse Wireless Optik", "Aksesoris", "15", "Selesai"],
+            ["3", "01/10/2026", "PRD-003", "Keyboard Mekanikal RGB", "Aksesoris", "10", "Selesai"],
+            ["4", "02/10/2026", "PRD-004", "Monitor Full HD 24 Inch", "Elektronik", "8", "Selesai"],
+            ["5", "02/10/2026", "PRD-005", "Kursi Ergonomis Kantor", "Furnitur", "4", "Selesai"],
+            ["6", "02/10/2026", "PRD-006", "Meja Kerja Minimalis", "Furnitur", "3", "Dalam Proses"], // Magenta
+            ["7", "03/10/2026", "PRD-007", "Headset Gaming Stereo", "Aksesoris", "12", "Selesai"],
+            ["8", "03/10/2026", "PRD-008", "Webcam Full HD 1080p", "Elektronik", "7", "Selesai"],
+            ["9", "03/10/2026", "PRD-009", "Flashdisk 64GB USB 3.0", "Penyimpanan", "25", "Selesai"],
+            ["10", "04/10/2026", "PRD-010", "Harddisk Eksternal 1TB", "Penyimpanan", "6", "Dalam Proses"], // Magenta
+            ["11", "04/10/2026", "PRD-011", "SSD NVMe 500GB", "Penyimpanan", "14", "Selesai"],
+            ["12", "04/10/2026", "PRD-012", "Router Wi-Fi Dual Band", "Jaringan", "9", "Selesai"],
+            ["13", "05/10/2026", "PRD-013", "Kabel LAN Cat6 10m", "Jaringan", "30", "Selesai"],
+            ["14", "05/10/2026", "PRD-014", "Printer Multifungsi Inkjet", "Peralatan", "2", "Selesai"],
+            ["15", "05/10/2026", "PRD-015", "Kertas HVS A4 80gsm", "Alat Tulis", "50", "Selesai"],
+            ["16", "06/10/2026", "PRD-016", "Tinta Printer Hitam", "Alat Tulis", "20", "Selesai"],
+            ["17", "06/10/2026", "PRD-017", "Tinta Printer Warna", "Alat Tulis", "15", "Selesai"],
+            ["18", "06/10/2026", "PRD-018", "Speaker Bluetooth Portable", "Audio", "11", "Dalam Proses"], // Magenta
+            ["19", "07/10/2026", "PRD-019", "Microphone Condenser USB", "Audio", "5", "Selesai"],
+            ["20", "07/10/2026", "PRD-020", "Stand Laptop Aluminium", "Aksesoris", "18", "Selesai"],
+            ["21", "07/10/2026", "PRD-021", "USB Hub 4 Port Type-C", "Aksesoris", "22", "Selesai"],
+            ["22", "08/10/2026", "PRD-022", "Powerbank 20000mAh", "Elektronik", "10", "Selesai"],
+            ["23", "08/10/2026", "PRD-023", "Kabel Fast Charging C-to-C", "Aksesoris", "40", "Selesai"],
+            ["24", "08/10/2026", "PRD-024", "Proyektor Portable HD", "Elektronik", "2", "Dalam Proses"], // Magenta
+            ["25", "09/10/2026", "PRD-025", "Layar Proyektor Gantung", "Peralatan", "3", "Selesai"],
+            ["26", "09/10/2026", "PRD-026", "Smart Plug Wi-Fi", "Elektronik", "16", "Selesai"],
+            ["27", "09/10/2026", "PRD-027", "Lampu Meja LED USB", "Furnitur", "13", "Selesai"],
+            ["28", "10/10/2026", "PRD-028", "UPS 600VA Stabilizer", "Elektronik", "4", "Selesai"],
+            ["29", "10/10/2026", "PRD-029", "Drawer Cabinet File", "Furnitur", "2", "Pending"], // Red
+            ["30", "10/10/2026", "PRD-030", "Papan Tulis Whiteboard", "Peralatan", "5", "Selesai"]
+        ];
+
+        // State Variables
+        let gridData = [];
+        let mergedCells = []; // Stores { r1, c1, r2, c2 }
+        let activeCell = { r: 0, c: 0 };
+        let selectionRange = { r1: 0, c1: 0, r2: 0, c2: 0 };
+        let isMouseDown = false;
+        let historyStack = [];
+        let redoStack = [];
+        let timerSeconds = 45 * 60;
+        let timerInterval = null;
+
+        // Initialize Grid Data Model
+        function initGridData() {
+            gridData = [];
+            for (let r = 0; r < TOTAL_ROWS; r++) {
+                let row = [];
+                for (let c = 0; c < TOTAL_COLS; c++) {
+                    row.push({
+                        value: '',
+                        bold: false,
+                        italic: false,
+                        align: 'left',
+                        bgColor: '#ffffff',
+                        textColor: '#000000',
+                        border: false
+                    });
+                }
+                gridData.push(row);
+            }
+            mergedCells = [];
+            activeCell = { r: 0, c: 0 };
+            selectionRange = { r1: 0, c1: 0, r2: 0, c2: 0 };
+        }
+
+        // Render Reference Table
+        function renderReferenceTable() {
+            const tbody = document.getElementById('ref-tbody');
+            tbody.innerHTML = '';
+
+            MASTER_DATA.forEach((row, idx) => {
+                const tr = document.createElement('tr');
+                const status = row[6];
+                
+                if (status === 'Dalam Proses') {
+                    tr.className = 'ref-bg-magenta';
+                } else if (status === 'Pending') {
+                    tr.className = 'ref-bg-red';
+                }
+
+                row.forEach((val, colIdx) => {
+                    const td = document.createElement('td');
+                    td.textContent = val;
+                    if (colIdx === 0 || colIdx === 1 || colIdx === 2 || colIdx === 5 || colIdx === 6) {
+                        td.style.textAlign = 'center';
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Render Student Interactive Grid
+        function renderSpreadsheetGrid() {
+            const tbody = document.getElementById('sheet-tbody');
+            tbody.innerHTML = '';
+
+            for (let r = 0; r < TOTAL_ROWS; r++) {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-row', r);
+
+                // Row Header Cell (1, 2, 3...)
+                const thRow = document.createElement('th');
+                thRow.className = 'row-header';
+                thRow.textContent = r + 1;
+                tr.appendChild(thRow);
+
+                for (let c = 0; c < TOTAL_COLS; c++) {
+                    // Check if cell is hidden by a merge
+                    if (isCellHiddenByMerge(r, c)) {
+                        continue;
+                    }
+
+                    const td = document.createElement('td');
+                    td.className = 'sheet-td';
+                    td.setAttribute('data-r', r);
+                    td.setAttribute('data-c', c);
+
+                    // Check if this cell is top-left of a merge range
+                    const mergeInfo = getMergeInfo(r, c);
+                    if (mergeInfo) {
+                        td.colSpan = mergeInfo.c2 - mergeInfo.c1 + 1;
+                        td.rowSpan = mergeInfo.r2 - mergeInfo.r1 + 1;
+                    }
+
+                    const cellState = gridData[r][c];
+
+                    // Apply Styles
+                    td.style.backgroundColor = cellState.bgColor || '#ffffff';
+                    td.style.color = cellState.textColor || '#000000';
+                    td.style.fontWeight = cellState.bold ? 'bold' : 'normal';
+                    td.style.fontStyle = cellState.italic ? 'italic' : 'normal';
+                    td.style.textAlign = cellState.align || 'left';
+
+                    if (cellState.border) {
+                        td.classList.add('cell-border-active');
+                    }
+
+                    // Selection classes
+                    if (r === activeCell.r && c === activeCell.c) {
+                        td.classList.add('cell-selected');
+                    }
+                    if (isCellInRange(r, c)) {
+                        td.classList.add('in-range');
+                    }
+
+                    // Cell Text Output
+                    td.textContent = cellState.value;
+
+                    // Mouse Drag & Selection Listeners
+                    td.addEventListener('mousedown', (e) => onCellMouseDown(e, r, c));
+                    td.addEventListener('mouseenter', (e) => onCellMouseEnter(e, r, c));
+                    td.addEventListener('dblclick', (e) => onCellDblClick(r, c));
+
+                    tr.appendChild(td);
+                }
+                tbody.appendChild(tr);
+            }
+
+            updateFormulaAndStatus();
+        }
+
+        /* MERGE CELL LOGIC */
+        function isCellHiddenByMerge(r, c) {
+            for (let m of mergedCells) {
+                if (r >= m.r1 && r <= m.r2 && c >= m.c1 && c <= m.c2) {
+                    if (r === m.r1 && c === m.c1) return false; // Top-left cell stays visible
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function getMergeInfo(r, c) {
+            return mergedCells.find(m => m.r1 === r && m.c1 === c);
+        }
+
+        function toggleMergeCells() {
+            saveStateToHistory();
+            const minR = Math.min(selectionRange.r1, selectionRange.r2);
+            const maxR = Math.max(selectionRange.r1, selectionRange.r2);
+            const minC = Math.min(selectionRange.c1, selectionRange.c2);
+            const maxC = Math.max(selectionRange.c1, selectionRange.c2);
+
+            // If only 1 cell selected, check if it's already merged to unmerge
+            if (minR === maxR && minC === maxC) {
+                const existingIndex = mergedCells.findIndex(m => m.r1 <= minR && m.r2 >= maxR && m.c1 <= minC && m.c2 >= maxC);
+                if (existingIndex !== -1) {
+                    mergedCells.splice(existingIndex, 1);
+                }
+            } else {
+                // Remove overlapping merges first
+                mergedCells = mergedCells.filter(m => !(m.r1 >= minR && m.r2 <= maxR && m.c1 >= minC && m.c2 <= maxC));
+                // Add new merge
+                mergedCells.push({ r1: minR, c1: minC, r2: maxR, c2: maxC });
+            }
+            renderSpreadsheetGrid();
+        }
+
+        /* SELECTION & NAVIGATION */
+        function isCellInRange(r, c) {
+            const minR = Math.min(selectionRange.r1, selectionRange.r2);
+            const maxR = Math.max(selectionRange.r1, selectionRange.r2);
+            const minC = Math.min(selectionRange.c1, selectionRange.c2);
+            const maxC = Math.max(selectionRange.c1, selectionRange.c2);
+
+            return r >= minR && r <= maxR && c >= minC && c <= maxC;
+        }
+
+        function onCellMouseDown(e, r, c) {
+            isMouseDown = true;
+            activeCell = { r, c };
+            if (!e.shiftKey) {
+                selectionRange = { r1: r, c1: c, r2: r, c2: c };
+            } else {
+                selectionRange.r2 = r;
+                selectionRange.c2 = c;
+            }
+            renderSpreadsheetGrid();
+        }
+
+        function onCellMouseEnter(e, r, c) {
+            if (isMouseDown) {
+                selectionRange.r2 = r;
+                selectionRange.c2 = c;
+                renderSpreadsheetGrid();
+            }
+        }
+
+        document.addEventListener('mouseup', () => {
+            isMouseDown = false;
+        });
+
+        /* EDITING & FORMULA BAR */
+        function onCellDblClick(r, c) {
+            const td = document.querySelector(`td[data-r="${r}"][data-c="${c}"]`);
+            if (!td) return;
+
+            const currentVal = gridData[r][c].value;
+            td.innerHTML = `<input type="text" id="inline-editor" value="${escapeHtml(currentVal)}">`;
+            const input = document.getElementById('inline-editor');
+            input.focus();
+            input.select();
+
+            input.addEventListener('blur', () => {
+                saveCellText(r, c, input.value);
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    saveCellText(r, c, input.value);
+                    if (r + 1 < TOTAL_ROWS) {
+                        activeCell = { r: r + 1, c };
+                        selectionRange = { r1: r + 1, c1: c, r2: r + 1, c2: c };
+                    }
+                    renderSpreadsheetGrid();
+                } else if (e.key === 'Escape') {
+                    renderSpreadsheetGrid();
+                }
+            });
+        }
+
+        function saveCellText(r, c, val) {
+            if (gridData[r][c].value !== val) {
+                saveStateToHistory();
+                gridData[r][c].value = val;
+            }
+            renderSpreadsheetGrid();
+        }
+
+        function onFormulaInput(val) {
+            gridData[activeCell.r][activeCell.c].value = val;
+            renderSpreadsheetGrid();
+        }
+
+        function getCellName(r, c) {
+            const colLetter = String.fromCharCode(65 + c);
+            return `${colLetter}${r + 1}`;
+        }
+
+        function updateFormulaAndStatus() {
+            const cellName = getCellName(activeCell.r, activeCell.c);
+            document.getElementById('cell-name-box').textContent = cellName;
+            document.getElementById('formula-input').value = gridData[activeCell.r][activeCell.c].value;
+            document.getElementById('grid-status-info').textContent = `Aktif: Sel ${cellName}`;
+
+            // Highlight active toolbar buttons
+            const state = gridData[activeCell.r][activeCell.c];
+            document.getElementById('btn-bold').classList.toggle('bg-slate-300', state.bold);
+            document.getElementById('btn-italic').classList.toggle('bg-slate-300', state.italic);
+        }
+
+        /* FORMATTING TOOLBAR ACTIONS */
+        function applyToRange(callback) {
+            saveStateToHistory();
+            const minR = Math.min(selectionRange.r1, selectionRange.r2);
+            const maxR = Math.max(selectionRange.r1, selectionRange.r2);
+            const minC = Math.min(selectionRange.c1, selectionRange.c2);
+            const maxC = Math.max(selectionRange.c1, selectionRange.c2);
+
+            for (let r = minR; r <= maxR; r++) {
+                for (let c = minC; c <= maxC; c++) {
+                    callback(gridData[r][c]);
+                }
+            }
+            renderSpreadsheetGrid();
+        }
+
+        function setFillColor(color) {
+            applyToRange(cell => cell.bgColor = color);
+        }
+
+        function toggleBold() {
+            const current = gridData[activeCell.r][activeCell.c].bold;
+            applyToRange(cell => cell.bold = !current);
+        }
+
+        function toggleItalic() {
+            const current = gridData[activeCell.r][activeCell.c].italic;
+            applyToRange(cell => cell.italic = !current);
+        }
+
+        function setTextAlign(align) {
+            applyToRange(cell => cell.align = align);
+        }
+
+        function applyBorders(enable) {
+            applyToRange(cell => cell.border = enable);
+        }
+
+        /* KEYBOARD NAVIGATION */
+        document.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return;
+
+            let { r, c } = activeCell;
+            let moved = false;
+
+            if (e.key === 'ArrowUp' && r > 0) { r--; moved = true; }
+            else if (e.key === 'ArrowDown' && r < TOTAL_ROWS - 1) { r++; moved = true; }
+            else if (e.key === 'ArrowLeft' && c > 0) { c--; moved = true; }
+            else if (e.key === 'ArrowRight' && c < TOTAL_COLS - 1) { c++; moved = true; }
+            else if (e.key === 'Delete' || e.key === 'Backspace') {
+                applyToRange(cell => cell.value = '');
+            }
+
+            if (moved) {
+                e.preventDefault();
+                activeCell = { r, c };
+                if (!e.shiftKey) {
+                    selectionRange = { r1: r, c1: c, r2: r, c2: c };
+                } else {
+                    selectionRange.r2 = r;
+                    selectionRange.c2 = c;
+                }
+                renderSpreadsheetGrid();
+            }
+        });
+
+        /* HISTORY UNDO / REDO */
+        function saveStateToHistory() {
+            historyStack.push(JSON.stringify({
+                gridData: gridData,
+                mergedCells: mergedCells
+            }));
+            if (historyStack.length > 20) historyStack.shift();
+            redoStack = [];
+        }
+
+        function undoAction() {
+            if (historyStack.length === 0) return;
+            redoStack.push(JSON.stringify({
+                gridData: gridData,
+                mergedCells: mergedCells
+            }));
+            const state = JSON.parse(historyStack.pop());
+            gridData = state.gridData;
+            mergedCells = state.mergedCells;
+            renderSpreadsheetGrid();
+        }
+
+        function redoAction() {
+            if (redoStack.length === 0) return;
+            historyStack.push(JSON.stringify({
+                gridData: gridData,
+                mergedCells: mergedCells
+            }));
+            const state = JSON.parse(redoStack.pop());
+            gridData = state.gridData;
+            mergedCells = state.mergedCells;
+            renderSpreadsheetGrid();
+        }
+
+        /* TIMER LOGIC */
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer-display');
+            const timerCard = document.getElementById('timer-card');
+
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = "00:00";
+                    alert("Waktu 45 menit telah habis! Sistem akan memeriksa lembar kerja Anda.");
+                    runAutoGrading();
+                    return;
+                }
+
+                const mins = Math.floor(timerSeconds / 60);
+                const secs = timerSeconds % 60;
+                timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+                // Warning indicator when time < 5 mins
+                if (timerSeconds < 300) {
+                    timerCard.classList.add('bg-red-100', 'border-red-300', 'text-red-700', 'animate-pulse');
+                }
+            }, 1000);
+        }
+
+        /* AUTO-GRADING SYSTEM */
+        function confirmSubmission() {
+            if (confirm("Apakah Anda yakin telah selesai dan ingin mengumpulkan lembar kerja ini?")) {
+                runAutoGrading();
+            }
+        }
+
+        function runAutoGrading() {
+            let textPoints = 0;
+            let colorPoints = 0;
+            let borderPoints = 0;
+            let mergePoints = 0;
+            const feedbackList = [];
+
+            // 1. EVALUATE MERGE CELL (Bobot 20 Point)
+            const hasCorrectTitleMerge = mergedCells.some(m => m.r1 === 0 && m.c1 === 0 && m.r2 === 0 && m.c2 === 6);
+            if (hasCorrectTitleMerge) {
+                mergePoints = 20;
+            } else {
+                feedbackList.push("Judul 'Tabel Pengiriman Barang PT XYZ' pada baris 1 belum di-merge dari sel A1 sampai G1.");
+            }
+
+            // 2. EVALUATE TEXT & CAPITALIZATION (Bobot 40 Point)
+            let totalExpectedTextCells = 0;
+            let correctTextCount = 0;
+
+            // Check Title A1
+            totalExpectedTextCells++;
+            const titleVal = gridData[0][0].value.trim();
+            if (titleVal === "Tabel Pengiriman Barang PT XYZ") {
+                correctTextCount++;
+            } else {
+                feedbackList.push(`Teks Judul A1: Ditemukan "${titleVal}", seharusnya "Tabel Pengiriman Barang PT XYZ".`);
+            }
+
+            // Check Headers Row (Row 2, index r=1)
+            const expectedHeaders = ["No", "Tanggal", "Kode Prod", "Nama Barang", "Kategori", "Jumlah", "Status"];
+            expectedHeaders.forEach((expected, colIdx) => {
+                totalExpectedTextCells++;
+                const actual = gridData[1][colIdx].value.trim();
+                if (actual === expected) {
+                    correctTextCount++;
+                } else {
+                    const colName = String.fromCharCode(65 + colIdx);
+                    feedbackList.push(`Header ${colName}2: Ditemukan "${actual}", seharusnya "${expected}".`);
+                }
+            });
+
+            // Check 30 Data Rows (Row 3 to 32, index r=2 to 31)
+            MASTER_DATA.forEach((row, rowIdx) => {
+                const r = rowIdx + 2; // spreadsheet row index
+                row.forEach((expectedVal, colIdx) => {
+                    totalExpectedTextCells++;
+                    const actualVal = gridData[r][colIdx].value.trim();
+                    if (actualVal === expectedVal) {
+                        correctTextCount++;
+                    } else {
+                        const cellName = getCellName(r, colIdx);
+                        feedbackList.push(`Sel ${cellName} (Baris ${rowIdx + 1}): Ditemukan "${actualVal}", seharusnya "${expectedVal}".`);
+                    }
+                });
+            });
+
+            textPoints = Math.round((correctTextCount / totalExpectedTextCells) * 40);
+
+            // 3. EVALUATE COLOR / FILL COLOR (Bobot 20 Point)
+            // Points split: Header row (5pt), Magenta rows (10pt), Red row (5pt)
+            let headerColorOk = true;
+            for (let c = 0; c < 7; c++) {
+                const bg = normalizeHex(gridData[1][c].bgColor);
+                if (!isColorBlue(bg)) {
+                    headerColorOk = false;
+                    break;
+                }
+            }
+            if (headerColorOk) colorPoints += 5;
+            else feedbackList.push("Warna Header (Baris 2) belum sesuai dengan warna Biru Header.");
+
+            // Magenta Status Rows: Row 6 (PRD-006), 10 (PRD-010), 18 (PRD-018), 24 (PRD-024)
+            // Index in gridData: r = 7, 11, 19, 25
+            const magentaRowIndices = [7, 11, 19, 25];
+            let magentaCorrectCount = 0;
+            magentaRowIndices.forEach(r => {
+                let rowOk = true;
+                for (let c = 0; c < 7; c++) {
+                    if (!isColorMagenta(gridData[r][c].bgColor)) {
+                        rowOk = false;
+                        break;
+                    }
+                }
+                if (rowOk) magentaCorrectCount++;
+                else {
+                    feedbackList.push(`Baris status 'Dalam Proses' (Baris Spreadsheet ${r + 1}) belum diwarnai Magenta/Pink.`);
+                }
+            });
+            colorPoints += Math.round((magentaCorrectCount / 4) * 10);
+
+            // Red Status Row: Row 29 (PRD-029) -> Index r = 30
+            let redRowOk = true;
+            for (let c = 0; c < 7; c++) {
+                if (!isColorRed(gridData[30][c].bgColor)) {
+                    redRowOk = false;
+                    break;
+                }
+            }
+            if (redRowOk) colorPoints += 5;
+            else feedbackList.push("Baris status 'Pending' (Baris Spreadsheet 31) belum diwarnai Merah.");
+
+            // 4. EVALUATE BORDERS (Bobot 20 Point)
+            let totalTableCells = 1 + 7 + (30 * 7); // 218 cells
+            let borderedCellCount = 0;
+
+            // Title A1
+            if (gridData[0][0].border) borderedCellCount++;
+            // Headers
+            for (let c = 0; c < 7; c++) {
+                if (gridData[1][c].border) borderedCellCount++;
+            }
+            // Data
+            for (let r = 2; r < 32; r++) {
+                for (let c = 0; c < 7; c++) {
+                    if (gridData[r][c].border) borderedCellCount++;
+                }
+            }
+
+            borderPoints = Math.round((borderedCellCount / totalTableCells) * 20);
+            if (borderPoints < 20) {
+                feedbackList.push(`Border tabel belum lengkap (${borderedCellCount}/${totalTableCells} sel telah diberi border). Gunakan tool 'Semua Border'.`);
+            }
+
+            // TOTAL SCORE & PREDIKAT
+            const totalScore = textPoints + colorPoints + borderPoints + mergePoints;
+            showGradingModal(totalScore, textPoints, colorPoints, borderPoints, mergePoints, feedbackList);
+        }
+
+        /* COLOR MATCHERS */
+        function normalizeHex(color) {
+            if (!color) return '#ffffff';
+            return color.toLowerCase();
+        }
+
+        function isColorBlue(color) {
+            const hex = normalizeHex(color);
+            return hex === '#2b78e4' || hex === '#3366cc' || hex === '#2563eb' || hex === '#1d4ed8' || hex === '#3b82f6';
+        }
+
+        function isColorMagenta(color) {
+            const hex = normalizeHex(color);
+            return hex === '#ff00ff' || hex === '#e000e0' || hex === '#d946ef' || hex === '#f000f0';
+        }
+
+        function isColorRed(color) {
+            const hex = normalizeHex(color);
+            return hex === '#ff0000' || hex === '#ef4444' || hex === '#dc2626' || hex === '#e53e3e';
+        }
+
+        /* SHOW RESULT MODAL */
+        function showGradingModal(total, text, color, border, merge, feedbacks) {
+            document.getElementById('score-total').textContent = total;
+            document.getElementById('score-text').textContent = `${text} / 40`;
+            document.getElementById('score-color').textContent = `${color} / 20`;
+            document.getElementById('score-border').textContent = `${border} / 20`;
+            document.getElementById('score-merge').textContent = `${merge} / 20`;
+
+            const gradeLetter = document.getElementById('grade-letter');
+            const gradeBadge = document.getElementById('grade-badge');
+            const modalHeader = document.getElementById('modal-header-bg');
+
+            if (total >= 90) {
+                gradeLetter.textContent = 'A (Sangat Baik)';
+                gradeBadge.className = 'px-5 py-2 rounded-xl text-center shadow bg-emerald-100 text-emerald-800 border border-emerald-300';
+                modalHeader.className = 'bg-emerald-600 text-white p-4 flex items-center justify-between';
+            } else if (total >= 75) {
+                gradeLetter.textContent = 'B (Baik)';
+                gradeBadge.className = 'px-5 py-2 rounded-xl text-center shadow bg-blue-100 text-blue-800 border border-blue-300';
+                modalHeader.className = 'bg-blue-600 text-white p-4 flex items-center justify-between';
+            } else if (total >= 60) {
+                gradeLetter.textContent = 'C (Cukup)';
+                gradeBadge.className = 'px-5 py-2 rounded-xl text-center shadow bg-amber-100 text-amber-800 border border-amber-300';
+                modalHeader.className = 'bg-amber-600 text-white p-4 flex items-center justify-between';
+            } else {
+                gradeLetter.textContent = 'D (Perlu Perbaikan)';
+                gradeBadge.className = 'px-5 py-2 rounded-xl text-center shadow bg-red-100 text-red-800 border border-red-300';
+                modalHeader.className = 'bg-red-600 text-white p-4 flex items-center justify-between';
+            }
+
+            // Render Feedbacks
+            const feedbackContainer = document.getElementById('feedback-list');
+            const feedbackCount = document.getElementById('feedback-count');
+            feedbackContainer.innerHTML = '';
+
+            if (feedbacks.length === 0) {
+                feedbackCount.textContent = "Sempurna!";
+                feedbackContainer.innerHTML = `
+                    <div class="text-center py-4 text-emerald-600 font-medium">
+                        <i class="fa-solid fa-circle-check text-3xl mb-1 block"></i>
+                        Selamat! Tidak ada kesalahan yang ditemukan. Pekerjaan Anda sempurna!
+                    </div>
+                `;
+            } else {
+                feedbackCount.textContent = `${feedbacks.length} Catatan`;
+                feedbacks.forEach((item, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'p-2 bg-red-50 border-l-4 border-red-500 rounded text-red-900 text-[11px]';
+                    div.innerHTML = `<span class="font-bold mr-1">${idx + 1}.</span> ${item}`;
+                    feedbackContainer.appendChild(div);
+                });
+            }
+
+            document.getElementById('result-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').classList.add('hidden');
+        }
+
+        /* TAB SWITCHER LEFT PANEL */
+        function switchRefTab(tab) {
+            const contentTable = document.getElementById('ref-content-table');
+            const contentGuide = document.getElementById('ref-content-guide');
+            const btnTable = document.getElementById('tab-ref-table');
+            const btnGuide = document.getElementById('tab-ref-guide');
+
+            if (tab === 'table') {
+                contentTable.classList.remove('hidden');
+                contentGuide.classList.add('hidden');
+                btnTable.className = 'px-2.5 py-1 text-xs font-medium rounded bg-blue-600 text-white shadow-sm';
+                btnGuide.className = 'px-2.5 py-1 text-xs font-medium rounded bg-slate-200 text-slate-700 hover:bg-slate-300';
+            } else {
+                contentTable.classList.add('hidden');
+                contentGuide.classList.remove('hidden');
+                btnGuide.className = 'px-2.5 py-1 text-xs font-medium rounded bg-blue-600 text-white shadow-sm';
+                btnTable.className = 'px-2.5 py-1 text-xs font-medium rounded bg-slate-200 text-slate-700 hover:bg-slate-300';
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        /* INITIALIZATION ON PAGE LOAD */
+        window.onload = function() {
+            initGridData();
+            renderReferenceTable();
+            renderSpreadsheetGrid();
+            startTimer();
+        };
+    </script>
+</body>
+</html>
