@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lembar Kerja Siswa Praktikum Spreadsheet</title>
+    <title>Lembar Kerja Siswa Praktikum Spreadsheet Interaktif</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
             user-select: none;
+            -webkit-user-select: none;
         }
 
-        /* Spreadsheet Styling */
+        /* Spreadsheet Grid Container */
         .sheet-container {
             overflow: auto;
             max-height: calc(100vh - 210px);
@@ -39,16 +40,18 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            height: 28px;
+            padding: 0 4px;
         }
 
-        /* Column and Row Headers */
+        /* Headers A-H and Row 1-35 */
         .col-header {
             background-color: #f1f5f9;
             color: #475569;
             font-weight: 600;
             text-align: center;
             height: 26px;
-            min-width: 80px;
+            min-width: 90px;
             position: sticky;
             top: 0;
             z-index: 20;
@@ -61,7 +64,7 @@
             color: #475569;
             font-weight: 600;
             text-align: center;
-            width: 40px;
+            width: 42px;
             position: sticky;
             left: 0;
             z-index: 10;
@@ -75,24 +78,32 @@
             top: 0;
             left: 0;
             z-index: 30;
-            width: 40px;
+            width: 42px;
             height: 26px;
             border-top: 1px solid #cbd5e1;
             border-left: 1px solid #cbd5e1;
         }
 
-        /* Cell Selection Highlight */
+        /* Active Cell Selection and Editing */
         .sheet-td.cell-selected {
-            outline: 2px solid #2563eb;
+            outline: 2px solid #0f9d58 !important;
             outline-offset: -2px;
             z-index: 5;
         }
 
         .sheet-td.in-range {
-            background-color: rgba(37, 99, 235, 0.12) !important;
+            background-color: rgba(15, 157, 88, 0.12) !important;
         }
 
-        .sheet-td input {
+        .sheet-td.is-editing {
+            padding: 0 !important;
+            outline: 2px solid #1a73e8 !important;
+            outline-offset: -2px;
+            z-index: 10;
+            background-color: #ffffff !important;
+        }
+
+        .sheet-td input.direct-cell-input {
             width: 100%;
             height: 100%;
             border: none;
@@ -100,19 +111,29 @@
             background: transparent;
             font-family: inherit;
             font-size: 12px;
-            padding: 2px 4px;
+            padding: 0 4px;
             box-sizing: border-box;
+            color: inherit;
+            font-weight: inherit;
+            font-style: inherit;
         }
 
-        /* Border custom styling when applied by student */
-        .cell-border-active {
+        /* Applied Cell Borders */
+        .cell-border-all {
             border-top: 1px solid #000000 !important;
             border-bottom: 1px solid #000000 !important;
             border-left: 1px solid #000000 !important;
             border-right: 1px solid #000000 !important;
         }
 
-        /* Reference Table Styling */
+        .cell-border-outer {
+            border-top: 2px solid #000000 !important;
+            border-bottom: 2px solid #000000 !important;
+            border-left: 2px solid #000000 !important;
+            border-right: 2px solid #000000 !important;
+        }
+
+        /* Reference Table Layout */
         .ref-table {
             border-collapse: collapse;
             width: 100%;
@@ -121,12 +142,12 @@
 
         .ref-table th, .ref-table td {
             border: 1px solid #000000;
-            padding: 4px 6px;
+            padding: 5px 6px;
         }
 
-        .ref-header {
-            background-color: #2b78e4;
-            color: white;
+        .ref-header-bg {
+            background-color: #1e40af;
+            color: #ffffff;
             font-weight: bold;
             text-align: center;
         }
@@ -134,14 +155,16 @@
         .ref-bg-magenta {
             background-color: #ff00ff;
             color: #000000;
+            font-weight: 500;
         }
 
         .ref-bg-red {
             background-color: #ff0000;
-            color: #000000;
+            color: #ffffff;
+            font-weight: 500;
         }
 
-        /* Custom Scrollbars */
+        /* Custom Scrollbar Styling */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -161,29 +184,40 @@
 <body class="bg-slate-100 text-slate-800 h-screen flex flex-col overflow-hidden">
 
     <!-- MAIN NAVIGATION & TIMER HEADER -->
-    <header class="bg-white border-b border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between gap-2 z-30 shadow-sm shrink-0">
+    <header class="bg-white border-b border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between gap-3 z-30 shadow-sm shrink-0">
         <div class="flex items-center gap-3">
-            <div class="bg-emerald-600 text-white p-2 rounded-lg flex items-center justify-center shadow">
-                <i class="fa-solid fa-file-excel text-xl"></i>
+            <div class="bg-emerald-600 text-white p-2.5 rounded-xl flex items-center justify-center shadow-md">
+                <i class="fa-solid fa-file-excel text-2xl"></i>
             </div>
             <div>
-                <h1 class="font-bold text-slate-800 text-base md:text-lg leading-tight">Praktikum Spreadsheet: Pengolahan Data & Format Tabel</h1>
-                <p class="text-xs text-slate-500">Ketiklah data acuan dan terapkan format warna, border, serta merge cell dengan tepat.</p>
+                <h1 class="font-bold text-slate-800 text-base md:text-lg leading-tight flex items-center gap-2">
+                    <span>Praktikum Spreadsheet Interaktif</span>
+                    <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-semibold border border-emerald-200">Mode Direct Edit</span>
+                </h1>
+                <p class="text-xs text-slate-500">Ketiklah data acuan langsung di sel grid / formula bar, atur warna, border, dan merge cell sesuai petunjuk.</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-4">
-            <!-- Countdown Timer Badge -->
-            <div id="timer-card" class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
-                <i class="fa-regular fa-clock text-slate-600 text-base"></i>
+        <!-- Timer & Controls -->
+        <div class="flex items-center gap-3">
+            <div id="timer-card" class="flex items-center gap-2.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+                <i class="fa-regular fa-clock text-emerald-600 text-lg"></i>
                 <div class="flex flex-col">
-                    <span class="text-[10px] text-slate-500 font-semibold uppercase leading-none">Sisa Waktu</span>
-                    <span id="timer-display" class="font-mono font-bold text-slate-800 text-lg leading-tight">45:00</span>
+                    <span class="text-[9px] text-slate-500 font-bold uppercase tracking-wider leading-none">Waktu Praktikum</span>
+                    <span id="timer-display" class="font-mono font-extrabold text-slate-800 text-lg leading-tight">45:00</span>
+                </div>
+                <div class="flex gap-1 ml-1">
+                    <button onclick="toggleTimer()" id="btn-timer-toggle" class="p-1 hover:bg-slate-200 text-slate-600 rounded text-xs" title="Mulai / Jeda Timer">
+                        <i class="fa-solid fa-pause"></i>
+                    </button>
+                    <button onclick="resetTimer()" class="p-1 hover:bg-slate-200 text-slate-600 rounded text-xs" title="Reset Waktu">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
                 </div>
             </div>
 
             <!-- Submit Button -->
-            <button id="btn-submit" onclick="confirmSubmission()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow transition flex items-center gap-2">
+            <button id="btn-submit" onclick="confirmSubmission()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow transition flex items-center gap-2 cursor-pointer">
                 <i class="fa-solid fa-paper-plane"></i>
                 <span>Selesai & Kumpulkan</span>
             </button>
@@ -193,32 +227,34 @@
     <!-- MAIN WORKSPACE SIDE-BY-SIDE -->
     <main class="flex-1 flex flex-col lg:flex-row overflow-hidden p-2 gap-2">
         
-        <!-- LEFT PANEL: REFERENCE SOAL -->
+        <!-- LEFT PANEL: REFERENSI SOAL & TABEL ACUAN -->
         <section class="w-full lg:w-[42%] bg-white rounded-lg border border-slate-200 flex flex-col overflow-hidden shadow-sm">
-            <!-- Panel Header -->
-            <div class="bg-slate-50 border-b border-slate-200 px-3 py-2 flex items-center justify-between">
+            <!-- Panel Tab Header -->
+            <div class="bg-slate-50 border-b border-slate-200 px-3 py-2 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-book-bookmark text-blue-600 text-sm"></i>
-                    <span class="font-semibold text-xs md:text-sm text-slate-700">Tabel Acuan Soal (Harus Diketik & Diformat)</span>
+                    <span class="font-semibold text-xs md:text-sm text-slate-700">Tabel Acuan Soal (Ketik Sesuai Contoh)</span>
                 </div>
                 <div class="flex gap-1">
-                    <button id="tab-ref-table" onclick="switchRefTab('table')" class="px-2.5 py-1 text-xs font-medium rounded bg-blue-600 text-white shadow-sm">Preview Tabel</button>
-                    <button id="tab-ref-guide" onclick="switchRefTab('guide')" class="px-2.5 py-1 text-xs font-medium rounded bg-slate-200 text-slate-700 hover:bg-slate-300">Petunjuk & Bobot</button>
+                    <button id="tab-ref-table" onclick="switchRefTab('table')" class="px-2.5 py-1 text-xs font-medium rounded bg-blue-600 text-white shadow-sm transition">Tabel Acuan</button>
+                    <button id="tab-ref-guide" onclick="switchRefTab('guide')" class="px-2.5 py-1 text-xs font-medium rounded bg-slate-200 text-slate-700 hover:bg-slate-300 transition">Aturan & Bobot</button>
                 </div>
             </div>
 
-            <!-- Panel Content Area -->
+            <!-- Reference Table View -->
             <div id="ref-content-table" class="flex-1 overflow-auto p-3 bg-slate-50/50">
-                <div class="bg-white p-3 rounded border border-slate-200 shadow-sm inline-block min-w-full">
-                    <p class="text-xs font-medium text-slate-500 mb-2 italic">Perhatikan huruf besar/kecil, warna sel, border hitam, dan merge cell judul:</p>
+                <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-sm inline-block min-w-full">
+                    <div class="mb-2 text-xs text-slate-600 bg-amber-50 border border-amber-200 p-2 rounded flex items-start gap-2">
+                        <i class="fa-solid fa-lightbulb text-amber-500 text-sm mt-0.5"></i>
+                        <span><strong>Petunjuk Ketikan:</strong> Perhatikan kapitalisasi huruf, warna header biru, warna status magenta/merah, serta border hitam pada tabel.</span>
+                    </div>
                     
-                    <!-- Reference Table Render -->
                     <table class="ref-table">
                         <thead>
                             <tr>
-                                <th colspan="7" class="text-center font-bold text-sm bg-white text-slate-900 border border-black py-1">Tabel Pengiriman Barang PT XYZ</th>
+                                <th colspan="7" class="text-center font-bold text-sm bg-white text-slate-900 border border-black py-1.5">Tabel Pengiriman Barang PT XYZ</th>
                             </tr>
-                            <tr class="ref-header">
+                            <tr class="ref-header-bg">
                                 <th>No</th>
                                 <th>Tanggal</th>
                                 <th>Kode Prod</th>
@@ -229,132 +265,142 @@
                             </tr>
                         </thead>
                         <tbody id="ref-tbody">
-                            <!-- Populated dynamically via JS to guarantee accuracy -->
+                            <!-- Dynamically generated reference rows -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Reference Instructions Tab Content -->
+            <!-- Instructions & Rubric View -->
             <div id="ref-content-guide" class="hidden flex-1 overflow-auto p-4 space-y-3 text-xs leading-relaxed text-slate-700">
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <h3 class="font-bold text-blue-900 mb-1 text-sm"><i class="fa-solid fa-circle-info mr-1"></i> Aturan Ketikan & Format</h3>
+                    <h3 class="font-bold text-blue-900 mb-1.5 text-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info text-blue-600"></i> Ketentuan Pengerjaan Praktikum
+                    </h3>
                     <ul class="list-disc list-inside space-y-1 text-blue-800">
-                        <li>Semua teks bersifat <strong>Case Sensitive</strong> (membedakan huruf besar dan kecil).</li>
-                        <li><strong>Judul Tabel (Baris 1)</strong>: Di-merge pada sel <strong>A1:G1</strong> dengan teks <code class="bg-blue-100 px-1 rounded">Tabel Pengiriman Barang PT XYZ</code>.</li>
-                        <li><strong>Header Kolom (Baris 2)</strong>: Latar belakang warna <strong>Biru Header</strong> (Preset Toolbar).</li>
-                        <li><strong>Baris 'Dalam Proses'</strong>: Latar belakang warna <strong>Magenta/Pink</strong>.</li>
-                        <li><strong>Baris 'Pending'</strong>: Latar belakang warna <strong>Merah</strong>.</li>
-                        <li><strong>Borders</strong>: Semua sel dari judul hingga baris 30 harus diberi border hitam.</li>
+                        <li><strong>Kemudahan Pengisian:</strong> Anda bisa <strong>langsung mengetik di sel mana pun</strong> dengan menekan tombol sel, `Enter`, `F2`, atau `Double Click`.</li>
+                        <li><strong>Judul Tabel (A1:G1)</strong>: Lakukan <strong>Merge Cell</strong> pada area sel A1 hingga G1 dan ketik <code class="bg-blue-100 px-1 rounded font-mono">Tabel Pengiriman Barang PT XYZ</code>.</li>
+                        <li><strong>Header Kolom (A2:G2)</strong>: Berikan warna isi (Fill Color) <strong>Biru Header</strong> (`#1e40af` / `#2563eb`).</li>
+                        <li><strong>Baris Status 'Dalam Proses'</strong>: Berikan warna isi <strong>Magenta/Pink</strong> (`#ff00ff` / `#d946ef`).</li>
+                        <li><strong>Baris Status 'Pending'</strong>: Berikan warna isi <strong>Merah</strong> (`#ff0000` / `#ef4444`).</li>
+                        <li><strong>Garis Border</strong>: Terapkan <strong>Semua Border</strong> pada tabel dari sel A1 hingga G32.</li>
                     </ul>
                 </div>
 
-                <div class="border border-slate-200 rounded-lg p-3 bg-white">
-                    <h3 class="font-bold text-slate-800 mb-2 text-sm"><i class="fa-solid fa-chart-pie mr-1 text-emerald-600"></i> Rincian Bobot Penilaian (Total 100 Point)</h3>
+                <div class="border border-slate-200 rounded-lg p-3 bg-white shadow-sm">
+                    <h3 class="font-bold text-slate-800 mb-2 text-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-pie text-emerald-600"></i> Skema Bobot Penilaian (Total 100 Point)
+                    </h3>
                     <div class="grid grid-cols-2 gap-2">
-                        <div class="p-2 bg-slate-50 rounded border border-slate-200">
-                            <span class="block text-slate-500 font-medium">Teks & Kapitalisasi</span>
-                            <span class="text-lg font-bold text-blue-600">40 Point</span>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                            <span class="block text-slate-500 font-medium">Isi Teks & Kapitalisasi</span>
+                            <span class="text-xl font-extrabold text-blue-600">40%</span>
                         </div>
-                        <div class="p-2 bg-slate-50 rounded border border-slate-200">
-                            <span class="block text-slate-500 font-medium">Warna Tabel</span>
-                            <span class="text-lg font-bold text-purple-600">20 Point</span>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                            <span class="block text-slate-500 font-medium">Pewarnaan Tabel</span>
+                            <span class="text-xl font-extrabold text-purple-600">25%</span>
                         </div>
-                        <div class="p-2 bg-slate-50 rounded border border-slate-200">
-                            <span class="block text-slate-500 font-medium">Penggunaan Border</span>
-                            <span class="text-lg font-bold text-emerald-600">20 Point</span>
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                            <span class="block text-slate-500 font-medium">Penerapan Border</span>
+                            <span class="text-xl font-extrabold text-emerald-600">20%</span>
                         </div>
-                        <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                             <span class="block text-slate-500 font-medium">Merge Cell A1:G1</span>
-                            <span class="text-lg font-bold text-amber-600">20 Point</span>
+                            <span class="text-xl font-extrabold text-amber-600">15%</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- RIGHT PANEL: GOOGLE SHEETS WORKSHEET CLONE -->
+        <!-- RIGHT PANEL: GOOGLE SHEETS WORKSHEET SIMULATOR -->
         <section class="w-full lg:w-[58%] bg-white rounded-lg border border-slate-200 flex flex-col overflow-hidden shadow-sm">
             
-            <!-- GOOGLE SHEETS TOOLBAR -->
+            <!-- SPREADSHEET TOOLBAR -->
             <div class="bg-slate-50 border-b border-slate-200 p-1.5 flex flex-wrap items-center gap-1 text-slate-700 text-xs shrink-0 select-none">
                 
-                <!-- Undo / Redo -->
-                <button onclick="undoAction()" class="p-1.5 hover:bg-slate-200 rounded text-slate-600 active:bg-slate-300" title="Undo (Ctrl+Z)">
+                <!-- Undo & Redo -->
+                <button onclick="undoAction()" class="p-1.5 hover:bg-slate-200 rounded text-slate-700 active:bg-slate-300 transition" title="Urungkan / Undo (Ctrl+Z)">
                     <i class="fa-solid fa-rotate-left"></i>
                 </button>
-                <button onclick="redoAction()" class="p-1.5 hover:bg-slate-200 rounded text-slate-600 active:bg-slate-300" title="Redo (Ctrl+Y)">
+                <button onclick="redoAction()" class="p-1.5 hover:bg-slate-200 rounded text-slate-700 active:bg-slate-300 transition" title="Ulangi / Redo (Ctrl+Y)">
                     <i class="fa-solid fa-rotate-right"></i>
                 </button>
 
                 <div class="h-4 w-[1px] bg-slate-300 mx-0.5"></div>
 
-                <!-- Text Style Formatting -->
-                <button id="btn-bold" onclick="toggleBold()" class="p-1.5 px-2 hover:bg-slate-200 rounded font-bold hover:text-black active:bg-slate-300" title="Cetak Tebal (Bold)">
+                <!-- Text Formatting (Bold, Italic) -->
+                <button id="btn-bold" onclick="toggleBold()" class="p-1.5 px-2 hover:bg-slate-200 rounded font-bold hover:text-black active:bg-slate-300 transition" title="Cetak Tebal (Bold)">
                     <i class="fa-solid fa-bold"></i>
                 </button>
-                <button id="btn-italic" onclick="toggleItalic()" class="p-1.5 px-2 hover:bg-slate-200 rounded italic hover:text-black active:bg-slate-300" title="Cetak Miring (Italic)">
+                <button id="btn-italic" onclick="toggleItalic()" class="p-1.5 px-2 hover:bg-slate-200 rounded italic hover:text-black active:bg-slate-300 transition" title="Cetak Miring (Italic)">
                     <i class="fa-solid fa-italic"></i>
                 </button>
 
+                <!-- Text Color Picker -->
+                <div class="flex items-center gap-1 hover:bg-slate-200 rounded p-1 transition relative cursor-pointer" title="Warna Teks">
+                    <i class="fa-solid fa-font text-slate-700"></i>
+                    <input type="color" id="text-color-picker" onchange="setTextColor(this.value)" value="#000000" class="w-4 h-4 border-0 p-0 bg-transparent cursor-pointer">
+                </div>
+
                 <div class="h-4 w-[1px] bg-slate-300 mx-0.5"></div>
 
-                <!-- Text Alignment -->
-                <button onclick="setTextAlign('left')" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300" title="Rata Kiri">
+                <!-- Alignment Tools -->
+                <button onclick="setTextAlign('left')" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300 transition" title="Rata Kiri">
                     <i class="fa-solid fa-align-left"></i>
                 </button>
-                <button onclick="setTextAlign('center')" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300" title="Rata Tengah">
+                <button onclick="setTextAlign('center')" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300 transition" title="Rata Tengah">
                     <i class="fa-solid fa-align-center"></i>
                 </button>
-                <button onclick="setTextAlign('right')" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300" title="Rata Kanan">
+                <button onclick="setTextAlign('right')" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300 transition" title="Rata Kanan">
                     <i class="fa-solid fa-align-right"></i>
                 </button>
 
                 <div class="h-4 w-[1px] bg-slate-300 mx-0.5"></div>
 
-                <!-- Quick Color Swatches & Custom Fill -->
-                <div class="flex items-center gap-1 bg-white border border-slate-200 rounded p-0.5 shadow-sm">
-                    <span class="text-[10px] text-slate-500 font-semibold px-1">Isi Warna:</span>
-                    <button onclick="setFillColor('#2b78e4')" class="w-5 h-5 rounded border border-slate-300 bg-[#2b78e4] hover:scale-110 transition" title="Biru Header"></button>
-                    <button onclick="setFillColor('#ff00ff')" class="w-5 h-5 rounded border border-slate-300 bg-[#ff00ff] hover:scale-110 transition" title="Magenta (Dalam Proses)"></button>
-                    <button onclick="setFillColor('#ff0000')" class="w-5 h-5 rounded border border-slate-300 bg-[#ff0000] hover:scale-110 transition" title="Merah (Pending)"></button>
-                    <button onclick="setFillColor('#ffffff')" class="w-5 h-5 rounded border border-slate-300 bg-white hover:scale-110 transition flex items-center justify-center text-[10px] text-slate-400" title="Hapus Warna / Putih"><i class="fa-solid fa-ban"></i></button>
-                    <input type="color" id="fill-color-picker" onchange="setFillColor(this.value)" class="w-5 h-5 cursor-pointer border-0 bg-transparent p-0" title="Pilih Warna Bebas">
+                <!-- Fill Color Quick Swatches & Custom Picker -->
+                <div class="flex items-center gap-1 bg-white border border-slate-200 rounded p-1 shadow-sm">
+                    <span class="text-[10px] text-slate-500 font-semibold px-0.5">Isi Warna:</span>
+                    <button onclick="setFillColor('#1e40af')" class="w-4 h-4 rounded border border-slate-300 bg-[#1e40af] hover:scale-110 transition" title="Biru Header"></button>
+                    <button onclick="setFillColor('#ff00ff')" class="w-4 h-4 rounded border border-slate-300 bg-[#ff00ff] hover:scale-110 transition" title="Magenta (Dalam Proses)"></button>
+                    <button onclick="setFillColor('#ff0000')" class="w-4 h-4 rounded border border-slate-300 bg-[#ff0000] hover:scale-110 transition" title="Merah (Pending)"></button>
+                    <button onclick="setFillColor('#ffffff')" class="w-4 h-4 rounded border border-slate-300 bg-white hover:scale-110 transition flex items-center justify-center text-[9px] text-slate-400" title="Tanpa Warna / Putih"><i class="fa-solid fa-ban"></i></button>
+                    <input type="color" id="fill-color-picker" onchange="setFillColor(this.value)" value="#ffffff" class="w-4 h-4 cursor-pointer border-0 bg-transparent p-0" title="Pilih Warna Bebas">
                 </div>
 
                 <div class="h-4 w-[1px] bg-slate-300 mx-0.5"></div>
 
                 <!-- Border Tools -->
-                <button onclick="applyBorders(true)" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300 flex items-center gap-1" title="Semua Border">
+                <button onclick="applyBorders('all')" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300 flex items-center gap-1 transition" title="Semua Border">
                     <i class="fa-solid fa-border-all"></i>
-                    <span class="text-[11px] hidden sm:inline">Semua Border</span>
+                    <span class="text-[10px] hidden sm:inline font-medium">Semua Border</span>
                 </button>
-                <button onclick="applyBorders(false)" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300" title="Hapus Border">
+                <button onclick="applyBorders('none')" class="p-1.5 hover:bg-slate-200 rounded active:bg-slate-300 transition" title="Hapus Border">
                     <i class="fa-solid fa-border-none"></i>
                 </button>
 
                 <div class="h-4 w-[1px] bg-slate-300 mx-0.5"></div>
 
-                <!-- Merge Cell Tool -->
-                <button id="btn-merge" onclick="toggleMergeCells()" class="p-1.5 px-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded font-medium flex items-center gap-1 active:bg-blue-200" title="Gabungkan Sel (Merge Cells)">
+                <!-- Merge Cells Tool -->
+                <button id="btn-merge" onclick="toggleMergeCells()" class="p-1.5 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded font-medium flex items-center gap-1 active:bg-emerald-200 transition" title="Gabungkan / Lepaskan Sel (Merge Cells)">
                     <i class="fa-solid fa-table-cells text-xs"></i>
-                    <span class="text-[11px]">Gabung Sel</span>
+                    <span class="text-[11px] font-semibold">Gabung Sel</span>
                 </button>
             </div>
 
             <!-- FORMULA BAR & CELL NAME BOX -->
             <div class="bg-white border-b border-slate-200 px-2 py-1 flex items-center gap-2 text-xs shrink-0">
-                <div id="cell-name-box" class="font-mono bg-slate-100 border border-slate-300 px-2 py-1 rounded w-16 text-center font-bold text-slate-700">
+                <div id="cell-name-box" class="font-mono bg-slate-100 border border-slate-300 px-2.5 py-1 rounded w-16 text-center font-bold text-slate-700">
                     A1
                 </div>
-                <div class="text-slate-400 font-bold italic">fx</div>
+                <div class="text-slate-400 font-bold italic font-mono text-sm px-1">fx</div>
                 <div class="flex-1">
-                    <input type="text" id="formula-input" oninput="onFormulaInput(this.value)" class="w-full px-2 py-0.5 border border-slate-200 rounded focus:border-blue-500 focus:outline-none font-sans" placeholder="Ketik isi sel...">
+                    <input type="text" id="formula-input" oninput="onFormulaBarInput(this.value)" onkeydown="onFormulaBarKeyDown(event)" class="w-full px-2.5 py-1 border border-slate-200 rounded focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none font-mono text-slate-800" placeholder="Ketik isi sel di sini atau langsung pada sel...">
                 </div>
             </div>
 
             <!-- SPREADSHEET GRID -->
-            <div class="sheet-container flex-1 relative" id="sheet-wrapper">
+            <div class="sheet-container flex-1 relative" id="sheet-wrapper" tabindex="0">
                 <table class="sheet-table" id="spreadsheet-grid">
                     <thead>
                         <tr>
@@ -371,32 +417,35 @@
                         </tr>
                     </thead>
                     <tbody id="sheet-tbody">
-                        <!-- Populated by JavaScript -->
+                        <!-- Rendered dynamically by JS Engine -->
                     </tbody>
                 </table>
             </div>
 
-            <!-- Grid Footer Bar -->
-            <div class="bg-slate-100 border-t border-slate-200 px-3 py-1 flex items-center justify-between text-[11px] text-slate-500 shrink-0">
-                <span id="grid-status-info">Aktif: Sel A1</span>
-                <span>Baris: 35 | Kolom: 8</span>
+            <!-- Grid Footer Status Bar -->
+            <div class="bg-slate-100 border-t border-slate-200 px-3 py-1 flex items-center justify-between text-[11px] text-slate-500 shrink-0 font-medium">
+                <span id="grid-status-info">Aktif: Sel A1 | Klik sel & langsung ketik</span>
+                <span class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                    <span>Ready Mode</span>
+                </span>
             </div>
         </section>
     </main>
 
     <!-- EVALUATION RESULT MODAL -->
     <div id="result-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full border border-slate-200 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
             
             <!-- Modal Header -->
             <div id="modal-header-bg" class="bg-emerald-600 text-white p-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="bg-white/20 p-2.5 rounded-lg">
+                    <div class="bg-white/20 p-2.5 rounded-xl">
                         <i class="fa-solid fa-award text-2xl"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold">Hasil Evaluasi Praktikum</h2>
-                        <p class="text-xs text-white/80">Rincian pemeriksaan otomatis lembar kerja siswa</p>
+                        <h2 class="text-lg font-bold">Hasil Evaluasi Praktikum Spreadsheet</h2>
+                        <p class="text-xs text-white/80">Pemeriksaan otomatis kesesuaian data, warna, border, & merge cell</p>
                     </div>
                 </div>
                 <button onclick="closeModal()" class="text-white/80 hover:text-white p-1 rounded-lg">
@@ -404,59 +453,59 @@
                 </button>
             </div>
 
-            <!-- Modal Content -->
+            <!-- Modal Content Body -->
             <div class="p-5 overflow-y-auto space-y-4 flex-1">
                 
-                <!-- Main Score Banner -->
+                <!-- Overall Score Card Banner -->
                 <div class="flex flex-col sm:flex-row items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-200 gap-4">
                     <div>
-                        <span class="text-xs text-slate-500 uppercase font-semibold">Total Skor Kesesuaian</span>
-                        <div class="flex items-baseline gap-2">
-                            <span id="score-total" class="text-4xl font-extrabold text-slate-800">0</span>
+                        <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Skor Kesesuaian</span>
+                        <div class="flex items-baseline gap-2 mt-0.5">
+                            <span id="score-total" class="text-4xl font-black text-slate-800">0</span>
                             <span class="text-slate-400 font-bold">/ 100</span>
                         </div>
                     </div>
-                    <div id="grade-badge" class="px-5 py-2 rounded-xl text-center shadow">
-                        <span class="block text-[10px] uppercase font-bold tracking-wider">Predikat</span>
+                    <div id="grade-badge" class="px-5 py-2.5 rounded-xl text-center shadow-sm">
+                        <span class="block text-[10px] uppercase font-bold tracking-wider">Predikat Hasil</span>
                         <span id="grade-letter" class="text-2xl font-black">A</span>
                     </div>
                 </div>
 
-                <!-- Aspect Score Cards -->
+                <!-- Component Score Cards -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <div class="p-3 bg-white border border-slate-200 rounded-lg text-center shadow-sm">
-                        <span class="text-[11px] text-slate-500 block">Teks & Case</span>
-                        <span id="score-text" class="text-base font-bold text-blue-600">0 / 40</span>
+                    <div class="p-3 bg-white border border-slate-200 rounded-xl text-center shadow-sm">
+                        <span class="text-[11px] text-slate-500 font-medium block">Teks & Case</span>
+                        <span id="score-text" class="text-base font-extrabold text-blue-600">0 / 40</span>
                     </div>
-                    <div class="p-3 bg-white border border-slate-200 rounded-lg text-center shadow-sm">
-                        <span class="text-[11px] text-slate-500 block">Warna Isi</span>
-                        <span id="score-color" class="text-base font-bold text-purple-600">0 / 20</span>
+                    <div class="p-3 bg-white border border-slate-200 rounded-xl text-center shadow-sm">
+                        <span class="text-[11px] text-slate-500 font-medium block">Warna Isi</span>
+                        <span id="score-color" class="text-base font-extrabold text-purple-600">0 / 25</span>
                     </div>
-                    <div class="p-3 bg-white border border-slate-200 rounded-lg text-center shadow-sm">
-                        <span class="text-[11px] text-slate-500 block">Borders</span>
-                        <span id="score-border" class="text-base font-bold text-emerald-600">0 / 20</span>
+                    <div class="p-3 bg-white border border-slate-200 rounded-xl text-center shadow-sm">
+                        <span class="text-[11px] text-slate-500 font-medium block">Garis Border</span>
+                        <span id="score-border" class="text-base font-extrabold text-emerald-600">0 / 20</span>
                     </div>
-                    <div class="p-3 bg-white border border-slate-200 rounded-lg text-center shadow-sm">
-                        <span class="text-[11px] text-slate-500 block">Merge A1:G1</span>
-                        <span id="score-merge" class="text-base font-bold text-amber-600">0 / 20</span>
+                    <div class="p-3 bg-white border border-slate-200 rounded-xl text-center shadow-sm">
+                        <span class="text-[11px] text-slate-500 font-medium block">Merge A1:G1</span>
+                        <span id="score-merge" class="text-base font-extrabold text-amber-600">0 / 15</span>
                     </div>
                 </div>
 
-                <!-- Feedback & Corrections List -->
-                <div class="border border-slate-200 rounded-lg overflow-hidden">
-                    <div class="bg-slate-100 px-3 py-2 border-b border-slate-200 font-bold text-xs text-slate-700 flex items-center justify-between">
-                        <span><i class="fa-solid fa-list-check mr-1 text-blue-600"></i> Catatan Koreksi & Kesalahan</span>
-                        <span id="feedback-count" class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium">0 Catatan</span>
+                <!-- Feedback Notes List -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="bg-slate-100 px-3.5 py-2 border-b border-slate-200 font-bold text-xs text-slate-700 flex items-center justify-between">
+                        <span><i class="fa-solid fa-list-check mr-1 text-blue-600"></i> Catatan Perbaikan & Kesalahan</span>
+                        <span id="feedback-count" class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-semibold">0 Catatan</span>
                     </div>
                     <div id="feedback-list" class="p-3 max-h-48 overflow-y-auto space-y-1.5 text-xs text-slate-700">
-                        <!-- Filled by JS -->
+                        <!-- Populated by JavaScript -->
                     </div>
                 </div>
             </div>
 
             <!-- Modal Footer -->
             <div class="bg-slate-50 px-5 py-3 border-t border-slate-200 flex justify-end gap-2">
-                <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-sm font-semibold transition">
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-sm font-semibold transition cursor-pointer">
                     Tutup & Perbaiki
                 </button>
             </div>
@@ -464,11 +513,11 @@
     </div>
 
     <script>
-        /* SPREADSHEET ENGINE & ACUAN DATA */
+        /* SPREADSHEET ENGINE CONFIGURATION & ACUAN DATA */
         const TOTAL_ROWS = 35;
-        const TOTAL_COLS = 8; // A - H
+        const TOTAL_COLS = 8; // Columns A to H
 
-        // Master Reference Data
+        // Master Reference Data (30 Rows)
         const MASTER_DATA = [
             ["1", "01/10/2026", "PRD-001", "Laptop Office 14 Inch", "Elektronik", "5", "Selesai"],
             ["2", "01/10/2026", "PRD-002", "Mouse Wireless Optik", "Aksesoris", "15", "Selesai"],
@@ -502,18 +551,21 @@
             ["30", "10/10/2026", "PRD-030", "Papan Tulis Whiteboard", "Peralatan", "5", "Selesai"]
         ];
 
-        // State Variables
+        // Core Application State
         let gridData = [];
-        let mergedCells = []; // Stores { r1, c1, r2, c2 }
+        let mergedCells = []; // Stores objects { r1, c1, r2, c2 }
         let activeCell = { r: 0, c: 0 };
         let selectionRange = { r1: 0, c1: 0, r2: 0, c2: 0 };
+        let isEditingMode = false;
         let isMouseDown = false;
         let historyStack = [];
         let redoStack = [];
+
+        // Timer State Variables
         let timerSeconds = 45 * 60;
         let timerInterval = null;
+        let isTimerRunning = false;
 
-        // Initialize Grid Data Model
         function initGridData() {
             gridData = [];
             for (let r = 0; r < TOTAL_ROWS; r++) {
@@ -526,7 +578,7 @@
                         align: 'left',
                         bgColor: '#ffffff',
                         textColor: '#000000',
-                        border: false
+                        border: 'none'
                     });
                 }
                 gridData.push(row);
@@ -534,9 +586,10 @@
             mergedCells = [];
             activeCell = { r: 0, c: 0 };
             selectionRange = { r1: 0, c1: 0, r2: 0, c2: 0 };
+            isEditingMode = false;
         }
 
-        // Render Reference Table
+        // Render Left Reference Table
         function renderReferenceTable() {
             const tbody = document.getElementById('ref-tbody');
             tbody.innerHTML = '';
@@ -563,7 +616,7 @@
             });
         }
 
-        // Render Student Interactive Grid
+        // Render Interactive Spreadsheet Grid
         function renderSpreadsheetGrid() {
             const tbody = document.getElementById('sheet-tbody');
             tbody.innerHTML = '';
@@ -579,7 +632,7 @@
                 tr.appendChild(thRow);
 
                 for (let c = 0; c < TOTAL_COLS; c++) {
-                    // Check if cell is hidden by a merge
+                    // Hide cell if covered by a merged parent range
                     if (isCellHiddenByMerge(r, c)) {
                         continue;
                     }
@@ -589,7 +642,7 @@
                     td.setAttribute('data-r', r);
                     td.setAttribute('data-c', c);
 
-                    // Check if this cell is top-left of a merge range
+                    // Check if cell is top-left origin of a merged area
                     const mergeInfo = getMergeInfo(r, c);
                     if (mergeInfo) {
                         td.colSpan = mergeInfo.c2 - mergeInfo.c1 + 1;
@@ -605,22 +658,58 @@
                     td.style.fontStyle = cellState.italic ? 'italic' : 'normal';
                     td.style.textAlign = cellState.align || 'left';
 
-                    if (cellState.border) {
-                        td.classList.add('cell-border-active');
+                    if (cellState.border === 'all') {
+                        td.classList.add('cell-border-all');
+                    } else if (cellState.border === 'outer') {
+                        td.classList.add('cell-border-outer');
                     }
 
-                    // Selection classes
-                    if (r === activeCell.r && c === activeCell.c) {
+                    // Selection & Focus Highlights
+                    const isCellActive = (r === activeCell.r && c === activeCell.c);
+                    if (isCellActive) {
                         td.classList.add('cell-selected');
                     }
                     if (isCellInRange(r, c)) {
                         td.classList.add('in-range');
                     }
 
-                    // Cell Text Output
-                    td.textContent = cellState.value;
+                    // Direct Editing Mode vs Display Mode
+                    if (isCellActive && isEditingMode) {
+                        td.classList.add('is-editing');
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'direct-cell-input';
+                        input.value = cellState.value;
+                        
+                        // Event listeners for inline cell input
+                        input.addEventListener('input', (e) => {
+                            gridData[r][c].value = e.target.value;
+                            document.getElementById('formula-input').value = e.target.value;
+                        });
 
-                    // Mouse Drag & Selection Listeners
+                        input.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                commitDirectEditing();
+                                moveActiveCell(1, 0); // Move down
+                            } else if (e.key === 'Tab') {
+                                e.preventDefault();
+                                commitDirectEditing();
+                                moveActiveCell(0, 1); // Move right
+                            } else if (e.key === 'Escape') {
+                                isEditingMode = false;
+                                renderSpreadsheetGrid();
+                            }
+                        });
+
+                        td.appendChild(input);
+                        // Focus input after DOM render
+                        setTimeout(() => { input.focus(); input.select(); }, 10);
+                    } else {
+                        td.textContent = cellState.value;
+                    }
+
+                    // Mouse Events for Selection & Editing
                     td.addEventListener('mousedown', (e) => onCellMouseDown(e, r, c));
                     td.addEventListener('mouseenter', (e) => onCellMouseEnter(e, r, c));
                     td.addEventListener('dblclick', (e) => onCellDblClick(r, c));
@@ -630,14 +719,33 @@
                 tbody.appendChild(tr);
             }
 
-            updateFormulaAndStatus();
+            updateFormulaBarAndToolbar();
         }
 
-        /* MERGE CELL LOGIC */
+        function commitDirectEditing() {
+            if (isEditingMode) {
+                saveStateToHistory();
+                isEditingMode = false;
+                renderSpreadsheetGrid();
+            }
+        }
+
+        function enterEditingMode(initialChar = null) {
+            if (!isEditingMode) {
+                saveStateToHistory();
+                isEditingMode = true;
+                if (initialChar !== null) {
+                    gridData[activeCell.r][activeCell.c].value = initialChar;
+                }
+                renderSpreadsheetGrid();
+            }
+        }
+
+        /* MERGE CELL ENGINE */
         function isCellHiddenByMerge(r, c) {
             for (let m of mergedCells) {
                 if (r >= m.r1 && r <= m.r2 && c >= m.c1 && c <= m.c2) {
-                    if (r === m.r1 && c === m.c1) return false; // Top-left cell stays visible
+                    if (r === m.r1 && c === m.c1) return false;
                     return true;
                 }
             }
@@ -655,22 +763,22 @@
             const minC = Math.min(selectionRange.c1, selectionRange.c2);
             const maxC = Math.max(selectionRange.c1, selectionRange.c2);
 
-            // If only 1 cell selected, check if it's already merged to unmerge
+            // Single cell selection: check if already in merge to unmerge
             if (minR === maxR && minC === maxC) {
                 const existingIndex = mergedCells.findIndex(m => m.r1 <= minR && m.r2 >= maxR && m.c1 <= minC && m.c2 >= maxC);
                 if (existingIndex !== -1) {
                     mergedCells.splice(existingIndex, 1);
                 }
             } else {
-                // Remove overlapping merges first
+                // Remove overlapping existing merges first
                 mergedCells = mergedCells.filter(m => !(m.r1 >= minR && m.r2 <= maxR && m.c1 >= minC && m.c2 <= maxC));
-                // Add new merge
+                // Add new merged range
                 mergedCells.push({ r1: minR, c1: minC, r2: maxR, c2: maxC });
             }
             renderSpreadsheetGrid();
         }
 
-        /* SELECTION & NAVIGATION */
+        /* SELECTION RANGE HELPERS */
         function isCellInRange(r, c) {
             const minR = Math.min(selectionRange.r1, selectionRange.r2);
             const maxR = Math.max(selectionRange.r1, selectionRange.r2);
@@ -681,6 +789,10 @@
         }
 
         function onCellMouseDown(e, r, c) {
+            if (isEditingMode && (r !== activeCell.r || c !== activeCell.c)) {
+                commitDirectEditing();
+            }
+
             isMouseDown = true;
             activeCell = { r, c };
             if (!e.shiftKey) {
@@ -693,7 +805,7 @@
         }
 
         function onCellMouseEnter(e, r, c) {
-            if (isMouseDown) {
+            if (isMouseDown && !isEditingMode) {
                 selectionRange.r2 = r;
                 selectionRange.c2 = c;
                 renderSpreadsheetGrid();
@@ -704,45 +816,70 @@
             isMouseDown = false;
         });
 
-        /* EDITING & FORMULA BAR */
         function onCellDblClick(r, c) {
-            const td = document.querySelector(`td[data-r="${r}"][data-c="${c}"]`);
-            if (!td) return;
-
-            const currentVal = gridData[r][c].value;
-            td.innerHTML = `<input type="text" id="inline-editor" value="${escapeHtml(currentVal)}">`;
-            const input = document.getElementById('inline-editor');
-            input.focus();
-            input.select();
-
-            input.addEventListener('blur', () => {
-                saveCellText(r, c, input.value);
-            });
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    saveCellText(r, c, input.value);
-                    if (r + 1 < TOTAL_ROWS) {
-                        activeCell = { r: r + 1, c };
-                        selectionRange = { r1: r + 1, c1: c, r2: r + 1, c2: c };
-                    }
-                    renderSpreadsheetGrid();
-                } else if (e.key === 'Escape') {
-                    renderSpreadsheetGrid();
-                }
-            });
+            activeCell = { r, c };
+            enterEditingMode();
         }
 
-        function saveCellText(r, c, val) {
-            if (gridData[r][c].value !== val) {
-                saveStateToHistory();
-                gridData[r][c].value = val;
+        /* KEYBOARD NAVIGATION & DIRECT TYPING */
+        document.addEventListener('keydown', (e) => {
+            if (isEditingMode) return;
+            if (document.activeElement.id === 'formula-input') return;
+
+            const { r, c } = activeCell;
+
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                moveActiveCell(-1, 0, e.shiftKey);
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                moveActiveCell(1, 0, e.shiftKey);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                moveActiveCell(0, -1, e.shiftKey);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                moveActiveCell(0, 1, e.shiftKey);
+            } else if (e.key === 'Enter' || e.key === 'F2') {
+                e.preventDefault();
+                enterEditingMode();
+            } else if (e.key === 'Delete' || e.key === 'Backspace') {
+                e.preventDefault();
+                applyToRange(cell => cell.value = '');
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                moveActiveCell(0, 1, false);
+            } else if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                // Direct typing into cell without double click!
+                enterEditingMode(e.key);
+            }
+        });
+
+        function moveActiveCell(dr, dc, isShift = false) {
+            const newR = Math.max(0, Math.min(TOTAL_ROWS - 1, activeCell.r + dr));
+            const newC = Math.max(0, Math.min(TOTAL_COLS - 1, activeCell.c + dc));
+
+            activeCell = { r: newR, c: newC };
+            if (!isShift) {
+                selectionRange = { r1: newR, c1: newC, r2: newR, c2: newC };
+            } else {
+                selectionRange.r2 = newR;
+                selectionRange.c2 = newC;
             }
             renderSpreadsheetGrid();
         }
 
-        function onFormulaInput(val) {
+        /* FORMULA BAR SYNC */
+        function onFormulaBarInput(val) {
             gridData[activeCell.r][activeCell.c].value = val;
             renderSpreadsheetGrid();
+        }
+
+        function onFormulaBarKeyDown(e) {
+            if (e.key === 'Enter') {
+                moveActiveCell(1, 0);
+                document.getElementById('sheet-wrapper').focus();
+            }
         }
 
         function getCellName(r, c) {
@@ -750,19 +887,21 @@
             return `${colLetter}${r + 1}`;
         }
 
-        function updateFormulaAndStatus() {
+        function updateFormulaBarAndToolbar() {
             const cellName = getCellName(activeCell.r, activeCell.c);
             document.getElementById('cell-name-box').textContent = cellName;
             document.getElementById('formula-input').value = gridData[activeCell.r][activeCell.c].value;
-            document.getElementById('grid-status-info').textContent = `Aktif: Sel ${cellName}`;
+            document.getElementById('grid-status-info').textContent = `Aktif: Sel ${cellName} | Ketik langsung untuk mengisi`;
 
-            // Highlight active toolbar buttons
+            // Update active toolbar button highlights
             const state = gridData[activeCell.r][activeCell.c];
             document.getElementById('btn-bold').classList.toggle('bg-slate-300', state.bold);
             document.getElementById('btn-italic').classList.toggle('bg-slate-300', state.italic);
+            document.getElementById('text-color-picker').value = state.textColor || '#000000';
+            document.getElementById('fill-color-picker').value = state.bgColor || '#ffffff';
         }
 
-        /* FORMATTING TOOLBAR ACTIONS */
+        /* FORMATTING TOOLBAR FUNCTIONS */
         function applyToRange(callback) {
             saveStateToHistory();
             const minR = Math.min(selectionRange.r1, selectionRange.r2);
@@ -782,6 +921,10 @@
             applyToRange(cell => cell.bgColor = color);
         }
 
+        function setTextColor(color) {
+            applyToRange(cell => cell.textColor = color);
+        }
+
         function toggleBold() {
             const current = gridData[activeCell.r][activeCell.c].bold;
             applyToRange(cell => cell.bold = !current);
@@ -796,45 +939,17 @@
             applyToRange(cell => cell.align = align);
         }
 
-        function applyBorders(enable) {
-            applyToRange(cell => cell.border = enable);
+        function applyBorders(type) {
+            applyToRange(cell => cell.border = type);
         }
 
-        /* KEYBOARD NAVIGATION */
-        document.addEventListener('keydown', (e) => {
-            if (document.activeElement.tagName === 'INPUT') return;
-
-            let { r, c } = activeCell;
-            let moved = false;
-
-            if (e.key === 'ArrowUp' && r > 0) { r--; moved = true; }
-            else if (e.key === 'ArrowDown' && r < TOTAL_ROWS - 1) { r++; moved = true; }
-            else if (e.key === 'ArrowLeft' && c > 0) { c--; moved = true; }
-            else if (e.key === 'ArrowRight' && c < TOTAL_COLS - 1) { c++; moved = true; }
-            else if (e.key === 'Delete' || e.key === 'Backspace') {
-                applyToRange(cell => cell.value = '');
-            }
-
-            if (moved) {
-                e.preventDefault();
-                activeCell = { r, c };
-                if (!e.shiftKey) {
-                    selectionRange = { r1: r, c1: c, r2: r, c2: c };
-                } else {
-                    selectionRange.r2 = r;
-                    selectionRange.c2 = c;
-                }
-                renderSpreadsheetGrid();
-            }
-        });
-
-        /* HISTORY UNDO / REDO */
+        /* UNDO / REDO HISTORY ENGINE */
         function saveStateToHistory() {
             historyStack.push(JSON.stringify({
                 gridData: gridData,
                 mergedCells: mergedCells
             }));
-            if (historyStack.length > 20) historyStack.shift();
+            if (historyStack.length > 30) historyStack.shift();
             redoStack = [];
         }
 
@@ -862,8 +977,11 @@
             renderSpreadsheetGrid();
         }
 
-        /* TIMER LOGIC */
+        /* TIMER CONTROLS */
         function startTimer() {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+            
             const timerDisplay = document.getElementById('timer-display');
             const timerCard = document.getElementById('timer-card');
 
@@ -871,8 +989,10 @@
                 timerSeconds--;
                 if (timerSeconds <= 0) {
                     clearInterval(timerInterval);
+                    timerSeconds = 0;
+                    isTimerRunning = false;
                     timerDisplay.textContent = "00:00";
-                    alert("Waktu 45 menit telah habis! Sistem akan memeriksa lembar kerja Anda.");
+                    alert("Waktu praktikum 45 menit telah habis! Sistem akan memeriksa otomatis lembar kerja Anda.");
                     runAutoGrading();
                     return;
                 }
@@ -881,16 +1001,35 @@
                 const secs = timerSeconds % 60;
                 timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-                // Warning indicator when time < 5 mins
                 if (timerSeconds < 300) {
-                    timerCard.classList.add('bg-red-100', 'border-red-300', 'text-red-700', 'animate-pulse');
+                    timerCard.classList.add('bg-red-50', 'border-red-300', 'text-red-700', 'animate-pulse');
                 }
             }, 1000);
         }
 
+        function toggleTimer() {
+            const btn = document.getElementById('btn-timer-toggle');
+            if (isTimerRunning) {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                btn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            } else {
+                startTimer();
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timerSeconds = 45 * 60;
+            document.getElementById('timer-display').textContent = "45:00";
+            document.getElementById('btn-timer-toggle').innerHTML = '<i class="fa-solid fa-play"></i>';
+        }
+
         /* AUTO-GRADING SYSTEM */
         function confirmSubmission() {
-            if (confirm("Apakah Anda yakin telah selesai dan ingin mengumpulkan lembar kerja ini?")) {
+            if (confirm("Apakah Anda yakin telah selesai mengisi dan ingin mengumpulkan lembar kerja ini?")) {
                 runAutoGrading();
             }
         }
@@ -902,20 +1041,20 @@
             let mergePoints = 0;
             const feedbackList = [];
 
-            // 1. EVALUATE MERGE CELL (Bobot 20 Point)
+            // 1. MERGE CELL EVALUATION (15% Weight)
             const hasCorrectTitleMerge = mergedCells.some(m => m.r1 === 0 && m.c1 === 0 && m.r2 === 0 && m.c2 === 6);
             if (hasCorrectTitleMerge) {
-                mergePoints = 20;
+                mergePoints = 15;
             } else {
-                feedbackList.push("Judul 'Tabel Pengiriman Barang PT XYZ' pada baris 1 belum di-merge dari sel A1 sampai G1.");
+                feedbackList.push("Judul 'Tabel Pengiriman Barang PT XYZ' pada baris 1 belum di-merge dari sel A1 hingga G1.");
             }
 
-            // 2. EVALUATE TEXT & CAPITALIZATION (Bobot 40 Point)
-            let totalExpectedTextCells = 0;
+            // 2. TEXT CONTENT & CASE SENSITIVITY EVALUATION (40% Weight)
+            let totalExpectedCells = 0;
             let correctTextCount = 0;
 
-            // Check Title A1
-            totalExpectedTextCells++;
+            // Title A1
+            totalExpectedCells++;
             const titleVal = gridData[0][0].value.trim();
             if (titleVal === "Tabel Pengiriman Barang PT XYZ") {
                 correctTextCount++;
@@ -923,10 +1062,10 @@
                 feedbackList.push(`Teks Judul A1: Ditemukan "${titleVal}", seharusnya "Tabel Pengiriman Barang PT XYZ".`);
             }
 
-            // Check Headers Row (Row 2, index r=1)
+            // Headers A2:G2
             const expectedHeaders = ["No", "Tanggal", "Kode Prod", "Nama Barang", "Kategori", "Jumlah", "Status"];
             expectedHeaders.forEach((expected, colIdx) => {
-                totalExpectedTextCells++;
+                totalExpectedCells++;
                 const actual = gridData[1][colIdx].value.trim();
                 if (actual === expected) {
                     correctTextCount++;
@@ -936,11 +1075,11 @@
                 }
             });
 
-            // Check 30 Data Rows (Row 3 to 32, index r=2 to 31)
+            // 30 Data Rows (Row 3 to 32)
             MASTER_DATA.forEach((row, rowIdx) => {
                 const r = rowIdx + 2; // spreadsheet row index
                 row.forEach((expectedVal, colIdx) => {
-                    totalExpectedTextCells++;
+                    totalExpectedCells++;
                     const actualVal = gridData[r][colIdx].value.trim();
                     if (actualVal === expectedVal) {
                         correctTextCount++;
@@ -951,23 +1090,21 @@
                 });
             });
 
-            textPoints = Math.round((correctTextCount / totalExpectedTextCells) * 40);
+            textPoints = Math.round((correctTextCount / totalExpectedCells) * 40);
 
-            // 3. EVALUATE COLOR / FILL COLOR (Bobot 20 Point)
-            // Points split: Header row (5pt), Magenta rows (10pt), Red row (5pt)
+            // 3. COLOR / FILL COLOR EVALUATION (25% Weight)
+            // Header Row (5pt)
             let headerColorOk = true;
             for (let c = 0; c < 7; c++) {
-                const bg = normalizeHex(gridData[1][c].bgColor);
-                if (!isColorBlue(bg)) {
+                if (!isColorBlue(gridData[1][c].bgColor)) {
                     headerColorOk = false;
                     break;
                 }
             }
             if (headerColorOk) colorPoints += 5;
-            else feedbackList.push("Warna Header (Baris 2) belum sesuai dengan warna Biru Header.");
+            else feedbackList.push("Warna Header (Baris 2) belum diwarnai Biru Header.");
 
-            // Magenta Status Rows: Row 6 (PRD-006), 10 (PRD-010), 18 (PRD-018), 24 (PRD-024)
-            // Index in gridData: r = 7, 11, 19, 25
+            // Magenta Rows: Row 6 (PRD-006), 10 (PRD-010), 18 (PRD-018), 24 (PRD-024) -> Grid r = 7, 11, 19, 25
             const magentaRowIndices = [7, 11, 19, 25];
             let magentaCorrectCount = 0;
             magentaRowIndices.forEach(r => {
@@ -983,9 +1120,9 @@
                     feedbackList.push(`Baris status 'Dalam Proses' (Baris Spreadsheet ${r + 1}) belum diwarnai Magenta/Pink.`);
                 }
             });
-            colorPoints += Math.round((magentaCorrectCount / 4) * 10);
+            colorPoints += Math.round((magentaCorrectCount / 4) * 15);
 
-            // Red Status Row: Row 29 (PRD-029) -> Index r = 30
+            // Red Row: Row 29 (PRD-029) -> Grid r = 30
             let redRowOk = true;
             for (let c = 0; c < 7; c++) {
                 if (!isColorRed(gridData[30][c].bgColor)) {
@@ -996,61 +1133,56 @@
             if (redRowOk) colorPoints += 5;
             else feedbackList.push("Baris status 'Pending' (Baris Spreadsheet 31) belum diwarnai Merah.");
 
-            // 4. EVALUATE BORDERS (Bobot 20 Point)
+            // 4. BORDER EVALUATION (20% Weight)
             let totalTableCells = 1 + 7 + (30 * 7); // 218 cells
-            let borderedCellCount = 0;
+            let borderedCount = 0;
 
-            // Title A1
-            if (gridData[0][0].border) borderedCellCount++;
-            // Headers
+            if (gridData[0][0].border !== 'none') borderedCount++;
             for (let c = 0; c < 7; c++) {
-                if (gridData[1][c].border) borderedCellCount++;
+                if (gridData[1][c].border !== 'none') borderedCount++;
             }
-            // Data
             for (let r = 2; r < 32; r++) {
                 for (let c = 0; c < 7; c++) {
-                    if (gridData[r][c].border) borderedCellCount++;
+                    if (gridData[r][c].border !== 'none') borderedCount++;
                 }
             }
 
-            borderPoints = Math.round((borderedCellCount / totalTableCells) * 20);
+            borderPoints = Math.round((borderedCount / totalTableCells) * 20);
             if (borderPoints < 20) {
-                feedbackList.push(`Border tabel belum lengkap (${borderedCellCount}/${totalTableCells} sel telah diberi border). Gunakan tool 'Semua Border'.`);
+                feedbackList.push(`Garis border belum dipasang di semua sel tabel (${borderedCount}/${totalTableCells} sel telah diborder). Gunakan tombol 'Semua Border'.`);
             }
 
-            // TOTAL SCORE & PREDIKAT
+            // TOTAL SCORE & MODAL DISPLAY
             const totalScore = textPoints + colorPoints + borderPoints + mergePoints;
             showGradingModal(totalScore, textPoints, colorPoints, borderPoints, mergePoints, feedbackList);
         }
 
-        /* COLOR MATCHERS */
-        function normalizeHex(color) {
-            if (!color) return '#ffffff';
-            return color.toLowerCase();
-        }
-
+        /* COLOR MATCHER HELPERS */
         function isColorBlue(color) {
-            const hex = normalizeHex(color);
-            return hex === '#2b78e4' || hex === '#3366cc' || hex === '#2563eb' || hex === '#1d4ed8' || hex === '#3b82f6';
+            if (!color) return false;
+            const hex = color.toLowerCase();
+            return hex === '#1e40af' || hex === '#2563eb' || hex === '#1d4ed8' || hex === '#3b82f6' || hex === '#2b78e4';
         }
 
         function isColorMagenta(color) {
-            const hex = normalizeHex(color);
-            return hex === '#ff00ff' || hex === '#e000e0' || hex === '#d946ef' || hex === '#f000f0';
+            if (!color) return false;
+            const hex = color.toLowerCase();
+            return hex === '#ff00ff' || hex === '#d946ef' || hex === '#e000e0' || hex === '#f000f0';
         }
 
         function isColorRed(color) {
-            const hex = normalizeHex(color);
+            if (!color) return false;
+            const hex = color.toLowerCase();
             return hex === '#ff0000' || hex === '#ef4444' || hex === '#dc2626' || hex === '#e53e3e';
         }
 
-        /* SHOW RESULT MODAL */
+        /* SHOW EVALUATION MODAL */
         function showGradingModal(total, text, color, border, merge, feedbacks) {
             document.getElementById('score-total').textContent = total;
             document.getElementById('score-text').textContent = `${text} / 40`;
-            document.getElementById('score-color').textContent = `${color} / 20`;
+            document.getElementById('score-color').textContent = `${color} / 25`;
             document.getElementById('score-border').textContent = `${border} / 20`;
-            document.getElementById('score-merge').textContent = `${merge} / 20`;
+            document.getElementById('score-merge').textContent = `${merge} / 15`;
 
             const gradeLetter = document.getElementById('grade-letter');
             const gradeBadge = document.getElementById('grade-badge');
@@ -1058,23 +1190,23 @@
 
             if (total >= 90) {
                 gradeLetter.textContent = 'A (Sangat Baik)';
-                gradeBadge.className = 'px-5 py-2 rounded-xl text-center shadow bg-emerald-100 text-emerald-800 border border-emerald-300';
+                gradeBadge.className = 'px-5 py-2.5 rounded-xl text-center shadow-sm bg-emerald-100 text-emerald-800 border border-emerald-300';
                 modalHeader.className = 'bg-emerald-600 text-white p-4 flex items-center justify-between';
             } else if (total >= 75) {
                 gradeLetter.textContent = 'B (Baik)';
-                gradeBadge.className = 'px-5 py-2 rounded-xl text-center shadow bg-blue-100 text-blue-800 border border-blue-300';
+                gradeBadge.className = 'px-5 py-2.5 rounded-xl text-center shadow-sm bg-blue-100 text-blue-800 border border-blue-300';
                 modalHeader.className = 'bg-blue-600 text-white p-4 flex items-center justify-between';
             } else if (total >= 60) {
                 gradeLetter.textContent = 'C (Cukup)';
-                gradeBadge.className = 'px-5 py-2 rounded-xl text-center shadow bg-amber-100 text-amber-800 border border-amber-300';
+                gradeBadge.className = 'px-5 py-2.5 rounded-xl text-center shadow-sm bg-amber-100 text-amber-800 border border-amber-300';
                 modalHeader.className = 'bg-amber-600 text-white p-4 flex items-center justify-between';
             } else {
                 gradeLetter.textContent = 'D (Perlu Perbaikan)';
-                gradeBadge.className = 'px-5 py-2 rounded-xl text-center shadow bg-red-100 text-red-800 border border-red-300';
+                gradeBadge.className = 'px-5 py-2.5 rounded-xl text-center shadow-sm bg-red-100 text-red-800 border border-red-300';
                 modalHeader.className = 'bg-red-600 text-white p-4 flex items-center justify-between';
             }
 
-            // Render Feedbacks
+            // Render Feedback Notes
             const feedbackContainer = document.getElementById('feedback-list');
             const feedbackCount = document.getElementById('feedback-count');
             feedbackContainer.innerHTML = '';
@@ -1084,7 +1216,7 @@
                 feedbackContainer.innerHTML = `
                     <div class="text-center py-4 text-emerald-600 font-medium">
                         <i class="fa-solid fa-circle-check text-3xl mb-1 block"></i>
-                        Selamat! Tidak ada kesalahan yang ditemukan. Pekerjaan Anda sempurna!
+                        Luar biasa! Tidak ada kesalahan yang ditemukan. Pekerjaan Anda 100% sempurna!
                     </div>
                 `;
             } else {
@@ -1104,7 +1236,7 @@
             document.getElementById('result-modal').classList.add('hidden');
         }
 
-        /* TAB SWITCHER LEFT PANEL */
+        /* TAB SWITCHER */
         function switchRefTab(tab) {
             const contentTable = document.getElementById('ref-content-table');
             const contentGuide = document.getElementById('ref-content-guide');
@@ -1114,21 +1246,16 @@
             if (tab === 'table') {
                 contentTable.classList.remove('hidden');
                 contentGuide.classList.add('hidden');
-                btnTable.className = 'px-2.5 py-1 text-xs font-medium rounded bg-blue-600 text-white shadow-sm';
-                btnGuide.className = 'px-2.5 py-1 text-xs font-medium rounded bg-slate-200 text-slate-700 hover:bg-slate-300';
+                btnTable.className = 'px-2.5 py-1 text-xs font-medium rounded bg-blue-600 text-white shadow-sm transition';
+                btnGuide.className = 'px-2.5 py-1 text-xs font-medium rounded bg-slate-200 text-slate-700 hover:bg-slate-300 transition';
             } else {
                 contentTable.classList.add('hidden');
                 contentGuide.classList.remove('hidden');
-                btnGuide.className = 'px-2.5 py-1 text-xs font-medium rounded bg-blue-600 text-white shadow-sm';
-                btnTable.className = 'px-2.5 py-1 text-xs font-medium rounded bg-slate-200 text-slate-700 hover:bg-slate-300';
+                btnGuide.className = 'px-2.5 py-1 text-xs font-medium rounded bg-blue-600 text-white shadow-sm transition';
+                btnTable.className = 'px-2.5 py-1 text-xs font-medium rounded bg-slate-200 text-slate-700 hover:bg-slate-300 transition';
             }
         }
 
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-        }
-
-        /* INITIALIZATION ON PAGE LOAD */
         window.onload = function() {
             initGridData();
             renderReferenceTable();
