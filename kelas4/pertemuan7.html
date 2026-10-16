@@ -1,0 +1,1209 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Petualang Perataan Teks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Lexend:wght@400;500;600&display=swap">
+<style>
+/* Layout concept: a bright schoolyard world. Paper-and-ink "sticker" panels float over a 3D first-person view; keycaps and a tiny page mock-up carry the lesson itself. */
+:root{
+  --ink:#10233f;
+  --ink2:#44566f;
+  --paper:#ffffff;
+  --wash:#eef6fb;
+  --sky:#a6dcf6;
+  --sun:#ffc42e;
+  --sun-d:#e5a200;
+  --mint:#14a06e;
+  --mint-bg:#e1f5ec;
+  --rose:#e0434a;
+  --rose-bg:#fdeaea;
+  --royal:#2a68dc;
+  --royal-bg:#eaf1ff;
+  --line:#cddae7;
+  --f-display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'Lexend','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--sky);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0;
+}
+:focus-visible{outline:3px solid var(--royal);outline-offset:2px}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0}
+button{font-family:inherit}
+kbd,.key{
+  display:inline-block;font-family:var(--f-body);font-weight:600;font-size:.82em;line-height:1;
+  padding:.28em .6em .2em;border:2px solid var(--ink);border-bottom-width:4px;border-radius:7px;
+  background:#fff;color:var(--ink);margin:0 1px;white-space:nowrap;
+}
+.keys{display:inline-flex;align-items:center;gap:2px;flex-wrap:wrap}
+.keys i{font-style:normal;font-weight:600;color:var(--ink2);font-size:.8em}
+
+/* ---------- buttons ---------- */
+.btn{
+  font-family:var(--f-display);font-weight:700;font-size:1.2rem;line-height:1.1;
+  padding:.6em 1.4em;border:2px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  box-shadow:0 4px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s,background .15s;
+}
+.btn:hover{background:#ffd04f}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn[disabled]{background:#dfe7ef;color:#7b8ba0;border-color:#9fb0c4;box-shadow:0 4px 0 #9fb0c4;cursor:not-allowed;transform:none}
+.btn.alt{background:#fff}
+.btn.alt:hover{background:var(--wash)}
+.btn.small{font-size:1rem;padding:.45em 1em}
+.linkbtn{background:none;border:0;color:var(--ink2);text-decoration:underline;cursor:pointer;font-size:.85rem;padding:6px}
+
+/* ---------- full screens ---------- */
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:none;visibility:hidden}
+#gl.on{visibility:visible}
+.screen{
+  position:fixed;inset:0;z-index:20;overflow-y:auto;overflow-x:hidden;
+  padding-top:calc(env(safe-area-inset-top,0px) + 20px);
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 28px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;min-width:0}
+
+/* intro */
+#intro{background:var(--sky)}
+.intro-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:32px;align-items:center;min-height:calc(100vh - 80px)}
+.eyebrow{font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.title{font-size:clamp(2.6rem,7vw,4.6rem);font-weight:800;margin:10px 0 14px}
+.title .mark{background:var(--sun);padding:0 .22em;border-radius:.2em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.lead{font-size:1.1rem;max-width:34em;color:var(--ink)}
+.mission{list-style:none;padding:0;margin:22px 0;display:grid;gap:10px;max-width:34em}
+.mission li{display:flex;gap:12px;align-items:flex-start;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:10px 14px;box-shadow:0 3px 0 var(--ink)}
+.mission b{font-family:var(--f-display);font-size:1.4rem;line-height:1;width:1.6em;height:1.6em;flex:none;display:grid;place-items:center;background:var(--sun);border:2px solid var(--ink);border-radius:50%}
+.namebox{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.namebox label{font-weight:600;font-size:.9rem;width:100%}
+.namebox input{
+  font:inherit;padding:.65em .9em;border:2px solid var(--ink);border-radius:12px;background:#fff;color:var(--ink);
+  min-width:0;flex:1 1 220px;max-width:340px;
+}
+.sticker{
+  background:#fff;border:2px solid var(--ink);border-radius:20px;box-shadow:0 6px 0 var(--ink);padding:18px;
+  display:grid;gap:14px;min-width:0;
+}
+.sticker h2{font-size:1.2rem}
+.demo-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
+.demo-row .ico{color:var(--royal);flex:none}
+.demo-row span.t{font-weight:500;min-width:0}
+.legend-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:.95rem}
+
+/* reading */
+#baca{background:var(--wash)}
+#baca{padding-top:0}
+.rbar{
+  position:sticky;top:0;z-index:5;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) 0 12px;background:var(--wash);
+}
+.rbar-in{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.rbar h1{font-size:clamp(1.5rem,4vw,2.1rem)}
+.rbar p{color:var(--ink2);font-size:.9rem}
+.timer{display:flex;align-items:center;gap:12px}
+.clock{
+  font-family:var(--f-display);font-weight:800;font-size:2rem;line-height:1;font-variant-numeric:tabular-nums;
+  background:var(--ink);color:#fff;padding:.25em .6em;border-radius:14px;min-width:3.6em;text-align:center;
+}
+.clock.done{background:var(--mint)}
+.pbar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:10px}
+.pbar i{display:block;height:100%;width:0;background:var(--sun);border-right:2px solid var(--ink);transition:width .3s linear}
+.sec{margin-top:30px;display:grid;gap:14px;min-width:0}
+.sec>h2{font-size:1.5rem}
+.sec>.sub{color:var(--ink2);max-width:46em}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.card{background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:10px;align-content:start;min-width:0}
+.card h3{font-size:1.25rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.card h3 .ico{color:var(--royal)}
+.card ul{margin:0;padding-left:1.15em;display:grid;gap:3px}
+.card .lab{font-weight:600;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.acard{border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.acard.l .ico{color:var(--royal)}
+.acard.c .ico{color:#d68a00}
+.acard.r .ico{color:var(--mint)}
+.acard.j .ico{color:var(--rose)}
+.paper{background:#fff;border:2px solid var(--ink);border-radius:8px;padding:10px 6px;font-size:.84rem;line-height:1.55;min-width:0}
+.paper .pg{border-left:1.5px dashed #aac0d8;border-right:1.5px dashed #aac0d8;padding:0 8px}
+.paper .pg p+p{margin-top:.35em}
+.tl{text-align:left}.tc{text-align:center}.tr{text-align:right}.tj{text-align:justify;text-align-last:left}
+.tablewrap{overflow-x:auto;border:2px solid var(--ink);border-radius:14px;background:#fff}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.92rem}
+th{background:var(--ink);color:#fff;text-align:left;padding:10px 12px;font-family:var(--f-display);font-weight:700;font-size:1rem}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:middle}
+td:first-child{font-weight:600}
+.steps{list-style:none;counter-reset:s;margin:0;padding:0;display:grid;gap:10px}
+.steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 14px;min-width:0}
+.steps li::before{content:counter(s);flex:none;width:1.9em;height:1.9em;display:grid;place-items:center;border-radius:50%;background:var(--sun);border:2px solid var(--ink);font-family:var(--f-display);font-weight:800}
+.steps li>div{min-width:0}
+.tip{border-left:6px solid var(--sun);background:#fff;border-radius:6px 14px 14px 6px;padding:10px 14px}
+.tip b{display:block;font-family:var(--f-display);font-size:1.05rem}
+.rule{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr);gap:10px;align-items:baseline;padding:9px 0;border-top:1px solid var(--line)}
+.rule:first-child{border-top:0}
+.rule b{font-family:var(--f-display);font-size:1.05rem}
+.c-red{color:#d4252c;font-weight:600}.c-blue{color:#1a54d0;font-weight:600}
+.hl{background:#fff176;border-radius:3px;padding:0 .12em}
+.ready-bar{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;margin:36px 0 8px;text-align:center}
+.ready-bar .note{width:100%;color:var(--ink2);font-size:.9rem}
+.btn.pulse{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.05)}}
+.err{background:var(--rose-bg);border:2px solid var(--rose);border-radius:12px;padding:10px 14px;color:#7a1b20;max-width:34em}
+
+/* HUD */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10}
+.hp{
+  position:absolute;background:#fff;border:2px solid var(--ink);border-radius:14px;box-shadow:0 3px 0 var(--ink);padding:8px 12px;
+}
+#hProg{top:calc(env(safe-area-inset-top,0px) + 12px);left:max(12px,env(safe-area-inset-left,0px));min-width:160px}
+#hProg .n{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1;font-variant-numeric:tabular-nums}
+#hProg .l{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+#hProg .pb{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+#hProg .pb i{display:block;height:100%;width:0;background:var(--mint);transition:width .4s}
+#hScore{top:calc(env(safe-area-inset-top,0px) + 12px);right:max(12px,env(safe-area-inset-right,0px));display:flex;gap:12px;align-items:center;pointer-events:auto}
+#hScore .n{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1;font-variant-numeric:tabular-nums}
+#hScore .l{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+#zone{
+  position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);left:50%;transform:translateX(-50%);
+  background:var(--ink);color:#fff;border-radius:99px;padding:6px 16px;font-family:var(--f-display);font-weight:700;font-size:1.05rem;white-space:nowrap;
+  max-width:36vw;overflow:hidden;text-overflow:ellipsis;
+}
+#mapbox{top:calc(env(safe-area-inset-top,0px) + 92px);left:max(12px,env(safe-area-inset-left,0px));padding:4px;line-height:0}
+#mini{width:140px;height:140px;border-radius:9px;display:block}
+.cross{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1.5px var(--ink);opacity:.9}
+#prompt{
+  position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);transform:translateX(-50%);
+  display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--ink);border-radius:99px;box-shadow:0 4px 0 var(--ink);
+  padding:8px 10px 8px 18px;pointer-events:auto;max-width:calc(100vw - 24px);
+}
+#prompt.quiet{background:var(--mint-bg);padding:8px 18px}
+#prompt .pt{font-weight:500;min-width:0}
+#pause{
+  position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 86px);transform:translateX(-50%);
+  background:var(--ink);color:#fff;border-radius:12px;padding:8px 14px;font-size:.9rem;text-align:center;width:max-content;max-width:calc(100vw - 32px)
+}
+#legend{
+  position:absolute;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
+  background:rgba(255,255,255,.92);border:2px solid var(--ink);border-radius:12px;padding:8px 12px;font-size:.78rem;display:grid;gap:5px
+}
+#legend div{display:flex;gap:8px;align-items:center;justify-content:space-between}
+body.touch #legend,body.touch #pause{display:none}
+#tzL,#tzR{position:fixed;top:22%;bottom:0;width:50%;z-index:5;touch-action:none;display:none}
+#tzL{left:0}#tzR{right:0}
+body.touch.playing #tzL,body.touch.playing #tzR{display:block}
+#joyBase{position:fixed;width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:50%;border:3px solid rgba(255,255,255,.9);background:rgba(16,35,63,.25);z-index:6;pointer-events:none}
+#joyKnob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:#fff;border:2px solid var(--ink)}
+
+/* modals */
+.modal{
+  position:fixed;inset:0;z-index:30;background:rgba(16,35,63,.58);overflow-y:auto;
+  padding-top:calc(env(safe-area-inset-top,0px) + 14px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
+  padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));
+  display:flex;align-items:flex-start;justify-content:center;
+}
+.dcard{
+  width:100%;max-width:660px;margin:auto;background:var(--paper);border:2px solid var(--ink);border-radius:20px;box-shadow:0 6px 0 var(--ink);
+  padding:16px;display:grid;gap:12px;outline:none;
+}
+.dhead{display:flex;gap:12px;align-items:center}
+.av{
+  width:46px;height:46px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;flex:none;
+  font-family:var(--f-display);font-weight:800;font-size:1.3rem;color:#fff;
+}
+.dname{font-family:var(--f-display);font-weight:800;font-size:1.3rem;line-height:1.1}
+.drole{font-size:.85rem;color:var(--ink2)}
+.x{margin-left:auto;width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:#fff;cursor:pointer;display:grid;place-items:center;flex:none}
+.bubble{background:var(--wash);border-radius:14px 14px 14px 4px;padding:10px 14px;font-size:.95rem}
+.qbox{display:grid;gap:10px}
+.qtag{display:inline-block;justify-self:start;background:var(--sun);border:2px solid var(--ink);border-radius:99px;padding:3px 12px;font-size:.78rem;font-weight:600}
+.qs{font-weight:500;font-size:1.05rem}
+.opts{display:grid;gap:8px}
+.opt{
+  position:relative;display:flex;gap:12px;align-items:flex-start;padding:11px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;
+  transition:border-color .1s,background .1s;min-width:0;
+}
+.opt:hover{border-color:var(--ink2)}
+.opt input{position:absolute;opacity:0;width:1px;height:1px}
+.opt .box{flex:none;width:26px;height:26px;border:2px solid var(--ink);border-radius:7px;background:#fff;display:grid;place-items:center;margin-top:1px}
+.opt .box::after{content:"";width:12px;height:7px;border-left:3px solid #fff;border-bottom:3px solid #fff;transform:rotate(-45deg) translate(1px,-1px);opacity:0}
+.opt.sel{border-color:var(--royal);background:var(--royal-bg)}
+.opt.sel .box{background:var(--royal)}
+.opt.sel .box::after{opacity:1}
+.opt input:focus-visible+.box{outline:3px solid var(--royal);outline-offset:2px}
+.opt .ot{min-width:0;flex:1}
+.opt .tag{font-size:.74rem;font-weight:600;white-space:nowrap;align-self:center}
+.opt.lock{cursor:default}
+.opt.ok{border-color:var(--mint);background:var(--mint-bg)}
+.opt.ok .box{background:var(--mint)}
+.opt.ok .tag{color:#0b6a47}
+.opt.miss{border-color:var(--mint);border-style:dashed}
+.opt.miss .tag{color:#0b6a47}
+.opt.bad{border-color:var(--rose);background:var(--rose-bg)}
+.opt.bad .box{background:var(--rose)}
+.opt.bad .tag{color:#9a1c23}
+.res{border-radius:14px;padding:12px 14px;display:grid;gap:4px;border:2px solid var(--ink)}
+.res.good{background:var(--mint-bg)}.res.part{background:#fff6d6}.res.nope{background:var(--rose-bg)}
+.res b{font-family:var(--f-display);font-size:1.2rem}
+.dfoot{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.hint{font-size:.82rem;color:var(--ink2)}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:min(58vh,520px);overflow-y:auto}
+.list li{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:12px;padding:8px 12px;min-width:0}
+.list li.done{background:var(--mint-bg);border-color:var(--mint)}
+.list .dot{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--ink);background:#fff;display:grid;place-items:center}
+.list li.done .dot{background:var(--mint)}
+.list .who{min-width:0;flex:1}
+.list .who b{display:block;font-family:var(--f-display);font-size:1.05rem;line-height:1.2}
+.list .who span{font-size:.82rem;color:var(--ink2)}
+.list .p{font-family:var(--f-display);font-weight:800;font-variant-numeric:tabular-nums}
+
+/* results */
+#hasil{background:var(--sky)}
+.rhead{display:grid;gap:8px;justify-items:start}
+.rhead h1{font-size:clamp(2.2rem,6vw,3.6rem);font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.stat{background:#fff;border:2px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 var(--ink);padding:14px}
+.stat .n{font-family:var(--f-display);font-weight:800;font-size:2.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.stat .l{font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-top:4px}
+#rList{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible}
+#rList li.part{background:#fff6d6;border-color:var(--sun-d)}
+#rList li.bad{background:var(--rose-bg);border-color:var(--rose)}
+#rList li.part .dot{background:var(--sun)}
+#rList li.bad .dot{background:var(--rose)}
+.ractions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+
+@media (max-width:760px){
+  .intro-grid{grid-template-columns:minmax(0,1fr);min-height:0;gap:22px}
+  .grid2{grid-template-columns:minmax(0,1fr)}
+  .stats{grid-template-columns:minmax(0,1fr)}
+  #rList{grid-template-columns:minmax(0,1fr)}
+  .rule{grid-template-columns:minmax(0,1fr);gap:2px}
+  #zone{top:calc(env(safe-area-inset-top,0px) + 76px);left:auto;right:max(12px,env(safe-area-inset-right,0px));transform:none;max-width:44vw;font-size:.85rem;padding:5px 12px}
+  #hProg{min-width:130px}
+  #mini{width:104px;height:104px}
+  #mapbox{top:calc(env(safe-area-inset-top,0px) + 84px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .btn.pulse{animation:none}
+  *{transition:none!important}
+}
+</style>
+
+<canvas id="gl" aria-label="Dunia sekolah 3D"></canvas>
+
+<!-- ======= INTRO ======= -->
+<section id="intro" class="screen">
+  <div class="wrap intro-grid">
+    <div>
+      <div class="eyebrow">Informatika Kelas 4 SD · Google Docs</div>
+      <h1 class="title">Petualang <span class="mark">Perataan</span> Teks</h1>
+      <p class="lead">Jalan-jalan keliling sekolah, temui 20 teman, dan bantu mereka merapikan dokumen. Setiap teman punya satu soal. Pilih semua jawaban yang benar!</p>
+      <ol class="mission">
+        <li><b>1</b><span>Baca materi dulu selama <strong>3 menit</strong>.</span></li>
+        <li><b>2</b><span>Cari <strong>20 teman</strong> di halaman sekolah. Tanda seru kuning muncul kalau mereka dekat.</span></li>
+        <li><b>3</b><span>Jawab soal pilihan ganda. Jawaban benarnya bisa <strong>2, 3, 4, atau semuanya</strong>.</span></li>
+      </ol>
+      <form class="namebox" id="nameForm">
+        <label for="nama">Nama siswa</label>
+        <input id="nama" type="text" maxlength="30" placeholder="Tulis namamu di sini" autocomplete="off">
+        <button class="btn" type="submit" id="btnMulai">Mulai Membaca</button>
+      </form>
+    </div>
+    <div class="sticker" aria-label="Cara bermain">
+      <h2>Cara bermain</h2>
+      <div class="legend-grid">
+        <span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Berjalan (atau tombol panah)</span>
+        <span class="keys"><kbd>Shift</kbd></span><span>Berlari</span>
+        <span class="keys"><kbd>Mouse</kbd></span><span>Klik layar lalu gerakkan mouse untuk melihat sekeliling</span>
+        <span class="keys"><kbd>E</kbd></span><span>Bicara dengan teman di dekatmu</span>
+        <span class="keys"><kbd>Tab</kbd></span><span>Daftar teman dan petunjuk tempatnya</span>
+      </div>
+      <p class="hint">Di tablet atau HP: geser jari di sisi kiri layar untuk berjalan, sisi kanan untuk melihat sekeliling.</p>
+      <div class="demo-row"><span class="ico" data-a="left"></span><span class="ico" data-a="center"></span><span class="ico" data-a="right"></span><span class="ico" data-a="justify"></span><span class="t">Empat jenis perataan yang akan kamu kuasai.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= READING ======= -->
+<section id="baca" class="screen" hidden>
+  <div class="wrap">
+    <div class="rbar">
+      <div class="rbar-in">
+        <div>
+          <h1>Baca Dulu Materinya</h1>
+          <p>Waktu membaca 3 menit. Tombol mulai terbuka saat waktu habis.</p>
+        </div>
+        <div class="timer"><div class="clock" id="clock" role="timer" aria-live="off">03:00</div></div>
+      </div>
+      <div class="pbar"><i id="rProg"></i></div>
+    </div>
+
+    <div class="sec">
+      <h2>Apa itu perataan teks (alignment)?</h2>
+      <p class="sub"><strong>Perataan teks</strong> adalah cara mengatur letak atau posisi tulisan terhadap batas pinggir halaman kertas di dokumen. Fungsinya membuat dokumen terlihat <strong>rapi, teratur, dan nyaman dibaca</strong>. Ada empat jenis perataan.</p>
+    </div>
+
+    <div class="sec">
+      <div class="grid2">
+        <div class="card acard l">
+          <h3><span class="ico" data-a="left"></span>Rata Kiri <small>(Align Left)</small> <span class="keys" data-k="L"></span></h3>
+          <p>Pengaturan bawaan. Setiap kali mengetik baru di Google Docs, tulisan otomatis rata kiri. Semua baris rata mulus di tepi kiri.</p>
+          <div class="lab">Cocok untuk</div>
+          <ul><li>Isi cerita dan paragraf karangan</li><li>Catatan pelajaran sehari-hari</li><li>Daftar tulisan atau poin-poin</li></ul>
+          <div class="paper"><div class="pg tl"><p>Aku suka membaca buku. Setiap hari aku membaca di perpustakaan sekolah.</p></div></div>
+        </div>
+        <div class="card acard c">
+          <h3><span class="ico" data-a="center"></span>Rata Tengah <small>(Center)</small> <span class="keys" data-k="E"></span></h3>
+          <p>Menempatkan tulisan tepat di tengah halaman dengan jarak kiri dan kanan yang sama. Terlihat menonjol dan menarik perhatian.</p>
+          <div class="lab">Cocok untuk</div>
+          <ul><li>Judul utama cerita atau dokumen</li><li>Nama acara pada pengumuman</li><li>Poster dan kartu undangan</li></ul>
+          <div class="paper"><div class="pg tc"><p><strong>Perpustakaan Sekolah</strong></p><p>Buka Setiap Hari Senin sampai Jumat</p></div></div>
+        </div>
+        <div class="card acard r">
+          <h3><span class="ico" data-a="right"></span>Rata Kanan <small>(Align Right)</small> <span class="keys" data-k="R"></span></h3>
+          <p>Membuat setiap baris tulisan berakhir di tepi kanan halaman. Baris awal di sebelah kiri tidak perlu sama panjang.</p>
+          <div class="lab">Cocok untuk</div>
+          <ul><li>Tempat dan tanggal pembuatan surat</li><li>Nama penulis dan tanda tangan di akhir</li></ul>
+          <div class="paper"><div class="pg tr"><p><strong>Bekasi, 13 Oktober 2026</strong></p><p>Hormat saya,<br><strong>Budi</strong></p></div></div>
+        </div>
+        <div class="card acard j">
+          <h3><span class="ico" data-a="justify"></span>Rata Kiri-Kanan <small>(Justify)</small> <span class="keys" data-k="J"></span></h3>
+          <p>Mengatur jarak antarkata secara otomatis sehingga sisi kiri dan sisi kanan paragraf sama-sama lurus rapi, seperti paragraf buku.</p>
+          <div class="lab">Cocok untuk</div>
+          <ul><li>Paragraf panjang pada buku cerita, surat kabar, dan koran</li><li>Laporan resmi</li></ul>
+          <div class="paper"><div class="pg tj"><p>Pagi itu di dapur nenek, Rara belajar membuat kue bolu pandan. Nenek memandu tangan Rara saat mencampur tepung agar adonan teraduk rata sebelum dimasukkan ke dalam oven.</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Tabel perbandingan</h2>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Jenis perataan</th><th>Bahasa Inggris</th><th>Posisi tulisan</th><th>Cocok untuk</th><th>Pintasan</th></tr></thead>
+          <tbody>
+            <tr><td>Rata Kiri</td><td>Align left</td><td>Mulai dari kiri</td><td>Cerita dan catatan harian</td><td><span class="keys" data-k="L"></span></td></tr>
+            <tr><td>Rata Tengah</td><td>Center</td><td>Di tengah halaman</td><td>Judul dan poster acara</td><td><span class="keys" data-k="E"></span></td></tr>
+            <tr><td>Rata Kanan</td><td>Align right</td><td>Berakhir di kanan</td><td>Tanggal dan tanda tangan</td><td><span class="keys" data-k="R"></span></td></tr>
+            <tr><td>Rata Kiri-Kanan</td><td>Justify</td><td>Lurus di kiri dan kanan</td><td>Paragraf buku dan koran</td><td><span class="keys" data-k="J"></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Menata surat untuk sahabat</h2>
+      <div class="grid2">
+        <ol class="steps">
+          <li><div><strong>Tanggal surat</strong> “Bekasi, 13 Oktober 2026”<br>Rata Kanan <span class="keys" data-k="R"></span></div></li>
+          <li><div><strong>Judul surat</strong> “Surat untuk Sahabat”<br>Rata Tengah <span class="keys" data-k="E"></span></div></li>
+          <li><div><strong>Isi paragraf</strong> cerita liburan<br>Rata Kiri-Kanan <span class="keys" data-k="J"></span></div></li>
+          <li><div><strong>Penutup</strong> “Salam, Budi”<br>Rata Kanan <span class="keys" data-k="R"></span></div></li>
+        </ol>
+        <div class="paper" style="align-self:start"><div class="pg">
+          <p class="tr"><strong>Bekasi, 13 Oktober 2026</strong></p>
+          <p class="tc"><strong>Surat untuk Sahabat</strong></p>
+          <p class="tj">Hai Rina, liburan kemarin aku pergi ke rumah nenek di desa. Kami memetik buah, bermain di sawah, dan membuat kue bersama. Aku ingin sekali bercerita lebih banyak kepadamu.</p>
+          <p class="tr">Salam,<br><strong>Budi</strong></p>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Latihan mandiri</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Undangan Ulang Tahun</h3>
+          <ul><li><strong>Judul undangan:</strong> Rata Tengah</li><li><strong>Isi (hari, jam, tempat):</strong> Rata Kiri-Kanan</li><li><strong>Tanggal dan nama:</strong> Rata Kanan</li></ul>
+        </div>
+        <div class="card">
+          <h3>Cerita Hewan Kesukaan</h3>
+          <ul><li><strong>Judul cerita:</strong> Rata Tengah</li><li><strong>Paragraf (4–5 kalimat):</strong> Rata Kiri-Kanan</li><li><strong>Nama penulis:</strong> Rata Kanan</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Cara mengubah perataan di Google Docs</h2>
+      <div class="grid2">
+        <ol class="steps">
+          <li><div><strong>Buka dokumen kosong</strong> dan beri nama “Latihan Perataan Teks”.</div></li>
+          <li><div><strong>Ketik tiga baris:</strong> Perpustakaan Sekolah / Aku suka membaca. / Buku jendela dunia.</div></li>
+          <li><div><strong>Judul di tengah:</strong> klik baris pertama, lalu klik ikon Rata Tengah di toolbar.</div></li>
+          <li><div><strong>Isi di kiri:</strong> klik baris kedua dan ketiga, pastikan memakai Rata Kiri.</div></li>
+        </ol>
+        <div style="display:grid;gap:10px;align-content:start">
+          <div class="tip"><b>Klik dulu tulisannya</b>Sebelum menekan tombol perataan, pastikan kursor sudah ada di baris yang ingin diubah.</div>
+          <div class="tip"><b>Sorot banyak baris</b>Ingin mengubah beberapa baris sekaligus? Blok semua barisnya dengan mouse, lalu klik perataan.</div>
+          <div class="tip"><b>Jika ikon tidak terlihat</b>Buka menu <strong>Format &gt; Rata (Align &amp; indent)</strong>, lalu pilih jenis perataannya.</div>
+          <div class="tip"><b>Pakai pintasan keyboard</b>Bekerja lebih cepat dengan tombol pintasan. Lihat tabel perbandingan di atas.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2>Ketentuan menulis cerita</h2>
+      <p class="sub">Contoh cerita “Aroma Pandan di Dapur Nenek” memakai aturan format berikut.</p>
+      <div class="grid2">
+        <div class="card">
+          <div class="rule"><b>Perataan</b><span>Judul Rata Tengah, isi paragraf Rata Kiri.</span></div>
+          <div class="rule"><b>Warna teks</b><span>Kata <span class="c-red">Rara</span> merah. Kata <span class="c-blue">nenek</span> biru.</span></div>
+          <div class="rule"><b>Highlight</b><span>Nama makanan atau bahan, misalnya <span class="hl">kue bolu pandan</span> dan <span class="hl">kayu manis</span>, diberi warna kuning.</span></div>
+          <div class="rule"><b>Cetak tebal</b><span>Judul cerita dan kata kerja aksi utama: <strong>mengocok, mencampur, mengeluarkan, mencicipi</strong>.</span></div>
+          <div class="rule"><b>Cetak miring</b><span>Kata sifat atau perasaan: <em>semangat, lezat, bahagia, istimewa</em>.</span></div>
+          <div class="rule"><b>Garis bawah</b><span>Keterangan tempat dan waktu: <u>Pagi itu</u>, <u>di dapur nenek</u>, <u>seluruh rumah</u>, <u>di meja makan</u>.</span></div>
+        </div>
+        <div class="paper" style="align-self:start"><div class="pg">
+          <p class="tc"><strong>Aroma Pandan di Dapur Nenek</strong></p>
+          <p class="tl"><u>Pagi itu</u> <u>di <span class="c-blue">dapur nenek</span></u>, <span class="c-red">Rara</span> bangun dengan rasa <em>semangat</em> untuk belajar membuat <span class="hl">kue bolu pandan</span> bersama <span class="c-blue">neneknya</span>. <span class="c-red">Rara</span> segera bersiap <strong>mengocok</strong> telur dan gula hingga mengembang. Dengan sabar, <span class="c-blue">nenek</span> memandu tangan <span class="c-red">Rara</span> saat <strong>mencampur</strong> tepung. Aroma <span class="hl">kayu manis</span> yang <em>lezat</em> memenuhi <u>seluruh rumah</u>.</p>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="ready-bar">
+      <button class="btn pulse" id="btnSiap" disabled>Tunggu waktu membaca…</button>
+      <div class="note" id="siapNote">Baca pelan-pelan. Soal akan menanyakan penerapan materi ini di kehidupan sehari-hari.</div>
+      <div id="glErr" class="err" hidden>Maaf, browser ini belum bisa menampilkan dunia 3D (WebGL). Coba buka di Chrome, Edge, atau Firefox versi terbaru.</div>
+      <button class="linkbtn" id="btnSkip" type="button">L</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======= HUD ======= -->
+<div id="hud" hidden>
+  <div class="hp" id="hProg"><div class="l">Teman ditemukan</div><div class="n"><span id="hN">0</span> / 20</div><div class="pb"><i id="hBar"></i></div></div>
+  <div id="zone">Lapangan Upacara</div>
+  <div class="hp" id="hScore"><div><div class="l">Poin</div><div class="n" id="hPts">0</div></div><button class="btn alt small" id="btnList" type="button">Daftar</button></div>
+  <div class="hp" id="mapbox"><canvas id="mini" width="140" height="140" aria-label="Peta sekolah"></canvas></div>
+  <div class="cross"></div>
+  <div id="prompt" hidden><span class="pt" id="pTxt"></span><button class="btn small" id="btnTalk" type="button">Bicara</button></div>
+  <div id="pause" hidden>Klik layar untuk mengunci kamera, atau tahan klik dan geser untuk melihat sekeliling</div>
+  <div id="legend">
+    <div><span>Jalan</span><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span></div>
+    <div><span>Lari</span><span class="keys"><kbd>Shift</kbd></span></div>
+    <div><span>Bicara</span><span class="keys"><kbd>E</kbd></span></div>
+    <div><span>Daftar teman</span><span class="keys"><kbd>Tab</kbd></span></div>
+  </div>
+</div>
+<div id="tzL"></div><div id="tzR"></div>
+<div id="joyBase" hidden><div id="joyKnob"></div></div>
+
+<!-- ======= DIALOG ======= -->
+<div id="dialog" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="dName">
+  <div class="dcard" id="dcard" tabindex="-1">
+    <div class="dhead">
+      <div class="av" id="dAv"></div>
+      <div><div class="dname" id="dName"></div><div class="drole" id="dRole"></div></div>
+      <button class="x" id="dClose" type="button" aria-label="Tutup"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </div>
+    <p class="bubble" id="dHi"></p>
+    <div class="qbox">
+      <span class="qtag">Pilih SEMUA jawaban yang benar</span>
+      <p class="qs" id="dQ"></p>
+      <div class="opts" id="dOpts"></div>
+      <div class="res" id="dRes" hidden></div>
+      <p class="hint" id="dHint">Bisa 2, 3, 4, atau semua jawaban yang benar. Tombol angka 1 sampai 5 juga bisa dipakai.</p>
+    </div>
+    <div class="dfoot">
+      <button class="btn alt" id="dLater" type="button">Nanti dulu</button>
+      <button class="btn" id="dSubmit" type="button">Periksa Jawaban</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======= LIST ======= -->
+<div id="daftar" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="lTitle">
+  <div class="dcard" tabindex="-1" id="lcard">
+    <div class="dhead">
+      <div><div class="dname" id="lTitle">Daftar teman</div><div class="drole">Petunjuk tempat mereka berdiri</div></div>
+      <button class="x" id="lClose" type="button" aria-label="Tutup"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </div>
+    <ul class="list" id="lList"></ul>
+  </div>
+</div>
+
+<!-- ======= RESULTS ======= -->
+<section id="hasil" class="screen" hidden>
+  <div class="wrap">
+    <div class="rhead">
+      <div class="eyebrow" id="rName">Misi selesai</div>
+      <h1 id="rTitle">Hebat!</h1>
+      <p class="lead" id="rMsg"></p>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n" id="rScore">0</div><div class="l">Nilai (0–100)</div></div>
+      <div class="stat"><div class="n" id="rPerfect">0 / 20</div><div class="l">Jawaban sempurna</div></div>
+      <div class="stat"><div class="n" id="rPts">0</div><div class="l">Total poin</div></div>
+    </div>
+    <ul class="list" id="rList"></ul>
+    <div class="ractions">
+      <button class="btn" id="btnAgain" type="button">Main Lagi</button>
+      <button class="btn alt" id="btnReread" type="button">Baca Materi Lagi</button>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ===== DATA SOAL =====
+   Pintasan mengikuti panduan resmi Google Docs (Windows/Chrome OS): Ctrl + Shift + L/E/R/J.
+   Jika ingin mengikuti slide materi (Ctrl + L/E/R/J), ubah empat nilai di bawah ini. */
+window.GAME_DATA = {
+  shortcuts: { L: 'Ctrl + Shift + L', E: 'Ctrl + Shift + E', R: 'Ctrl + Shift + R', J: 'Ctrl + Shift + J' },
+  npcs: [
+    { n: 'Bu Ani', r: 'Guru Kelas 4', x: -34, z: -26, clue: 'Dekat pintu Kelas 4', look: 'hijab', skin: 0xe0ac84, hair: 0x2b1b12, c: 0x2f6be0, p: 0x24344f, v: 0x1f4aa8,
+      hi: 'Halo! Ibu sedang menilai tugas cerita pendek kalian di Google Docs.',
+      s: 'Bu Ani meminta kamu mengetik cerita pendek di Google Docs supaya tampilannya rapi. Langkah mana yang benar?',
+      o: [['Judul cerita diatur Rata Tengah ({E})', 1], ['Isi paragraf cerita diatur Rata Kiri ({L})', 1], ['Judul cerita diatur Rata Kanan supaya tersembunyi di pojok', 0], ['Sebelum menekan tombol perataan, klik dulu baris yang ingin diubah', 1], ['Semua baris wajib Rata Tengah, termasuk isi cerita', 0]],
+      w: 'Judul cerita cocok di tengah, isi cerita di kiri. Ingat juga: klik dulu barisnya sebelum menekan tombol perataan.' },
+    { n: 'Rara', r: 'Murid Kelas 4', x: 22, z: 44, clue: 'Di depan Kantin', look: 'long', skin: 0xf1c7a0, hair: 0x2b1b12, c: 0xffffff, p: 0xd8232a,
+      hi: 'Aku sedang menulis cerita tentang membuat kue bolu pandan bersama nenek!',
+      s: 'Rara menulis cerita “Aroma Pandan di Dapur Nenek” dan ingin memformat teksnya sesuai ketentuan. Mana yang benar?',
+      o: [['Kata “Rara” diberi warna teks merah', 1], ['Kata “nenek” diberi warna teks biru', 1], ['Nama makanan seperti “kue bolu pandan” diberi highlight kuning', 1], ['Kata perasaan seperti “bahagia” dicetak tebal (bold)', 0], ['Keterangan tempat seperti “di dapur nenek” diberi garis bawah (underline)', 1]],
+      w: 'Kata sifat atau perasaan dicetak miring (italic), bukan tebal. Cetak tebal dipakai untuk judul dan kata kerja aksi.' },
+    { n: 'Nenek Lastri', r: 'Nenek yang suka bercerita', x: -48, z: 14, clue: 'Di bangku Taman Sekolah', look: 'old', skin: 0xe0ac84, hair: 0xdcdcdc, c: 0x8a3f9e, p: 0x5b3a29,
+      hi: 'Cucuku, tolong bantu Nenek menulis cerita tentang kucing kesayangan Nenek.',
+      s: 'Nenek menulis cerita kucing kesayangannya (4–5 kalimat) di Google Docs. Bantu Nenek mengatur tampilannya. Mana yang benar?',
+      o: [['Judul cerita dibuat Rata Tengah ({E})', 1], ['Paragraf 4–5 kalimat dibuat Rata Kiri-Kanan / Justify ({J})', 1], ['Nama penulis dibuat Rata Kanan ({R})', 1], ['Judul cerita dibuat Rata Kanan ({R})', 0], ['Paragraf cerita dibuat Rata Tengah supaya lebih indah', 0]],
+      w: 'Judul di tengah, paragraf rapi di kiri dan kanan (Justify), dan nama penulis berakhir di tepi kanan.' },
+    { n: 'Pak Hadi', r: 'Penjaga Perpustakaan', x: -4, z: -40, clue: 'Di depan Perpustakaan', look: 'short', skin: 0xc68a5e, hair: 0x1c1c1c, c: 0x3b9a4d, p: 0x24344f,
+      hi: 'Selamat datang! Bapak butuh poster jam buka perpustakaan.',
+      s: 'Pak Hadi membuat poster “Perpustakaan Sekolah, Buka Setiap Hari Senin sampai Jumat”. Pilih pernyataan yang benar!',
+      o: [['Judul poster paling pas memakai Rata Tengah ({E})', 1], ['Kalau ikon perataan tidak terlihat, buka menu Format > Rata (Align & indent)', 1], ['Judul poster paling cocok memakai Rata Kiri-Kanan (Justify)', 0], ['{R} dipakai untuk membuat tulisan berada di tengah', 0], ['Judul poster sebaiknya Rata Kanan supaya rapi di pinggir', 0]],
+      w: 'Judul poster di tengah terlihat seimbang dan menarik perhatian. Rata Kanan memakai {R}, bukan untuk menengahkan tulisan.' },
+    { n: 'Kak Eko', r: 'Operator Lab Komputer', x: 34, z: -30, clue: 'Di samping Lab Komputer', look: 'short', skin: 0xe0ac84, hair: 0x1c1c1c, c: 0x10233f, p: 0x333d4f,
+      hi: 'Di lab ada kertas pintasan keyboard. Coba cek, mana yang benar?',
+      s: 'Kak Eko menempel kertas pintasan keyboard Google Docs di dinding lab. Periksa setiap pernyataan. Mana yang benar?',
+      o: [['{L} membuat Rata Kiri (Align left)', 1], ['{E} membuat Rata Tengah (Center)', 1], ['{R} membuat Rata Kanan (Align right)', 1], ['{J} membuat Rata Kiri-Kanan (Justify)', 1], ['Rata Tengah dalam bahasa Inggris disebut Center', 1]],
+      w: 'Semuanya benar! Hafalkan empat pasangan pintasan: L untuk kiri, E untuk tengah, R untuk kanan, J untuk kiri-kanan.' },
+    { n: 'Dimas', r: 'Murid Kelas 4', x: 8, z: -8, clue: 'Di Lapangan Upacara', look: 'short', skin: 0xc68a5e, hair: 0x1c1c1c, c: 0xffffff, p: 0xd8232a,
+      hi: 'Aku mau kirim surat untuk sahabatku yang pindah kota.',
+      s: 'Dimas mengetik surat untuk sahabatnya. Bagian surat mana yang cocok diatur Rata Kanan ({R})?',
+      o: [['Tempat dan tanggal surat, misalnya “Bekasi, 13 Oktober 2026”', 1], ['Nama penulis dan tanda tangan di akhir surat', 1], ['Baris penutup “Hormat saya, Budi”', 1], ['Judul surat “Surat untuk Sahabat”', 0], ['Paragraf cerita liburan di isi surat', 0]],
+      w: 'Judul surat di tengah dan isi paragraf Justify. Tanggal, penutup, dan nama penulis berakhir di tepi kanan.' },
+    { n: 'Sinta', r: 'Murid Kelas 4', x: -9, z: 6, clue: 'Di Lapangan Upacara', look: 'long', skin: 0xf1c7a0, hair: 0x3a2418, c: 0xffffff, p: 0xd8232a,
+      hi: 'Catatan pelajaranku sering berantakan. Bantu aku, ya!',
+      s: 'Sinta mencatat pelajaran setiap hari di Google Docs. Pernyataan mana yang benar tentang perataan catatannya?',
+      o: [['Rata Kiri ({L}) cocok untuk catatan pelajaran sehari-hari', 1], ['Rata Kiri adalah pengaturan bawaan saat mengetik baru di Google Docs', 1], ['Daftar tulisan atau poin-poin cocok memakai Rata Kiri', 1], ['Rata Tengah paling nyaman untuk seluruh catatan yang panjang', 0], ['Rata Kanan wajib dipakai agar catatan tidak berantakan', 0]],
+      w: 'Catatan, cerita, dan daftar nyaman dibaca dengan Rata Kiri, yang juga pengaturan bawaan Google Docs.' },
+    { n: 'Pak Joko', r: 'Satpam Sekolah', x: 6, z: 58, clue: 'Dekat Gerbang Sekolah', look: 'cap', skin: 0x9a6440, hair: 0x1c1c1c, c: 0x24344f, p: 0x24344f,
+      hi: 'Bapak mau memasang pengumuman di gerbang sekolah.',
+      s: 'Pak Joko membuat pengumuman “Pekan Kebersihan Sekolah”. Pilih bagian yang diatur dengan benar!',
+      o: [['Nama acara “Pekan Kebersihan Sekolah” dibuat Rata Tengah', 1], ['Nama pembuat dan tanggal pengumuman di bagian bawah dibuat Rata Kanan', 1], ['Nama acara dibuat Rata Kiri karena itu pengaturan paling menonjol', 0], ['Seluruh pengumuman wajib Rata Kanan agar cepat dibaca', 0], ['{L} dipakai untuk menengahkan nama acara', 0]],
+      w: 'Nama acara pada pengumuman di tengah agar menarik perhatian. Tanggal dan nama pembuat berakhir di kanan.' },
+    { n: 'Bu Siti', r: 'Penjaga Kantin', x: 30, z: 42, clue: 'Di depan Kantin', look: 'hijab', skin: 0xe0ac84, hair: 0x2b1b12, c: 0xf08a24, p: 0x5b3a29, v: 0xb85a0f,
+      hi: 'Ibu mau mengetik menu kantin sehat untuk ditempel di dinding.',
+      s: 'Bu Siti mengetik “Menu Kantin Sehat” dan daftar makanan di bawahnya. Pilih yang tepat!',
+      o: [['Judul “Menu Kantin Sehat” diatur Rata Tengah', 1], ['Daftar makanan atau poin-poin diatur Rata Kiri', 1], ['Seluruh daftar makanan dibuat Rata Kanan supaya rapi', 0], ['Judul menu dibuat Rata Kanan dengan {R}', 0], ['Daftar makanan dibuat Rata Tengah karena itu bawaan Google Docs', 0]],
+      w: 'Judul di tengah, daftar di kiri. Rata Kiri adalah bawaan Google Docs, bukan Rata Tengah.' },
+    { n: 'Andi', r: 'Murid Kelas 4', x: -56, z: -4, clue: 'Di Taman Sekolah', look: 'short', skin: 0xe0ac84, hair: 0x1c1c1c, c: 0xffffff, p: 0xd8232a,
+      hi: 'Kelompokku membuat majalah dinding berisi berita sekolah.',
+      s: 'Andi menulis berita panjang untuk majalah dinding. Pernyataan mana tentang Rata Kiri-Kanan (Justify) yang benar?',
+      o: [['Justify membuat sisi kiri dan sisi kanan paragraf sama-sama lurus', 1], ['Justify cocok untuk paragraf panjang pada buku cerita, koran, dan laporan resmi', 1], ['Justify mengatur jarak antarkata secara otomatis', 1], ['Justify paling cocok untuk satu baris judul poster', 0], ['Pintasan keyboard Justify adalah {E}', 0]],
+      w: 'Justify merapikan kedua sisi paragraf dengan mengatur jarak antarkata. Pintasannya {J}.' },
+    { n: 'Putri', r: 'Murid Kelas 4', x: -32, z: 40, clue: 'Di Kebun Sekolah', look: 'hijab', skin: 0xf1c7a0, hair: 0x2b1b12, c: 0xffffff, p: 0xd8232a, v: 0xffffff,
+      hi: 'Kami menanam kangkung, dan aku harus membuat laporan pengamatannya.',
+      s: 'Putri mengetik laporan “Pengamatan Tanaman Kangkung” di Google Docs. Pengaturan mana yang benar?',
+      o: [['Judul laporan dibuat Rata Tengah', 1], ['Nama penulis dan tanggal di akhir laporan dibuat Rata Kanan', 1], ['Judul laporan dibuat Rata Kanan agar tidak menutupi isi', 0], ['Semua isi laporan dibuat Rata Tengah supaya seimbang', 0], ['{J} dipakai untuk membuat tulisan Rata Kanan', 0]],
+      w: 'Judul laporan di tengah, nama dan tanggal di akhir rata kanan. {J} adalah pintasan Justify.' },
+    { n: 'Bayu', r: 'Murid Kelas 4', x: 44, z: 14, clue: 'Di samping Aula', look: 'short', skin: 0x9a6440, hair: 0x1c1c1c, c: 0xffffff, p: 0xd8232a,
+      hi: 'Aula akan dipakai untuk pentas seni. Aku membantu menulis surat undangan untuk orang tua.',
+      s: 'Bayu menyusun surat undangan pentas seni. Urutan pengaturan mana yang sudah benar?',
+      o: [['Tanggal surat: klik barisnya lalu {R} (Rata Kanan)', 1], ['Judul surat: klik barisnya lalu {E} (Rata Tengah)', 1], ['Isi paragraf: klik di dalam paragraf lalu {J} (Justify)', 1], ['Penutup dan nama penulis: klik barisnya lalu {R} (Rata Kanan)', 1], ['Isi paragraf: klik di dalam paragraf lalu {E} agar jarak antarkata rapi', 0]],
+      w: '{E} membuat tulisan di tengah. Agar isi paragraf lurus di kedua sisi, pakai Justify ({J}).' },
+    { n: 'Citra', r: 'Murid Kelas 4', x: 17, z: -42, clue: 'Di samping Perpustakaan', look: 'long', skin: 0xe0ac84, hair: 0x1c1c1c, c: 0xffffff, p: 0xd8232a,
+      hi: 'Aku ingin mempercantik kalimat ceritaku dengan huruf tebal, miring, dan warna.',
+      s: 'Citra memformat kalimat “Rara mengocok telur dengan semangat di dapur nenek.” Pilih format yang benar!',
+      o: [['“mengocok” dicetak tebal karena kata kerja aksi utama', 1], ['“semangat” dicetak miring karena ekspresi perasaan', 1], ['“di dapur nenek” diberi garis bawah karena keterangan tempat', 1], ['“Rara” diberi warna teks merah', 1], ['“nenek” diberi warna teks merah', 0]],
+      w: 'Kata “nenek” memakai warna teks biru, sedangkan “Rara” memakai warna merah.' },
+    { n: 'Pak Budi', r: 'Guru Olahraga', x: 0, z: 14, clue: 'Di tepi Lapangan Upacara', look: 'short', skin: 0xc68a5e, hair: 0x1c1c1c, c: 0x1f8f6a, p: 0x1f3d34,
+      hi: 'Bapak punya pertanyaan untuk pengumuman pertandingan persahabatan.',
+      s: 'Pak Budi ingin membedakan Rata Kiri dan Rata Tengah. Mana pernyataan yang benar?',
+      o: [['Rata Kiri: tulisan mulai dari tepi kiri halaman', 1], ['Rata Tengah: tulisan berada tepat di tengah dengan jarak kiri dan kanan sama', 1], ['Rata Tengah cocok untuk judul utama dan poster', 1], ['Rata Kiri memakai {L}, sedangkan Rata Tengah memakai {E}', 1], ['Rata Kiri cocok untuk judul poster karena paling menonjol', 0]],
+      w: 'Judul poster menonjol kalau berada di tengah. Rata Kiri dipakai untuk isi, catatan, dan daftar.' },
+    { n: 'Dewi', r: 'Murid Kelas 4', x: -52, z: -22, clue: 'Di samping Kelas 4', look: 'long', skin: 0xf1c7a0, hair: 0x6b3b1e, c: 0xffffff, p: 0xd8232a,
+      hi: 'Aku lupa cara mengubah perataan di Google Docs. Kamu ingat?',
+      s: 'Dewi bingung cara mengubah perataan tulisan. Mana saran yang benar?',
+      o: [['Klik dulu baris tulisan yang ingin diubah', 1], ['Untuk mengubah banyak baris sekaligus, blok semua barisnya lalu klik perataan', 1], ['Klik ikon perataan di toolbar', 1], ['Jika ikon tidak terlihat, buka menu Format > Rata (Align & indent) lalu pilih jenisnya', 1], ['Gunakan pintasan keyboard agar bekerja lebih cepat', 1]],
+      w: 'Semuanya benar! Kamu punya banyak cara: toolbar, menu Format, atau pintasan keyboard.' },
+    { n: 'Fajar', r: 'Murid Kelas 4', x: 26, z: -10, clue: 'Di jalan setapak timur Lapangan', look: 'short', skin: 0xe0ac84, hair: 0x2b1b12, c: 0xffffff, p: 0xd8232a,
+      hi: 'Daftar belanjaku sepuluh baris, tapi perataannya campur-campur.',
+      s: 'Fajar mengetik 10 baris daftar belanja. Sebagian barisnya Rata Tengah, padahal ia ingin semuanya Rata Kiri. Apa yang sebaiknya ia lakukan?',
+      o: [['Blok atau sorot semua barisnya dengan mouse, lalu klik Rata Kiri', 1], ['Sorot semua baris lalu tekan {L}', 1], ['Klik satu baris saja, semua baris lain otomatis ikut berubah', 0], ['Menekan {E} sepuluh kali sampai semuanya berubah', 0], ['Klik ikon Rata Kiri tanpa mengeklik baris apa pun', 0]],
+      w: 'Perataan hanya berubah pada baris yang kamu klik atau sorot. Sorot semua barisnya dulu, baru pilih Rata Kiri.' },
+    { n: 'Gita', r: 'Murid Kelas 4', x: -42, z: 0, clue: 'Di dekat kolam Taman Sekolah', look: 'long', skin: 0xc68a5e, hair: 0x1c1c1c, c: 0xffffff, p: 0xd8232a,
+      hi: 'Aku mau membuat undangan ulang tahun untuk adikku.',
+      s: 'Gita membuat undangan ulang tahun. Pasangan bagian dan perataan mana yang benar?',
+      o: [['Judul undangan memakai Rata Tengah ({E})', 1], ['Isi (hari, jam, tempat) memakai Rata Kiri-Kanan / Justify ({J})', 1], ['Tanggal dan nama memakai Rata Kanan ({R})', 1], ['Tanggal dan nama memakai Rata Tengah ({E})', 0], ['Judul undangan memakai Justify ({J})', 0]],
+      w: 'Judul di tengah, isi Justify, dan tanggal serta nama di akhir berada di kanan.' },
+    { n: 'Hendra', r: 'Murid Kelas 4', x: -48, z: 50, clue: 'Di sudut barat Kebun Sekolah', look: 'short', skin: 0x7a4a2e, hair: 0x1c1c1c, c: 0xffffff, p: 0xd8232a,
+      hi: 'Surat milik temanku aneh. Semua tulisannya menempel di kiri.',
+      s: 'Hendra melihat surat temannya: judul, tanggal, dan penutup semuanya menempel di kiri. Perbaikan mana yang benar?',
+      o: [['Judul diubah ke Rata Tengah ({E})', 1], ['Tanggal surat diubah ke Rata Kanan ({R})', 1], ['Baris penutup dan nama penulis diubah ke Rata Kanan', 1], ['Isi paragraf diubah ke Justify ({J}) agar sisi kiri dan kanan lurus', 1], ['Semua baris diubah ke Rata Tengah supaya seragam', 0]],
+      w: 'Setiap bagian surat punya perataan sendiri. Membuat semuanya Rata Tengah justru membuat surat sulit dibaca.' },
+    { n: 'Intan', r: 'Murid Kelas 4', x: 46, z: 28, clue: 'Di depan Aula', look: 'hijab', skin: 0xe0ac84, hair: 0x2b1b12, c: 0xffffff, p: 0xd8232a, v: 0xffffff,
+      hi: 'Aku membandingkan dua poster buatan kakak kelas.',
+      s: 'Poster A: semua tulisan menempel di kiri, termasuk judul. Poster B: judulnya berada di tengah. Pernyataan mana yang masuk akal?',
+      o: [['Judul di tengah terlihat seimbang dan menarik perhatian', 1], ['Judul di pinggir kiri terasa kurang menonjol', 1], ['Dokumen yang perataannya tepat lebih rapi dan nyaman dibaca', 1], ['Poster B salah karena judul tidak boleh berada di tengah', 0], ['Posisi tulisan tidak berpengaruh pada rapi atau tidaknya dokumen', 0]],
+      w: 'Judul poster justru cocok di tengah, dan posisi tulisan sangat berpengaruh pada kerapian dokumen.' },
+    { n: 'Bu Maya', r: 'Kepala Sekolah', x: -18, z: -14, clue: 'Di sisi barat laut Lapangan Upacara', look: 'hijab', skin: 0xf1c7a0, hair: 0x2b1b12, c: 0x0e7c86, p: 0x24344f, v: 0x0e7c86,
+      hi: 'Halo! Ibu ingin mengecek pemahaman umum kalian tentang perataan teks.',
+      s: 'Bu Maya ingin tahu seberapa paham kamu. Pilih SEMUA pernyataan yang benar tentang perataan teks!',
+      o: [['Perataan teks mengatur posisi tulisan terhadap batas pinggir halaman', 1], ['Perataan membuat dokumen terlihat rapi, teratur, dan nyaman dibaca', 1], ['Ada empat jenis: Rata Kiri, Rata Tengah, Rata Kanan, dan Rata Kiri-Kanan', 1], ['Setiap kali mengetik baru di Google Docs, tulisan otomatis Rata Kiri', 1], ['Justify mengatur jarak antarkata otomatis sehingga sisi kiri dan kanan lurus', 1]],
+      w: 'Semuanya benar! Kamu sudah paham dasar-dasar perataan teks di Google Docs.' }
+  ]
+};
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var D = window.GAME_DATA, SC = D.shortcuts, NPC = D.npcs, N = NPC.length;
+  var T = function (s) { return s.replace(/\{([LERJ])\}/g, function (m, k) { return SC[k]; }); };
+  var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+  var isTouch = ((('ontouchstart' in window) || navigator.maxTouchPoints > 0) && window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+  if (isTouch) document.body.classList.add('touch');
+
+  /* ---------- icons & keycaps ---------- */
+  function alignSvg(t, w) {
+    var rows = { left: [[2, 16], [2, 10], [2, 16], [2, 7]], center: [[2, 16], [5, 10], [2, 16], [6.5, 7]], right: [[2, 16], [8, 10], [2, 16], [11, 7]], justify: [[2, 16], [2, 16], [2, 16], [2, 9]] }[t];
+    var s = '<svg width="' + w + '" height="' + Math.round(w * .8) + '" viewBox="0 0 20 16" fill="currentColor" aria-hidden="true">';
+    for (var i = 0; i < 4; i++) s += '<rect x="' + rows[i][0] + '" y="' + (1 + i * 4) + '" width="' + rows[i][1] + '" height="2" rx="1"/>';
+    return s + '</svg>';
+  }
+  document.querySelectorAll('[data-a]').forEach(function (el) { el.innerHTML = alignSvg(el.getAttribute('data-a'), 30); });
+  document.querySelectorAll('[data-k]').forEach(function (el) {
+    el.innerHTML = SC[el.getAttribute('data-k')].split(' + ').map(function (k) { return '<kbd>' + k + '</kbd>'; }).join('<i>+</i>');
+  });
+
+  /* ---------- audio ---------- */
+  var AC = null;
+  function beep(f, d, type, delay) {
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+      var t0 = AC.currentTime + (delay || 0), o = AC.createOscillator(), g = AC.createGain();
+      o.type = type || 'sine'; o.frequency.value = f; g.gain.setValueAtTime(.07, t0);
+      g.gain.exponentialRampToValueAtTime(.0001, t0 + d); o.connect(g); g.connect(AC.destination); o.start(t0); o.stop(t0 + d);
+    } catch (e) { }
+  }
+
+  /* ---------- state ---------- */
+  var state = 'intro', playerName = '', score = 0, done = 0, res = new Array(N).fill(null), cur = -1, qopts = [];
+  var W = { ready: false, fail: false, boxes: [], circles: [], npc: [] };
+  var renderer, scene, camera, clock, sky, clouds = [], flagMesh;
+  var yaw = 0, pitch = 0, locked = false, dragging = false, keys = {}, joy = { x: 0, y: 0, id: null, ox: 0, oy: 0 }, lookId = null, lookLast = null;
+  var pos = { x: 0, y: 1.6, z: 22, set: function (x, y, z) { this.x = x; this.y = y; this.z = z; } }, bobT = 0, moving = false, frameN = 0, started = false;
+
+  function show(id) { ['intro', 'baca', 'hasil'].forEach(function (s) { $(s).hidden = (s !== id); }); }
+  function setState(s) {
+    state = s;
+    document.body.classList.toggle('playing', s === 'play');
+    updatePause();
+  }
+  function updatePause() { $('pause').hidden = !(state === 'play' && !locked && !isTouch); }
+
+  /* ---------- intro -> reading ---------- */
+  $('nameForm').addEventListener('submit', function (e) { e.preventDefault(); playerName = $('nama').value.trim(); startRead(); });
+  var readEnd = 0, readTimer = null, skipArm = false, READ_MS = 180000;
+  function fmt(ms) { var s = Math.max(0, Math.ceil(ms / 1000)); return ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + (s % 60)).slice(-2); }
+  function startRead() {
+    show('baca'); setState('read'); $('baca').scrollTop = 0;
+    readEnd = Date.now() + READ_MS; skipArm = false;
+    $('btnSkip').textContent = 'L'; $('btnSkip').hidden = false;
+    $('btnSiap').disabled = true; $('btnSiap').textContent = 'Tunggu waktu membaca…'; $('clock').classList.remove('done');
+    $('glErr').hidden = true;
+    clearInterval(readTimer); tickRead(); readTimer = setInterval(tickRead, 250);
+    setTimeout(ensureWorld, 400);
+  }
+  function tickRead() {
+    var left = readEnd - Date.now();
+    $('clock').textContent = fmt(left);
+    $('rProg').style.width = clamp((1 - left / READ_MS) * 100, 0, 100) + '%';
+    if (left <= 0) {
+      clearInterval(readTimer); $('clock').classList.add('done');
+      $('btnSiap').disabled = false; $('btnSiap').textContent = 'Aku siap, mulai misi!';
+      $('siapNote').textContent = 'Waktu membaca selesai. Kamu boleh membaca lagi sebelum mulai.';
+      $('btnSkip').hidden = true;
+    }
+  }
+  $('btnSkip').addEventListener('click', function () {
+    if (!skipArm) { skipArm = true; $('btnSkip').textContent = 'Klik sekali lagi untuk melewati'; return; }
+    readEnd = Date.now(); tickRead();
+  });
+  $('btnSiap').addEventListener('click', startPlay);
+
+  /* ---------- world ---------- */
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+  var lam = function (c) { return new THREE.MeshLambertMaterial({ color: c }); };
+  var PATHS = [[0, 0, 0, -44], [0, 0, 37, -34], [0, 0, -37, -34], [0, 0, 47, 14], [0, 0, 28, 45], [0, 0, 0, 64], [0, 0, -44, 6], [0, 0, -34, 46]];
+  var POND = { x: -48, z: 4, r: 4.5 };
+  var BUILD = [
+    { name: 'PERPUSTAKAAN', x: 0, z: -50, w: 26, d: 12, h: 7, c: 0xf3d27a, roof: 0xc0504d, f: [0, 1] },
+    { name: 'LAB KOMPUTER', x: 46, z: -34, w: 18, d: 14, h: 6, c: 0x9cc8f2, roof: 0x2a68dc, f: [-1, 0] },
+    { name: 'KELAS 4', x: -46, z: -34, w: 18, d: 14, h: 6, c: 0xa8e0c4, roof: 0x1f8f6a, f: [1, 0] },
+    { name: 'AULA', x: 54, z: 14, w: 14, d: 22, h: 8, c: 0xf4a98f, roof: 0x8b3a2f, f: [-1, 0] },
+    { name: 'KANTIN', x: 28, z: 50, w: 18, d: 10, h: 5, c: 0xf7b26a, roof: 0xb5532a, f: [0, -1] }
+  ];
+  var ZONES = [
+    { n: 'Lapangan Upacara', x: 0, z: 0, r: 17 }, { n: 'Perpustakaan', x: 0, z: -46, r: 18 }, { n: 'Lab Komputer', x: 44, z: -32, r: 17 },
+    { n: 'Kelas 4', x: -44, z: -32, r: 17 }, { n: 'Aula', x: 54, z: 14, r: 18 }, { n: 'Kantin', x: 28, z: 46, r: 16 },
+    { n: 'Gerbang Sekolah', x: 0, z: 62, r: 12 }, { n: 'Taman Sekolah', x: -48, z: 6, r: 18 }, { n: 'Kebun Sekolah', x: -36, z: 50, r: 15 }
+  ];
+  function segDist(x, z, s) {
+    var dx = s[2] - s[0], dz = s[3] - s[1], t = clamp(((x - s[0]) * dx + (z - s[1]) * dz) / (dx * dx + dz * dz), 0, 1);
+    return Math.hypot(x - (s[0] + dx * t), z - (s[1] + dz * t));
+  }
+
+  function drawGround() {
+    var S = 2048, k = S / 140, c = document.createElement('canvas'); c.width = c.height = S; var g = c.getContext('2d');
+    var P = function (x, z) { return [(x + 70) * k, (z + 70) * k]; };
+    var r = mulberry(7), i, p, q;
+    g.fillStyle = '#80c566'; g.fillRect(0, 0, S, S);
+    for (i = 0; i < 9000; i++) { g.fillStyle = r() < .5 ? 'rgba(255,255,255,.07)' : 'rgba(20,80,30,.09)'; g.fillRect(r() * S, r() * S, 3 + r() * 6, 3 + r() * 6); }
+    // taman
+    p = P(-50, 6); g.fillStyle = '#9ad87b'; g.beginPath(); g.arc(p[0], p[1], 16 * k, 0, 7); g.fill();
+    var cols = ['#ff6b81', '#ffd23f', '#ffffff', '#ff9f43', '#b57cff'];
+    for (i = 0; i < 380; i++) { var a = r() * 6.283, d = Math.sqrt(r()) * 15.5; g.fillStyle = cols[i % 5]; g.beginPath(); g.arc(p[0] + Math.cos(a) * d * k, p[1] + Math.sin(a) * d * k, k * .22, 0, 7); g.fill(); }
+    // kantin paving, gate road
+    p = P(17, 36); g.fillStyle = '#d8d0bf'; g.fillRect(p[0], p[1], 22 * k, 10 * k);
+    g.strokeStyle = 'rgba(0,0,0,.08)'; g.lineWidth = 2;
+    for (i = 0; i <= 22; i += 2) { g.beginPath(); g.moveTo(p[0] + i * k, p[1]); g.lineTo(p[0] + i * k, p[1] + 10 * k); g.stroke(); }
+    p = P(-5, 54); g.fillStyle = '#58626f'; g.fillRect(p[0], p[1], 10 * k, 16 * k);
+    g.strokeStyle = '#fff'; g.lineWidth = k * .25; g.setLineDash([k * 1.6, k * 1.4]); g.beginPath(); g.moveTo(P(0, 54)[0], P(0, 54)[1]); g.lineTo(P(0, 70)[0], P(0, 70)[1]); g.stroke(); g.setLineDash([]);
+    // paths
+    g.lineCap = 'round';
+    PATHS.forEach(function (s) { var a = P(s[0], s[1]), b = P(s[2], s[3]); g.strokeStyle = '#c9a86b'; g.lineWidth = 5.6 * k; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); });
+    PATHS.forEach(function (s) { var a = P(s[0], s[1]), b = P(s[2], s[3]); g.strokeStyle = '#e6cc98'; g.lineWidth = 4.6 * k; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); });
+    // plaza
+    p = P(0, 0); g.fillStyle = '#cfd6de'; g.beginPath(); g.arc(p[0], p[1], 14 * k, 0, 7); g.fill();
+    g.strokeStyle = '#ffffff'; g.lineWidth = k * .3; g.beginPath(); g.arc(p[0], p[1], 12.2 * k, 0, 7); g.stroke();
+    g.beginPath(); g.arc(p[0], p[1], 3 * k, 0, 7); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = k * .18;
+    for (i = -10; i <= 10; i += 4) { g.beginPath(); g.moveTo(p[0] + i * k, p[1] - 9 * k); g.lineTo(p[0] + i * k, p[1] + 9 * k); g.stroke(); }
+    // pond
+    p = P(POND.x, POND.z); g.fillStyle = '#e1cfa0'; g.beginPath(); g.arc(p[0], p[1], (POND.r + .8) * k, 0, 7); g.fill();
+    g.fillStyle = '#58b8e8'; g.beginPath(); g.arc(p[0], p[1], POND.r * k, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.6)'; g.lineWidth = k * .15; g.beginPath(); g.arc(p[0] - k, p[1] - k * .6, 2.2 * k, 3.6, 5.2); g.stroke();
+    // kebun
+    [48, 51.5, 55].forEach(function (zz) { var a = P(-42, zz - 1.1); g.fillStyle = '#8a5a36'; g.fillRect(a[0], a[1], 16 * k, 2.2 * k); g.fillStyle = 'rgba(0,0,0,.14)'; g.fillRect(a[0], a[1] + 1.05 * k, 16 * k, .12 * k); });
+    return c;
+  }
+
+  function textTex(text, w, h, bg, fg) {
+    var c = document.createElement('canvas'); c.width = w; c.height = h; var g = c.getContext('2d');
+    g.fillStyle = bg; rr(g, 3, 3, w - 6, h - 6, h * .22); g.fill(); g.lineWidth = h * .06; g.strokeStyle = fg; g.stroke();
+    g.fillStyle = fg; g.font = '800 ' + Math.round(h * .5) + 'px "Baloo 2","Trebuchet MS",sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(text, w / 2, h / 2 + h * .04, w - 30);
+    var t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+  }
+  function markTex(kind) {
+    var c = document.createElement('canvas'); c.width = c.height = 128; var g = c.getContext('2d');
+    g.fillStyle = kind === 'q' ? '#ffc42e' : '#14a06e'; g.beginPath(); g.arc(64, 64, 56, 0, 7); g.fill();
+    g.lineWidth = 8; g.strokeStyle = '#10233f'; g.stroke();
+    if (kind === 'q') { g.fillStyle = '#10233f'; rr(g, 57, 28, 14, 44, 6); g.fill(); g.beginPath(); g.arc(64, 90, 8, 0, 7); g.fill(); }
+    else { g.strokeStyle = '#fff'; g.lineWidth = 12; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); g.moveTo(38, 66); g.lineTo(57, 85); g.lineTo(90, 44); g.stroke(); }
+    return new THREE.CanvasTexture(c);
+  }
+
+  function addBuilding(b) {
+    var he = b.f[0] !== 0 ? b.w / 2 : b.d / 2, tl = b.f[0] !== 0 ? b.d : b.w;
+    var walls = new THREE.Mesh(new THREE.BoxGeometry(b.w, b.h, b.d), lam(b.c)); walls.position.set(b.x, b.h / 2, b.z); scene.add(walls);
+    var trim = new THREE.Mesh(new THREE.BoxGeometry(b.w + .5, .6, b.d + .5), lam(0xb9b2a5)); trim.position.set(b.x, .3, b.z); scene.add(trim);
+    var rg = new THREE.ConeGeometry(1, 2.8, 4); rg.rotateY(Math.PI / 4);
+    var roof = new THREE.Mesh(rg, lam(b.roof)); roof.scale.set((b.w + 1.4) / 1.4142, 1, (b.d + 1.4) / 1.4142); roof.position.set(b.x, b.h + 1.4, b.z); scene.add(roof);
+    var winM = new THREE.MeshBasicMaterial({ color: 0xbfe7ff }), frameM = lam(0xffffff);
+    [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach(function (dir) {
+      var h2 = dir[0] !== 0 ? b.w / 2 : b.d / 2, len = dir[0] !== 0 ? b.d : b.w, tx = Math.abs(dir[1]), tz = Math.abs(dir[0]);
+      var cnt = Math.floor((len - 3) / 4), isDoor = (dir[0] === b.f[0] && dir[1] === b.f[1]);
+      for (var k = 0; k < cnt; k++) {
+        var off = -((cnt - 1) / 2) * 4 + k * 4; if (isDoor && Math.abs(off) < 2.8) continue;
+        var wy = b.h * .45 + .3, cx = b.x + dir[0] * (h2 + .04) + tx * off, cz = b.z + dir[1] * (h2 + .04) + tz * off;
+        var fr = new THREE.Mesh(new THREE.BoxGeometry(1.9, 1.9, .1), frameM), gl = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, .14), winM);
+        fr.position.set(cx, wy, cz); gl.position.set(cx, wy, cz); var ry = Math.atan2(dir[0], dir[1]); fr.rotation.y = gl.rotation.y = ry; scene.add(fr); scene.add(gl);
+      }
+    });
+    var fx = b.f[0], fz = b.f[1], ry = Math.atan2(fx, fz);
+    var door = new THREE.Mesh(new THREE.BoxGeometry(2.2, 3.2, .2), lam(0x7a4a2e)); door.position.set(b.x + fx * (he + .06), 1.6, b.z + fz * (he + .06)); door.rotation.y = ry; scene.add(door);
+    var sg = new THREE.Mesh(new THREE.PlaneGeometry(8.4, 1.6), new THREE.MeshBasicMaterial({ map: textTex(b.name, 512, 100, '#ffffff', '#10233f') }));
+    sg.position.set(b.x + fx * (he + .12), b.h - 1.1, b.z + fz * (he + .12)); sg.rotation.y = ry; scene.add(sg);
+    W.boxes.push({ x0: b.x - b.w / 2, x1: b.x + b.w / 2, z0: b.z - b.d / 2, z1: b.z + b.d / 2 });
+    void tl;
+  }
+  function addBox(x, z, w, d, h, color, y0) {
+    var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), lam(color)); m.position.set(x, (y0 || 0) + h / 2, z); scene.add(m); return m;
+  }
+
+  function buildWorld() {
+    if (!window.THREE) throw new Error('THREE tidak tersedia');
+    renderer = new THREE.WebGLRenderer({ canvas: $('gl'), antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    scene = new THREE.Scene(); scene.fog = new THREE.Fog(0xcfeaf7, 70, 230);
+    camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, .1, 700); camera.rotation.order = 'YXZ';
+    clock = new THREE.Clock();
+    scene.add(new THREE.HemisphereLight(0xe3f4ff, 0x6fa35a, .95));
+    var sun = new THREE.DirectionalLight(0xfff2d2, .8); sun.position.set(60, 100, 40); scene.add(sun);
+
+    // sky
+    var sc = document.createElement('canvas'); sc.width = 8; sc.height = 256; var sg = sc.getContext('2d'), gr = sg.createLinearGradient(0, 0, 0, 256);
+    gr.addColorStop(0, '#4fb0ec'); gr.addColorStop(.5, '#b9e3f7'); gr.addColorStop(.62, '#dff3fb'); gr.addColorStop(1, '#dff3fb'); sg.fillStyle = gr; sg.fillRect(0, 0, 8, 256);
+    sky = new THREE.Mesh(new THREE.SphereGeometry(450, 24, 14), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), side: THREE.BackSide, fog: false, depthWrite: false })); scene.add(sky);
+    // hills
+    var hr = mulberry(11);
+    for (var h = 0; h < 14; h++) {
+      var ang = h / 14 * 6.283 + hr() * .3, dist = 150 + hr() * 30, rad = 35 + hr() * 30;
+      var hill = new THREE.Mesh(new THREE.SphereGeometry(rad, 16, 8), lam(h % 2 ? 0x7dbb8a : 0x6aa87a)); hill.scale.y = .42; hill.position.set(Math.cos(ang) * dist, -4, Math.sin(ang) * dist); scene.add(hill);
+    }
+    // clouds
+    var cm = new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false, transparent: true, opacity: .93 });
+    for (var cI = 0; cI < 9; cI++) {
+      var cg = new THREE.Group(), n = 3 + (cI % 3);
+      for (var q = 0; q < n; q++) { var sp = new THREE.Mesh(new THREE.SphereGeometry(5 + hr() * 3, 10, 8), cm); sp.position.set(q * 6 - n * 3, hr() * 2, hr() * 3); sp.scale.y = .6; cg.add(sp); }
+      var ca = hr() * 6.283, cd = 90 + hr() * 70; cg.position.set(Math.cos(ca) * cd, 60 + hr() * 20, Math.sin(ca) * cd); cg.userData.sp = .6 + hr() * .8; scene.add(cg); clouds.push(cg);
+    }
+    // ground
+    var gc = drawGround(); W.groundCanvas = gc;
+    var gt = new THREE.CanvasTexture(gc); gt.anisotropy = 8;
+    var ground = new THREE.Mesh(new THREE.PlaneGeometry(140, 140), new THREE.MeshLambertMaterial({ map: gt })); ground.rotation.x = -Math.PI / 2; scene.add(ground);
+    var outer = new THREE.Mesh(new THREE.PlaneGeometry(900, 900), lam(0x74b95e)); outer.rotation.x = -Math.PI / 2; outer.position.y = -.05; scene.add(outer);
+
+    BUILD.forEach(addBuilding);
+
+    // fence
+    var fc = document.createElement('canvas'); fc.width = 64; fc.height = 64; var fg = fc.getContext('2d'); fg.fillStyle = '#ffffff'; fg.fillRect(6, 0, 20, 64); fg.fillRect(38, 0, 20, 64); fg.fillStyle = '#c9d4e2'; fg.fillRect(0, 18, 64, 5); fg.fillRect(0, 44, 64, 5);
+    function fence(x, z, len, ry) {
+      var t = new THREE.CanvasTexture(fc); t.wrapS = THREE.RepeatWrapping; t.repeat.set(len / 2.4, 1);
+      var m = new THREE.Mesh(new THREE.PlaneGeometry(len, 1.4), new THREE.MeshLambertMaterial({ map: t, alphaTest: .5, side: THREE.DoubleSide })); m.position.set(x, .7, z); m.rotation.y = ry; scene.add(m);
+    }
+    fence(0, -68, 136, 0); fence(-68, 0, 136, Math.PI / 2); fence(68, 0, 136, Math.PI / 2); fence(-37, 68, 62, 0); fence(37, 68, 62, 0);
+
+    // gate + guard booth
+    addBox(-5.6, 64, 1.2, 1.2, 4.4, 0xe9e4d8); addBox(5.6, 64, 1.2, 1.2, 4.4, 0xe9e4d8);
+    W.circles.push({ x: -5.6, z: 64, r: .9 }, { x: 5.6, z: 64, r: .9 });
+    var banner = new THREE.Mesh(new THREE.PlaneGeometry(11, 1.9), new THREE.MeshBasicMaterial({ map: textTex('SD PELITA ILMU', 640, 110, '#ffc42e', '#10233f'), side: THREE.DoubleSide })); banner.position.set(0, 4.3, 64); scene.add(banner);
+    addBox(11, 62, 3.2, 3.2, 3, 0xf5f5f0); var bro = addBox(11, 62, 4, 4, .35, 0x2a68dc, 3); void bro;
+    W.boxes.push({ x0: 9.4, x1: 12.6, z0: 60.4, z1: 63.6 });
+    // flag pole
+    addBox(0, 0, .25, .25, 9, 0xdddddd); W.circles.push({ x: 0, z: 0, r: .6 });
+    var fl = new THREE.Group(), red = new THREE.Mesh(new THREE.PlaneGeometry(2.4, .8), new THREE.MeshBasicMaterial({ color: 0xd8232a, side: THREE.DoubleSide })), wht = new THREE.Mesh(new THREE.PlaneGeometry(2.4, .8), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+    red.position.set(1.2, .4, 0); wht.position.set(1.2, -.4, 0); fl.add(red); fl.add(wht); fl.position.set(.12, 8.2, 0); scene.add(fl); flagMesh = fl;
+    // pond circle collider
+    W.circles.push({ x: POND.x, z: POND.z, r: POND.r + .4 });
+    // benches
+    [[-48, 16, 0], [-38, 8, Math.PI / 2], [-58, 8, Math.PI / 2], [14, 12, 0], [-14, 12, 0]].forEach(function (b) {
+      var gb = new THREE.Group(), seat = new THREE.Mesh(new THREE.BoxGeometry(2.6, .2, .8), lam(0x9c6b3f)), back = new THREE.Mesh(new THREE.BoxGeometry(2.6, .7, .12), lam(0x9c6b3f)), l1 = new THREE.Mesh(new THREE.BoxGeometry(.2, .5, .7), lam(0x444c58)), l2 = l1.clone();
+      seat.position.y = .55; back.position.set(0, .95, -.34); l1.position.set(-1.1, .25, 0); l2.position.set(1.1, .25, 0); gb.add(seat, back, l1, l2); gb.position.set(b[0], 0, b[1]); gb.rotation.y = b[2]; scene.add(gb);
+      var ex = b[2] ? .6 : 1.4, ez = b[2] ? 1.4 : .6; W.boxes.push({ x0: b[0] - ex, x1: b[0] + ex, z0: b[1] - ez, z1: b[1] + ez });
+    });
+    // garden plants
+    var plantG = new THREE.SphereGeometry(.5, 8, 6), plantI = new THREE.InstancedMesh(plantG, lam(0x3fb04f), 30), dm = new THREE.Object3D(), pi = 0;
+    [48, 51.5, 55].forEach(function (zz) { for (var xx = -41; xx <= -27.5; xx += 1.5) { dm.position.set(xx, .4, zz); dm.scale.set(1, 1.1, 1); dm.updateMatrix(); if (pi < 30) plantI.setMatrixAt(pi++, dm.matrix); } });
+    scene.add(plantI);
+
+    // trees
+    var tr = mulberry(42), tpos = [];
+    function free(x, z, m) {
+      var i;
+      for (i = 0; i < W.boxes.length; i++) { var b = W.boxes[i]; if (x > b.x0 - m && x < b.x1 + m && z > b.z0 - m && z < b.z1 + m) return false; }
+      for (i = 0; i < N; i++) if (Math.hypot(x - NPC[i].x, z - NPC[i].z) < 4) return false;
+      if (Math.hypot(x, z) < 18) return false;
+      for (i = 0; i < PATHS.length; i++) if (segDist(x, z, PATHS[i]) < 4.6) return false;
+      if (Math.hypot(x - POND.x, z - POND.z) < 8.5) return false;
+      if (x > -46 && x < -22 && z > 43 && z < 60) return false;
+      if (x > -9 && x < 9 && z > 52) return false;
+      if (x > 15 && x < 41 && z > 34 && z < 60) return false;
+      for (i = 0; i < tpos.length; i++) if (Math.hypot(x - tpos[i][0], z - tpos[i][1]) < 4) return false;
+      return true;
+    }
+    var tries = 0;
+    while (tpos.length < 62 && tries++ < 3000) { var tx = (tr() * 2 - 1) * 62, tz = (tr() * 2 - 1) * 62; if (free(tx, tz, 3.5)) tpos.push([tx, tz, .8 + tr() * .6]); }
+    tries = 0; var ring = 0;
+    while (ring < 50 && tries++ < 2000) {
+      var side = Math.floor(tr() * 4), a = (tr() * 2 - 1) * 64, e = (tr() < .5 ? 1 : -1) * (63.5 + tr() * 3), rx = side < 2 ? a : e, rz = side < 2 ? e : a;
+      if (rz > 58 && Math.abs(rx) < 9) continue; if (free(rx, rz, 2)) { tpos.push([rx, rz, 1 + tr() * .7]); ring++; }
+    }
+    var nT = tpos.length, trunkI = new THREE.InstancedMesh(new THREE.CylinderGeometry(.22, .3, 2.2, 7), lam(0x7a5233), nT),
+      fol1 = new THREE.InstancedMesh(new THREE.ConeGeometry(1.7, 3.4, 8), lam(0xffffff), nT),
+      fol2 = new THREE.InstancedMesh(new THREE.ConeGeometry(1.3, 2.8, 8), lam(0xffffff), nT),
+      shI = new THREE.InstancedMesh(new THREE.CircleGeometry(1.7, 12).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x1e4a22, transparent: true, opacity: .26, depthWrite: false }), nT);
+    var palette = [0x2f8f46, 0x3aa354, 0x45b05f, 0x2b8a5a], col = new THREE.Color();
+    tpos.forEach(function (t, i) {
+      var s = t[2]; dm.rotation.set(0, 0, 0);
+      dm.position.set(t[0], 1.1 * s, t[1]); dm.scale.set(s, s, s); dm.updateMatrix(); trunkI.setMatrixAt(i, dm.matrix);
+      dm.position.set(t[0], 3.4 * s, t[1]); dm.updateMatrix(); fol1.setMatrixAt(i, dm.matrix);
+      dm.position.set(t[0], 5 * s, t[1]); dm.updateMatrix(); fol2.setMatrixAt(i, dm.matrix);
+      dm.position.set(t[0], .04, t[1]); dm.scale.set(s, 1, s); dm.updateMatrix(); shI.setMatrixAt(i, dm.matrix);
+      col.setHex(palette[i % 4]); fol1.setColorAt(i, col); fol2.setColorAt(i, col);
+      W.circles.push({ x: t[0], z: t[1], r: .55 * s });
+    });
+    fol1.instanceColor.needsUpdate = true; fol2.instanceColor.needsUpdate = true;
+    scene.add(trunkI, fol1, fol2, shI);
+
+    // NPCs
+    var qTex = markTex('q'), cTex = markTex('c'), shG = new THREE.CircleGeometry(.6, 14).rotateX(-Math.PI / 2), shM = new THREE.MeshBasicMaterial({ color: 0x1e3a20, transparent: true, opacity: .3, depthWrite: false });
+    NPC.forEach(function (d, i) {
+      var g = new THREE.Group(), body = new THREE.Group(), skin = lam(d.skin), shirt = lam(d.c), pants = lam(d.p || 0x24344f), hair = lam(d.hair);
+      var legL = new THREE.Mesh(new THREE.BoxGeometry(.24, .72, .26), pants), legR = legL.clone(); legL.position.set(-.14, .36, 0); legR.position.set(.14, .36, 0);
+      var torso = new THREE.Mesh(new THREE.CylinderGeometry(.34, .38, .85, 12), shirt); torso.position.y = 1.12;
+      var armG = new THREE.BoxGeometry(.17, .72, .19).translate(0, -.36, 0), armL = new THREE.Mesh(armG, shirt), armR = new THREE.Mesh(armG, shirt); armL.position.set(-.47, 1.46, 0); armR.position.set(.47, 1.46, 0);
+      var head = new THREE.Mesh(new THREE.SphereGeometry(.27, 14, 12), skin); head.position.y = 1.76;
+      var eg = new THREE.SphereGeometry(.034, 6, 6), ebm = new THREE.MeshBasicMaterial({ color: 0x10233f }), e1 = new THREE.Mesh(eg, ebm), e2 = new THREE.Mesh(eg, ebm); e1.position.set(-.09, 1.8, .245); e2.position.set(.09, 1.8, .245);
+      body.add(legL, legR, torso, armL, armR, head, e1, e2);
+      var cap = new THREE.Mesh(new THREE.SphereGeometry(.295, 14, 8, 0, 6.283, 0, 1.75), hair); cap.position.y = 1.77;
+      if (d.look === 'hijab') {
+        var vm = lam(d.v || 0xffffff), veil = new THREE.Mesh(new THREE.SphereGeometry(.34, 14, 12), vm); veil.position.set(0, 1.76, -.1); veil.scale.y = 1.06; body.add(veil);
+        var vt = new THREE.Mesh(new THREE.SphereGeometry(.31, 12, 8, 0, 6.283, 0, 1.2), vm); vt.position.set(0, 1.8, -.03); body.add(vt);
+      } else {
+        body.add(cap);
+        if (d.look === 'long') { var lh = new THREE.Mesh(new THREE.BoxGeometry(.52, .75, .14), hair); lh.position.set(0, 1.5, -.2); body.add(lh); }
+        if (d.look === 'old') { var bun = new THREE.Mesh(new THREE.SphereGeometry(.13, 8, 8), hair); bun.position.set(0, 2.0, -.16); body.add(bun); }
+        if (d.look === 'cap') { var ch = new THREE.Mesh(new THREE.CylinderGeometry(.3, .31, .13, 14), lam(0x24344f)); ch.position.y = 2.0; var vis = new THREE.Mesh(new THREE.BoxGeometry(.4, .04, .22), lam(0x24344f)); vis.position.set(0, 1.97, .3); body.add(ch, vis); }
+      }
+      g.add(body); g.position.set(d.x, 0, d.z); g.rotation.y = Math.atan2(-d.x, -d.z); scene.add(g);
+      var sh = new THREE.Mesh(shG, shM); sh.position.set(d.x, .045, d.z); scene.add(sh);
+      var mk = new THREE.Sprite(new THREE.SpriteMaterial({ map: qTex, fog: false, depthTest: true })); mk.scale.set(.95, .95, 1); mk.position.set(d.x, 2.7, d.z); scene.add(mk);
+      W.npc.push({ g: g, body: body, armL: armL, armR: armR, mk: mk, ph: i * 1.7, qTex: qTex, cTex: cTex });
+      W.circles.push({ x: d.x, z: d.z, r: .6 });
+    });
+    window.addEventListener('resize', onResize);
+  }
+  function onResize() {
+    if (!renderer) return;
+    renderer.setSize(window.innerWidth, window.innerHeight, false); camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+  }
+  function ensureWorld() {
+    if (W.ready || W.fail) return;
+    try { buildWorld(); W.ready = true; } catch (err) { if (window.console) console.error(err); W.fail = true; }
+  }
+
+  /* ---------- play ---------- */
+  function startPlay() {
+    ensureWorld();
+    if (W.fail) { $('glErr').hidden = false; return; }
+    show(''); $('hud').hidden = false; $('gl').classList.add('on'); $('btnSkip').hidden = true;
+    setState('play'); hudUpdate();
+    if (!started) { started = true; yaw = 0; pitch = 0; pos.set(0, 1.6, 22); loop(); }
+    onResize();
+    if (!isTouch) lockPointer();
+  }
+  function resetGame() {
+    score = 0; done = 0; res = new Array(N).fill(null); cur = -1;
+    W.npc.forEach(function (o) { o.mk.material.map = o.qTex; o.mk.material.needsUpdate = true; });
+    pos.set(0, 1.6, 22); yaw = 0; pitch = 0; hudUpdate();
+  }
+  function hudUpdate() {
+    $('hN').textContent = done; $('hBar').style.width = (done / N * 100) + '%'; $('hPts').textContent = score;
+  }
+  function collide(p) {
+    var r = .45, i; p.x = clamp(p.x, -66, 66); p.z = clamp(p.z, -66, 66);
+    for (i = 0; i < W.boxes.length; i++) {
+      var b = W.boxes[i];
+      if (p.x > b.x0 - r && p.x < b.x1 + r && p.z > b.z0 - r && p.z < b.z1 + r) {
+        var dl = p.x - (b.x0 - r), dr = (b.x1 + r) - p.x, dt = p.z - (b.z0 - r), db = (b.z1 + r) - p.z, m = Math.min(dl, dr, dt, db);
+        if (m === dl) p.x = b.x0 - r; else if (m === dr) p.x = b.x1 + r; else if (m === dt) p.z = b.z0 - r; else p.z = b.z1 + r;
+      }
+    }
+    for (i = 0; i < W.circles.length; i++) {
+      var c = W.circles[i], dx = p.x - c.x, dz = p.z - c.z, rr2 = r + c.r, d2 = dx * dx + dz * dz;
+      if (d2 < rr2 * rr2) { var d = Math.sqrt(d2) || .001; p.x = c.x + dx / d * rr2; p.z = c.z + dz / d * rr2; }
+    }
+  }
+  function nearest(maxD) {
+    var best = -1, bd = maxD;
+    for (var i = 0; i < N; i++) { var d = Math.hypot(pos.x - NPC[i].x, pos.z - NPC[i].z); if (d < bd) { bd = d; best = i; } }
+    return best;
+  }
+  function loop() {
+    requestAnimationFrame(loop);
+    var dt = Math.min(clock.getDelta(), .05), t = clock.elapsedTime;
+    if (state === 'play') {
+      var f = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0) + joy.y;
+      var s = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0) + joy.x;
+      var len = Math.hypot(f, s); if (len > 1) { f /= len; s /= len; }
+      var spd = (keys.ShiftLeft || keys.ShiftRight ? 10 : 6) * dt;
+      moving = len > .05;
+      pos.x += (-Math.sin(yaw) * f + Math.cos(yaw) * s) * spd; pos.z += (-Math.cos(yaw) * f - Math.sin(yaw) * s) * spd;
+      collide(pos);
+      if (moving) bobT += dt * (keys.ShiftLeft || keys.ShiftRight ? 13 : 9);
+    }
+    camera.position.set(pos.x, 1.6 + (moving && state === 'play' ? Math.sin(bobT) * .035 : 0), pos.z); camera.rotation.set(pitch, yaw, 0);
+    sky.position.copy(camera.position);
+    clouds.forEach(function (c) { c.position.x += c.userData.sp * dt; if (c.position.x > 190) c.position.x = -190; });
+    if (flagMesh) flagMesh.rotation.y = Math.sin(t * 2) * .25;
+    for (var i = 0; i < N; i++) {
+      var o = W.npc[i], d = NPC[i], dx = pos.x - d.x, dz = pos.z - d.z, dist = Math.hypot(dx, dz);
+      o.body.position.y = Math.sin(t * 2 + o.ph) * .015;
+      if (dist < 9) { var target = Math.atan2(dx, dz), diff = Math.atan2(Math.sin(target - o.g.rotation.y), Math.cos(target - o.g.rotation.y)); o.g.rotation.y += diff * Math.min(1, dt * 4); }
+      if (res[i] && dist < 14) { o.armR.rotation.z = 2.6 + Math.sin(t * 7 + o.ph) * .3; o.armL.rotation.z = -.1; }
+      else { o.armR.rotation.z = Math.sin(t * 1.5 + o.ph) * .05; o.armL.rotation.z = -Math.sin(t * 1.5 + o.ph) * .05; }
+      o.mk.visible = dist < 34; o.mk.position.y = 2.65 + Math.sin(t * 3 + o.ph) * .12;
+    }
+    frameN++;
+    if (frameN % 6 === 0) { drawMini(); promptUpdate(); }
+    if (frameN % 20 === 0) zoneUpdate();
+    renderer.render(scene, camera);
+  }
+  function zoneUpdate() {
+    var best = 'Halaman Sekolah', bs = 1;
+    ZONES.forEach(function (z) { var q = Math.hypot(pos.x - z.x, pos.z - z.z) / z.r; if (q < bs) { bs = q; best = z.n; } });
+    if ($('zone').textContent !== best) $('zone').textContent = best;
+  }
+  function promptUpdate() {
+    var el = $('prompt');
+    if (state !== 'play') { el.hidden = true; return; }
+    var i = nearest(3.8);
+    if (i < 0) { el.hidden = true; return; }
+    el.hidden = false; el.classList.toggle('quiet', !!res[i]); $('btnTalk').hidden = !!res[i];
+    $('pTxt').innerHTML = res[i] ? NPC[i].n + ' sudah kamu bantu.' : (isTouch ? 'Ada ' + NPC[i].n + ' di dekatmu' : 'Tekan <kbd>E</kbd> untuk bicara dengan <strong>' + NPC[i].n + '</strong>');
+  }
+  var mctx = $('mini').getContext('2d'), mdpr = Math.min(window.devicePixelRatio || 1, 2);
+  function drawMini() {
+    var cv = $('mini'), size = cv.clientWidth || 140; if (cv.width !== Math.round(size * mdpr)) { cv.width = cv.height = Math.round(size * mdpr); }
+    var S = cv.width, m = S / 140, g = mctx, X = function (x) { return (x + 70) * m; };
+    g.clearRect(0, 0, S, S); if (W.groundCanvas) g.drawImage(W.groundCanvas, 0, 0, S, S);
+    BUILD.forEach(function (b) { g.fillStyle = '#' + ('000000' + b.roof.toString(16)).slice(-6); g.fillRect(X(b.x - b.w / 2), X(b.z - b.d / 2), b.w * m, b.d * m); });
+    for (var i = 0; i < N; i++) {
+      var d = NPC[i], dist = Math.hypot(pos.x - d.x, pos.z - d.z);
+      if (res[i]) { g.fillStyle = '#14a06e'; } else if (dist < 24) { g.fillStyle = '#ffc42e'; } else continue;
+      g.beginPath(); g.arc(X(d.x), X(d.z), 3.4 * mdpr, 0, 7); g.fill(); g.lineWidth = 1.5 * mdpr; g.strokeStyle = '#10233f'; g.stroke();
+    }
+    var px = X(pos.x), pz = X(pos.z), fx = -Math.sin(yaw), fz = -Math.cos(yaw), L = 7 * mdpr;
+    g.fillStyle = '#e0434a'; g.strokeStyle = '#fff'; g.lineWidth = 1.5 * mdpr; g.beginPath();
+    g.moveTo(px + fx * L, pz + fz * L); g.lineTo(px - fx * L * .6 - fz * L * .6, pz - fz * L * .6 + fx * L * .6); g.lineTo(px - fx * L * .6 + fz * L * .6, pz - fz * L * .6 - fx * L * .6); g.closePath(); g.fill(); g.stroke();
+  }
+
+  /* ---------- input ---------- */
+  var cv = $('gl');
+  function lockPointer() { try { var p = cv.requestPointerLock && cv.requestPointerLock(); if (p && p.catch) p.catch(function () { }); } catch (e) { } }
+  cv.addEventListener('mousedown', function (e) { if (state !== 'play') return; dragging = true; lockPointer(); e.preventDefault(); });
+  window.addEventListener('mouseup', function () { dragging = false; });
+  window.addEventListener('mousemove', function (e) {
+    if (state !== 'play' || !(locked || dragging)) return;
+    yaw -= (e.movementX || 0) * .0023; pitch = clamp(pitch - (e.movementY || 0) * .0023, -1.3, 1.3);
+  });
+  document.addEventListener('pointerlockchange', function () { locked = (document.pointerLockElement === cv); updatePause(); });
+  window.addEventListener('blur', function () { keys = {}; dragging = false; });
+  window.addEventListener('keydown', function (e) {
+    if (state === 'dialog') {
+      if (e.code === 'Escape') { closeDialog(qLocked); return; }
+      var m = /^(Digit|Numpad)([1-5])$/.exec(e.code);
+      if (m && !$('dSubmit').hidden && !qLocked) { toggleOpt(+m[2] - 1); e.preventDefault(); }
+      if (e.code === 'Enter' && e.target.tagName !== 'BUTTON') { e.preventDefault(); (qLocked ? closeDialog : submitAnswer)(qLocked ? true : undefined); }
+      return;
+    }
+    if (state === 'list') { if (e.code === 'Escape' || e.code === 'Tab' || e.code === 'KeyH') { e.preventDefault(); closeList(); } return; }
+    if (state !== 'play') return;
+    if (e.code === 'Tab' || e.code === 'KeyH') { e.preventDefault(); openList(); return; }
+    if (e.code === 'KeyE') { tryTalk(); return; }
+    keys[e.code] = true;
+    if (e.code.indexOf('Arrow') === 0 || e.code === 'Space') e.preventDefault();
+  });
+  window.addEventListener('keyup', function (e) { keys[e.code] = false; });
+  // touch
+  var tzL = $('tzL'), tzR = $('tzR'), jb = $('joyBase'), jk = $('joyKnob');
+  tzL.addEventListener('pointerdown', function (e) {
+    if (joy.id !== null) return; joy.id = e.pointerId; joy.ox = e.clientX; joy.oy = e.clientY; jb.style.left = e.clientX + 'px'; jb.style.top = e.clientY + 'px'; jb.hidden = false; jk.style.transform = ''; try { tzL.setPointerCapture(e.pointerId); } catch (x) { }
+  });
+  tzL.addEventListener('pointermove', function (e) {
+    if (e.pointerId !== joy.id) return; var dx = e.clientX - joy.ox, dy = e.clientY - joy.oy, l = Math.hypot(dx, dy), mx = 50; if (l > mx) { dx = dx / l * mx; dy = dy / l * mx; }
+    joy.x = dx / mx; joy.y = -dy / mx; jk.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+  });
+  function joyEnd(e) { if (e.pointerId !== joy.id) return; joy.id = null; joy.x = joy.y = 0; jb.hidden = true; }
+  tzL.addEventListener('pointerup', joyEnd); tzL.addEventListener('pointercancel', joyEnd);
+  tzR.addEventListener('pointerdown', function (e) { if (lookId !== null) return; lookId = e.pointerId; lookLast = [e.clientX, e.clientY]; try { tzR.setPointerCapture(e.pointerId); } catch (x) { } });
+  tzR.addEventListener('pointermove', function (e) {
+    if (e.pointerId !== lookId) return; yaw -= (e.clientX - lookLast[0]) * .0055; pitch = clamp(pitch - (e.clientY - lookLast[1]) * .0055, -1.3, 1.3); lookLast = [e.clientX, e.clientY];
+  });
+  function lookEnd(e) { if (e.pointerId === lookId) lookId = null; }
+  tzR.addEventListener('pointerup', lookEnd); tzR.addEventListener('pointercancel', lookEnd);
+
+  /* ---------- dialog ---------- */
+  var qLocked = false;
+  function releaseLock() { try { if (document.exitPointerLock) document.exitPointerLock(); } catch (e) { } keys = {}; joy.x = joy.y = 0; dragging = false; }
+  function tryTalk() {
+    if (state !== 'play') return; var i = nearest(3.8); if (i < 0 || res[i]) return; openDialog(i);
+  }
+  $('btnTalk').addEventListener('click', tryTalk);
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function openDialog(i) {
+    cur = i; qLocked = false; releaseLock(); setState('dialog'); beep(660, .1, 'triangle'); beep(880, .12, 'triangle', .09);
+    var d = NPC[i]; $('dAv').textContent = d.n.replace(/^(Bu|Pak|Nenek|Kak)\s/, '').charAt(0); $('dAv').style.background = '#' + ('000000' + (d.c === 0xffffff ? 0xd8232a : d.c).toString(16)).slice(-6);
+    $('dName').textContent = d.n; $('dRole').textContent = d.r; $('dHi').textContent = d.hi; $('dQ').textContent = T(d.s);
+    qopts = shuffle(d.o.map(function (o) { return { t: T(o[0]), ok: !!o[1] }; }));
+    var box = $('dOpts'); box.innerHTML = '';
+    qopts.forEach(function (o, k) {
+      var lab = document.createElement('label'); lab.className = 'opt'; lab.innerHTML = '<input type="checkbox" id="opt' + k + '"><span class="box"></span><span class="ot"></span><span class="tag"></span>';
+      lab.querySelector('.ot').textContent = o.t; o.el = lab; o.inp = lab.querySelector('input');
+      o.inp.addEventListener('change', function () { lab.classList.toggle('sel', o.inp.checked); });
+      box.appendChild(lab);
+    });
+    $('dRes').hidden = true; $('dHint').hidden = false; $('dSubmit').textContent = 'Periksa Jawaban'; $('dLater').hidden = false;
+    $('dialog').hidden = false; $('dialog').scrollTop = 0; $('dcard').focus();
+  }
+  function toggleOpt(k) { var o = qopts[k]; if (!o) return; o.inp.checked = !o.inp.checked; o.el.classList.toggle('sel', o.inp.checked); }
+  function submitAnswer() {
+    if (qLocked) { closeDialog(true); return; }
+    var hits = 0, wrong = 0, total = 0;
+    qopts.forEach(function (o) { if (o.ok) total++; if (o.inp.checked && o.ok) hits++; if (o.inp.checked && !o.ok) wrong++; });
+    var pts = Math.round(clamp((hits - wrong) / total, 0, 1) * 100), perfect = (hits === total && wrong === 0);
+    qLocked = true; qopts.forEach(function (o) {
+      o.inp.disabled = true; o.el.classList.add('lock'); var tag = o.el.querySelector('.tag'); o.el.classList.remove('sel');
+      if (o.ok && o.inp.checked) { o.el.classList.add('ok'); tag.textContent = 'Benar'; }
+      else if (o.ok) { o.el.classList.add('miss'); tag.textContent = 'Seharusnya dipilih'; }
+      else if (o.inp.checked) { o.el.classList.add('bad'); tag.textContent = 'Kurang tepat'; }
+    });
+    res[cur] = { pts: pts, perfect: perfect, hits: hits, wrong: wrong, total: total }; done++; score += pts;
+    var box = $('dRes'); box.hidden = false; box.className = 'res ' + (perfect ? 'good' : (pts > 0 ? 'part' : 'nope'));
+    box.innerHTML = '<b>' + (perfect ? 'Sempurna! +' + pts + ' poin' : (pts > 0 ? 'Hampir! +' + pts + ' poin' : 'Belum tepat. +0 poin')) + '</b><span>' + T(NPC[cur].w) + '</span>';
+    $('dHint').hidden = true; $('dLater').hidden = true; $('dSubmit').textContent = done === N ? 'Lihat Hasil' : 'Lanjut Mencari';
+    if (perfect) { beep(784, .12, 'triangle'); beep(988, .12, 'triangle', .11); beep(1318, .2, 'triangle', .22); } else if (pts > 0) { beep(600, .15, 'triangle'); } else { beep(220, .25, 'sawtooth'); }
+    var o = W.npc[cur]; o.mk.material.map = o.cTex; o.mk.material.needsUpdate = true; hudUpdate();
+    box.scrollIntoView && box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  function closeDialog(answered) {
+    $('dialog').hidden = true;
+    if (answered === true && qLocked && done === N) { showResults(); return; }
+    setState('play'); if (!isTouch) lockPointer();
+  }
+  $('dSubmit').addEventListener('click', function () { submitAnswer(); });
+  $('dLater').addEventListener('click', function () { closeDialog(false); });
+  $('dClose').addEventListener('click', function () { closeDialog(qLocked); });
+
+  /* ---------- list ---------- */
+  function openList() {
+    releaseLock(); setState('list');
+    $('lList').innerHTML = NPC.map(function (d, i) {
+      var r = res[i]; return '<li class="' + (r ? 'done' : '') + '"><span class="dot">' + (r ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5l2.6 2.6L10 3.4"/></svg>' : '') + '</span><span class="who"><b>' + d.n + '</b><span>' + d.r + ' · ' + d.clue + '</span></span>' + (r ? '<span class="p">' + r.pts + '</span>' : '') + '</li>';
+    }).join('');
+    $('daftar').hidden = false; $('lcard').focus();
+  }
+  function closeList() { $('daftar').hidden = true; setState('play'); if (!isTouch) lockPointer(); }
+  $('btnList').addEventListener('click', function () { if (state === 'play') openList(); });
+  $('lClose').addEventListener('click', closeList);
+
+  /* ---------- results ---------- */
+  function showResults() {
+    releaseLock(); setState('end'); $('hud').hidden = true; $('prompt').hidden = true;
+    var perfect = res.filter(function (r) { return r && r.perfect; }).length, avg = Math.round(score / N);
+    $('rName').textContent = (playerName ? playerName + ' · ' : '') + 'Misi selesai';
+    $('rTitle').textContent = avg >= 85 ? 'Juara Perataan Teks!' : (avg >= 65 ? 'Hebat, hampir sempurna!' : 'Kamu sudah berusaha!');
+    $('rMsg').textContent = avg >= 85 ? 'Kamu menguasai rata kiri, tengah, kanan, dan kiri-kanan. Dokumenmu pasti rapi.' : (avg >= 65 ? 'Sedikit lagi kamu ahli. Lihat soal yang masih kuning atau merah, lalu baca materinya sekali lagi.' : 'Baca materi sekali lagi, lalu coba main lagi. Perhatikan jenis tulisan yang cocok untuk setiap perataan.');
+    $('rScore').textContent = avg; $('rPerfect').textContent = perfect + ' / ' + N; $('rPts').textContent = score;
+    $('rList').innerHTML = NPC.map(function (d, i) {
+      var r = res[i], cls = r.perfect ? 'done' : (r.pts > 0 ? 'part' : 'bad');
+      return '<li class="' + cls + '"><span class="dot"></span><span class="who"><b>' + d.n + '</b><span>' + d.r + '</span></span><span class="p">' + r.pts + '</span></li>';
+    }).join('');
+    show('hasil'); $('hasil').scrollTop = 0;
+    beep(523, .15, 'triangle'); beep(659, .15, 'triangle', .14); beep(784, .15, 'triangle', .28); beep(1047, .3, 'triangle', .42);
+  }
+  $('btnAgain').addEventListener('click', function () { resetGame(); show(''); $('hud').hidden = false; setState('play'); hudUpdate(); });
+  $('btnReread').addEventListener('click', function () { resetGame(); $('hud').hidden = true; startRead(); });
+})();
+</script>
+
+</body></html>
