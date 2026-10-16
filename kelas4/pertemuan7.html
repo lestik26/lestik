@@ -186,6 +186,11 @@ td:first-child{font-weight:600}
   position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 86px);transform:translateX(-50%);
   background:var(--ink);color:#fff;border-radius:12px;padding:8px 14px;font-size:.9rem;text-align:center;width:max-content;max-width:calc(100vw - 32px)
 }
+#toast{
+  position:absolute;top:calc(env(safe-area-inset-top,0px) + 17vh);left:50%;transform:translateX(-50%);
+  background:var(--rose);color:#fff;border:2px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink);
+  padding:9px 16px;font-weight:600;text-align:center;width:max-content;max-width:calc(100vw - 32px)
+}
 #legend{
   position:absolute;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
   background:rgba(255,255,255,.92);border:2px solid var(--ink);border-radius:12px;padding:8px 12px;font-size:.78rem;display:grid;gap:5px
@@ -304,7 +309,7 @@ body.touch.playing #tzL,body.touch.playing #tzR{display:block}
       <ol class="mission">
         <li><b>1</b><span>Baca materi dulu selama <strong>3 menit</strong>.</span></li>
         <li><b>2</b><span>Cari <strong>20 teman</strong> di halaman sekolah. Tanda seru kuning muncul kalau mereka dekat.</span></li>
-        <li><b>3</b><span>Jawab soal pilihan ganda. Jawaban benarnya bisa <strong>2, 3, 4, atau semuanya</strong>.</span></li>
+        <li><b>3</b><span>Jawab soal pilihan ganda (benarnya bisa <strong>2, 3, 4, atau semuanya</strong>). Kalau belum tepat, temanmu <strong>kabur</strong> dan harus kamu cari lagi sampai semua soal benar!</span></li>
       </ol>
       <form class="namebox" id="nameForm">
         <label for="nama">Nama siswa</label>
@@ -467,19 +472,20 @@ body.touch.playing #tzL,body.touch.playing #tzR{display:block}
       <button class="btn pulse" id="btnSiap" disabled>Tunggu waktu membaca…</button>
       <div class="note" id="siapNote">Baca pelan-pelan. Soal akan menanyakan penerapan materi ini di kehidupan sehari-hari.</div>
       <div id="glErr" class="err" hidden>Maaf, browser ini belum bisa menampilkan dunia 3D (WebGL). Coba buka di Chrome, Edge, atau Firefox versi terbaru.</div>
-      <button class="linkbtn" id="btnSkip" type="button">L</button>
+      <button class="linkbtn" id="btnSkip" type="button">.</button>
     </div>
   </div>
 </section>
 
 <!-- ======= HUD ======= -->
 <div id="hud" hidden>
-  <div class="hp" id="hProg"><div class="l">Teman ditemukan</div><div class="n"><span id="hN">0</span> / 20</div><div class="pb"><i id="hBar"></i></div></div>
+  <div class="hp" id="hProg"><div class="l">Dijawab benar</div><div class="n"><span id="hN">0</span> / 20</div><div class="pb"><i id="hBar"></i></div></div>
   <div id="zone">Lapangan Upacara</div>
   <div class="hp" id="hScore"><div><div class="l">Poin</div><div class="n" id="hPts">0</div></div><button class="btn alt small" id="btnList" type="button">Daftar</button></div>
   <div class="hp" id="mapbox"><canvas id="mini" width="140" height="140" aria-label="Peta sekolah"></canvas></div>
   <div class="cross"></div>
   <div id="prompt" hidden><span class="pt" id="pTxt"></span><button class="btn small" id="btnTalk" type="button">Bicara</button></div>
+  <div id="toast" hidden role="status"></div>
   <div id="pause" hidden>Klik layar untuk mengunci kamera, atau tahan klik dan geser untuk melihat sekeliling</div>
   <div id="legend">
     <div><span>Jalan</span><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span></div>
@@ -505,7 +511,7 @@ body.touch.playing #tzL,body.touch.playing #tzR{display:block}
       <p class="qs" id="dQ"></p>
       <div class="opts" id="dOpts"></div>
       <div class="res" id="dRes" hidden></div>
-      <p class="hint" id="dHint">Bisa 2, 3, 4, atau semua jawaban yang benar. Tombol angka 1 sampai 5 juga bisa dipakai.</p>
+      <p class="hint" id="dHint">Bisa 2, 3, 4, atau semua jawaban yang benar. Tombol angka 1 sampai 5 juga bisa dipakai. Kalau belum benar semua, temanmu akan kabur!</p>
     </div>
     <div class="dfoot">
       <button class="btn alt" id="dLater" type="button">Nanti dulu</button>
@@ -535,8 +541,8 @@ body.touch.playing #tzL,body.touch.playing #tzR{display:block}
     </div>
     <div class="stats">
       <div class="stat"><div class="n" id="rScore">0</div><div class="l">Nilai (0–100)</div></div>
-      <div class="stat"><div class="n" id="rPerfect">0 / 20</div><div class="l">Jawaban sempurna</div></div>
-      <div class="stat"><div class="n" id="rPts">0</div><div class="l">Total poin</div></div>
+      <div class="stat"><div class="n" id="rPerfect">0 / 20</div><div class="l">Benar di percobaan pertama</div></div>
+      <div class="stat"><div class="n" id="rPts">0</div><div class="l">Total percobaan salah</div></div>
     </div>
     <ul class="list" id="rList"></ul>
     <div class="ractions">
@@ -692,7 +698,7 @@ window.GAME_DATA = {
   }
 
   /* ---------- state ---------- */
-  var state = 'intro', playerName = '', score = 0, done = 0, res = new Array(N).fill(null), cur = -1, qopts = [];
+  var state = 'intro', playerName = '', score = 0, done = 0, res = new Array(N).fill(null), att = new Array(N).fill(0), lastOk = false, cur = -1, qopts = [];
   var W = { ready: false, fail: false, boxes: [], circles: [], npc: [] };
   var renderer, scene, camera, clock, sky, clouds = [], flagMesh;
   var yaw = 0, pitch = 0, locked = false, dragging = false, keys = {}, joy = { x: 0, y: 0, id: null, ox: 0, oy: 0 }, lookId = null, lookLast = null;
@@ -713,7 +719,7 @@ window.GAME_DATA = {
   function startRead() {
     show('baca'); setState('read'); $('baca').scrollTop = 0;
     readEnd = Date.now() + READ_MS; skipArm = false;
-    $('btnSkip').textContent = 'L'; $('btnSkip').hidden = false;
+    $('btnSkip').textContent = '.'; $('btnSkip').hidden = false;
     $('btnSiap').disabled = true; $('btnSiap').textContent = 'Tunggu waktu membaca…'; $('clock').classList.remove('done');
     $('glErr').hidden = true;
     clearInterval(readTimer); tickRead(); readTimer = setInterval(tickRead, 250);
@@ -803,9 +809,9 @@ window.GAME_DATA = {
   }
   function markTex(kind) {
     var c = document.createElement('canvas'); c.width = c.height = 128; var g = c.getContext('2d');
-    g.fillStyle = kind === 'q' ? '#ffc42e' : '#14a06e'; g.beginPath(); g.arc(64, 64, 56, 0, 7); g.fill();
+    g.fillStyle = kind === 'q' ? '#ffc42e' : (kind === 'r' ? '#e0434a' : '#14a06e'); g.beginPath(); g.arc(64, 64, 56, 0, 7); g.fill();
     g.lineWidth = 8; g.strokeStyle = '#10233f'; g.stroke();
-    if (kind === 'q') { g.fillStyle = '#10233f'; rr(g, 57, 28, 14, 44, 6); g.fill(); g.beginPath(); g.arc(64, 90, 8, 0, 7); g.fill(); }
+    if (kind === 'q' || kind === 'r') { g.fillStyle = kind === 'r' ? '#ffffff' : '#10233f'; rr(g, 57, 28, 14, 44, 6); g.fill(); g.beginPath(); g.arc(64, 90, 8, 0, 7); g.fill(); }
     else { g.strokeStyle = '#fff'; g.lineWidth = 12; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); g.moveTo(38, 66); g.lineTo(57, 85); g.lineTo(90, 44); g.stroke(); }
     return new THREE.CanvasTexture(c);
   }
@@ -945,7 +951,7 @@ window.GAME_DATA = {
     scene.add(trunkI, fol1, fol2, shI);
 
     // NPCs
-    var qTex = markTex('q'), cTex = markTex('c'), shG = new THREE.CircleGeometry(.6, 14).rotateX(-Math.PI / 2), shM = new THREE.MeshBasicMaterial({ color: 0x1e3a20, transparent: true, opacity: .3, depthWrite: false });
+    var qTex = markTex('q'), cTex = markTex('c'), rTex = markTex('r'), shG = new THREE.CircleGeometry(.6, 14).rotateX(-Math.PI / 2), shM = new THREE.MeshBasicMaterial({ color: 0x1e3a20, transparent: true, opacity: .3, depthWrite: false });
     NPC.forEach(function (d, i) {
       var g = new THREE.Group(), body = new THREE.Group(), skin = lam(d.skin), shirt = lam(d.c), pants = lam(d.p || 0x24344f), hair = lam(d.hair);
       var legL = new THREE.Mesh(new THREE.BoxGeometry(.24, .72, .26), pants), legR = legL.clone(); legL.position.set(-.14, .36, 0); legR.position.set(.14, .36, 0);
@@ -967,8 +973,9 @@ window.GAME_DATA = {
       g.add(body); g.position.set(d.x, 0, d.z); g.rotation.y = Math.atan2(-d.x, -d.z); scene.add(g);
       var sh = new THREE.Mesh(shG, shM); sh.position.set(d.x, .045, d.z); scene.add(sh);
       var mk = new THREE.Sprite(new THREE.SpriteMaterial({ map: qTex, fog: false, depthTest: true })); mk.scale.set(.95, .95, 1); mk.position.set(d.x, 2.7, d.z); scene.add(mk);
-      W.npc.push({ g: g, body: body, armL: armL, armR: armR, mk: mk, ph: i * 1.7, qTex: qTex, cTex: cTex });
-      W.circles.push({ x: d.x, z: d.z, r: .6 });
+      var circ = { x: d.x, z: d.z, r: .6 }; d.ox = d.x; d.oz = d.z; d.oclue = d.clue;
+      W.npc.push({ g: g, body: body, armL: armL, armR: armR, mk: mk, sh: sh, circle: circ, flee: null, ph: i * 1.7, qTex: qTex, cTex: cTex, rTex: rTex });
+      W.circles.push(circ);
     });
     window.addEventListener('resize', onResize);
   }
@@ -992,15 +999,20 @@ window.GAME_DATA = {
     if (!isTouch) lockPointer();
   }
   function resetGame() {
-    score = 0; done = 0; res = new Array(N).fill(null); cur = -1;
-    W.npc.forEach(function (o) { o.mk.material.map = o.qTex; o.mk.material.needsUpdate = true; });
+    score = 0; done = 0; res = new Array(N).fill(null); att = new Array(N).fill(0); cur = -1; lastOk = false;
+    W.npc.forEach(function (o, i) {
+      var d = NPC[i]; d.x = d.ox; d.z = d.oz; d.clue = d.oclue; o.flee = null; o.armL.rotation.x = 0; o.armR.rotation.x = 0;
+      o.circle.x = d.x; o.circle.z = d.z; o.g.position.set(d.x, 0, d.z); o.sh.position.set(d.x, .045, d.z); o.mk.position.x = d.x; o.mk.position.z = d.z;
+      o.mk.material.map = o.qTex; o.mk.material.needsUpdate = true;
+    });
+    $('toast').hidden = true;
     pos.set(0, 1.6, 22); yaw = 0; pitch = 0; hudUpdate();
   }
   function hudUpdate() {
     $('hN').textContent = done; $('hBar').style.width = (done / N * 100) + '%'; $('hPts').textContent = score;
   }
-  function collide(p) {
-    var r = .45, i; p.x = clamp(p.x, -66, 66); p.z = clamp(p.z, -66, 66);
+  function collide(p, rad, skip) {
+    var r = rad || .45, i; p.x = clamp(p.x, -66, 66); p.z = clamp(p.z, -66, 66);
     for (i = 0; i < W.boxes.length; i++) {
       var b = W.boxes[i];
       if (p.x > b.x0 - r && p.x < b.x1 + r && p.z > b.z0 - r && p.z < b.z1 + r) {
@@ -1010,12 +1022,12 @@ window.GAME_DATA = {
     }
     for (i = 0; i < W.circles.length; i++) {
       var c = W.circles[i], dx = p.x - c.x, dz = p.z - c.z, rr2 = r + c.r, d2 = dx * dx + dz * dz;
-      if (d2 < rr2 * rr2) { var d = Math.sqrt(d2) || .001; p.x = c.x + dx / d * rr2; p.z = c.z + dz / d * rr2; }
+      if (c !== skip && d2 < rr2 * rr2) { var d = Math.sqrt(d2) || .001; p.x = c.x + dx / d * rr2; p.z = c.z + dz / d * rr2; }
     }
   }
   function nearest(maxD) {
     var best = -1, bd = maxD;
-    for (var i = 0; i < N; i++) { var d = Math.hypot(pos.x - NPC[i].x, pos.z - NPC[i].z); if (d < bd) { bd = d; best = i; } }
+    for (var i = 0; i < N; i++) { if (W.npc[i].flee) continue; var d = Math.hypot(pos.x - NPC[i].x, pos.z - NPC[i].z); if (d < bd) { bd = d; best = i; } }
     return best;
   }
   function loop() {
@@ -1036,9 +1048,11 @@ window.GAME_DATA = {
     clouds.forEach(function (c) { c.position.x += c.userData.sp * dt; if (c.position.x > 190) c.position.x = -190; });
     if (flagMesh) flagMesh.rotation.y = Math.sin(t * 2) * .25;
     for (var i = 0; i < N; i++) {
-      var o = W.npc[i], d = NPC[i], dx = pos.x - d.x, dz = pos.z - d.z, dist = Math.hypot(dx, dz);
-      o.body.position.y = Math.sin(t * 2 + o.ph) * .015;
-      if (dist < 9) { var target = Math.atan2(dx, dz), diff = Math.atan2(Math.sin(target - o.g.rotation.y), Math.cos(target - o.g.rotation.y)); o.g.rotation.y += diff * Math.min(1, dt * 4); }
+      var o = W.npc[i], d = NPC[i], dx, dz, dist;
+      if (o.flee) fleeStep(o, d, dt, t);
+      dx = pos.x - d.x; dz = pos.z - d.z; dist = Math.hypot(dx, dz);
+      o.body.position.y = o.flee ? Math.abs(Math.sin(t * 12)) * .12 : Math.sin(t * 2 + o.ph) * .015;
+      if (!o.flee && dist < 9) { var target = Math.atan2(dx, dz), diff = Math.atan2(Math.sin(target - o.g.rotation.y), Math.cos(target - o.g.rotation.y)); o.g.rotation.y += diff * Math.min(1, dt * 4); }
       if (res[i] && dist < 14) { o.armR.rotation.z = 2.6 + Math.sin(t * 7 + o.ph) * .3; o.armL.rotation.z = -.1; }
       else { o.armR.rotation.z = Math.sin(t * 1.5 + o.ph) * .05; o.armL.rotation.z = -Math.sin(t * 1.5 + o.ph) * .05; }
       o.mk.visible = dist < 34; o.mk.position.y = 2.65 + Math.sin(t * 3 + o.ph) * .12;
@@ -1047,6 +1061,38 @@ window.GAME_DATA = {
     if (frameN % 6 === 0) { drawMini(); promptUpdate(); }
     if (frameN % 20 === 0) zoneUpdate();
     renderer.render(scene, camera);
+  }
+  var toastT = null;
+  function showToast(msg) { var el = $('toast'); el.textContent = msg; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { el.hidden = true; }, 4500); }
+  function zoneAt(x, z) {
+    var best = 'halaman sekolah', bs = 1;
+    ZONES.forEach(function (zn) { var q = Math.hypot(x - zn.x, z - zn.z) / zn.r; if (q < bs) { bs = q; best = zn.n; } });
+    return best;
+  }
+  function spotFree(x, z) {
+    var i;
+    for (i = 0; i < W.boxes.length; i++) { var b = W.boxes[i]; if (x > b.x0 - 2.5 && x < b.x1 + 2.5 && z > b.z0 - 2.5 && z < b.z1 + 2.5) return false; }
+    for (i = 0; i < W.circles.length; i++) { var c = W.circles[i]; if (Math.hypot(x - c.x, z - c.z) < c.r + 1.8) return false; }
+    return true;
+  }
+  function startFlee(i) {
+    var d = NPC[i], o = W.npc[i], tx = 0, tz = 0, ok = false, k;
+    for (k = 0; k < 80 && !ok; k++) {
+      var a = Math.random() * 6.283, rd = 26 + Math.random() * 32; tx = d.x + Math.cos(a) * rd; tz = d.z + Math.sin(a) * rd;
+      ok = Math.abs(tx) < 60 && Math.abs(tz) < 60 && Math.hypot(tx - pos.x, tz - pos.z) > 28 && spotFree(tx, tz);
+    }
+    if (!ok) { tx = clamp(-pos.x * .8, -58, 58); tz = clamp(-pos.z * .8, -58, 58); }
+    o.flee = { tx: tx, tz: tz, t: 0 }; o.mk.material.map = o.rTex; o.mk.material.needsUpdate = true;
+    d.clue = 'Kabur ke arah ' + zoneAt(tx, tz);
+    showToast(d.n + ' kabur ke arah ' + zoneAt(tx, tz) + '! Cari dia lagi.');
+  }
+  function fleeStep(o, d, dt, t) {
+    var f = o.flee, dx = f.tx - d.x, dz = f.tz - d.z, dd = Math.hypot(dx, dz); f.t += dt;
+    if (dd < .8 || f.t > 10) { o.flee = null; o.armL.rotation.x = 0; o.armR.rotation.x = 0; d.clue = 'Terlihat di ' + zoneAt(d.x, d.z); return; }
+    var st = 7.5 * dt; d.x += dx / dd * st; d.z += dz / dd * st; collide(d, .6, o.circle);
+    o.circle.x = d.x; o.circle.z = d.z; o.g.position.set(d.x, 0, d.z); o.sh.position.set(d.x, .045, d.z); o.mk.position.x = d.x; o.mk.position.z = d.z;
+    var tg = Math.atan2(dx, dz), df = Math.atan2(Math.sin(tg - o.g.rotation.y), Math.cos(tg - o.g.rotation.y)); o.g.rotation.y += df * Math.min(1, dt * 10);
+    o.armL.rotation.x = Math.sin(t * 14) * .9; o.armR.rotation.x = -Math.sin(t * 14) * .9; o.armL.rotation.z = 0; o.armR.rotation.z = 0;
   }
   function zoneUpdate() {
     var best = 'Halaman Sekolah', bs = 1;
@@ -1069,7 +1115,7 @@ window.GAME_DATA = {
     BUILD.forEach(function (b) { g.fillStyle = '#' + ('000000' + b.roof.toString(16)).slice(-6); g.fillRect(X(b.x - b.w / 2), X(b.z - b.d / 2), b.w * m, b.d * m); });
     for (var i = 0; i < N; i++) {
       var d = NPC[i], dist = Math.hypot(pos.x - d.x, pos.z - d.z);
-      if (res[i]) { g.fillStyle = '#14a06e'; } else if (dist < 24) { g.fillStyle = '#ffc42e'; } else continue;
+      if (res[i]) { g.fillStyle = '#14a06e'; } else if (dist < 24) { g.fillStyle = att[i] ? '#e0434a' : '#ffc42e'; } else continue;
       g.beginPath(); g.arc(X(d.x), X(d.z), 3.4 * mdpr, 0, 7); g.fill(); g.lineWidth = 1.5 * mdpr; g.strokeStyle = '#10233f'; g.stroke();
     }
     var px = X(pos.x), pz = X(pos.z), fx = -Math.sin(yaw), fz = -Math.cos(yaw), L = 7 * mdpr;
@@ -1133,7 +1179,9 @@ window.GAME_DATA = {
   function openDialog(i) {
     cur = i; qLocked = false; releaseLock(); setState('dialog'); beep(660, .1, 'triangle'); beep(880, .12, 'triangle', .09);
     var d = NPC[i]; $('dAv').textContent = d.n.replace(/^(Bu|Pak|Nenek|Kak)\s/, '').charAt(0); $('dAv').style.background = '#' + ('000000' + (d.c === 0xffffff ? 0xd8232a : d.c).toString(16)).slice(-6);
-    $('dName').textContent = d.n; $('dRole').textContent = d.r; $('dHi').textContent = d.hi; $('dQ').textContent = T(d.s);
+    $('dName').textContent = d.n; $('dRole').textContent = d.r; $('dQ').textContent = T(d.s);
+    $('dHi').textContent = att[i] ? 'Kamu menemukanku lagi! Coba jawab sekali lagi, ya. Pilih semua jawaban yang benar.' : d.hi;
+    document.querySelector('.qtag').textContent = 'Pilih SEMUA jawaban yang benar' + (att[i] ? ' · Percobaan ke-' + (att[i] + 1) : '');
     qopts = shuffle(d.o.map(function (o) { return { t: T(o[0]), ok: !!o[1] }; }));
     var box = $('dOpts'); box.innerHTML = '';
     qopts.forEach(function (o, k) {
@@ -1150,25 +1198,36 @@ window.GAME_DATA = {
     if (qLocked) { closeDialog(true); return; }
     var hits = 0, wrong = 0, total = 0;
     qopts.forEach(function (o) { if (o.ok) total++; if (o.inp.checked && o.ok) hits++; if (o.inp.checked && !o.ok) wrong++; });
-    var pts = Math.round(clamp((hits - wrong) / total, 0, 1) * 100), perfect = (hits === total && wrong === 0);
-    qLocked = true; qopts.forEach(function (o) {
-      o.inp.disabled = true; o.el.classList.add('lock'); var tag = o.el.querySelector('.tag'); o.el.classList.remove('sel');
-      if (o.ok && o.inp.checked) { o.el.classList.add('ok'); tag.textContent = 'Benar'; }
-      else if (o.ok) { o.el.classList.add('miss'); tag.textContent = 'Seharusnya dipilih'; }
-      else if (o.inp.checked) { o.el.classList.add('bad'); tag.textContent = 'Kurang tepat'; }
+    var perfect = (hits === total && wrong === 0);
+    qLocked = true; lastOk = perfect;
+    qopts.forEach(function (o) {
+      o.inp.disabled = true; o.el.classList.add('lock');
+      if (perfect) { o.el.classList.remove('sel'); o.el.classList.add('ok'); o.el.querySelector('.tag').textContent = 'Benar'; }
     });
-    res[cur] = { pts: pts, perfect: perfect, hits: hits, wrong: wrong, total: total }; done++; score += pts;
-    var box = $('dRes'); box.hidden = false; box.className = 'res ' + (perfect ? 'good' : (pts > 0 ? 'part' : 'nope'));
-    box.innerHTML = '<b>' + (perfect ? 'Sempurna! +' + pts + ' poin' : (pts > 0 ? 'Hampir! +' + pts + ' poin' : 'Belum tepat. +0 poin')) + '</b><span>' + T(NPC[cur].w) + '</span>';
-    $('dHint').hidden = true; $('dLater').hidden = true; $('dSubmit').textContent = done === N ? 'Lihat Hasil' : 'Lanjut Mencari';
-    if (perfect) { beep(784, .12, 'triangle'); beep(988, .12, 'triangle', .11); beep(1318, .2, 'triangle', .22); } else if (pts > 0) { beep(600, .15, 'triangle'); } else { beep(220, .25, 'sawtooth'); }
-    var o = W.npc[cur]; o.mk.material.map = o.cTex; o.mk.material.needsUpdate = true; hudUpdate();
-    box.scrollIntoView && box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    var box = $('dRes'); box.hidden = false;
+    if (perfect) {
+      var pts = Math.max(20, 100 - 20 * att[cur]);
+      res[cur] = { pts: pts, tries: att[cur] + 1 }; done++; score += pts;
+      box.className = 'res good';
+      box.innerHTML = '<b>Sempurna! +' + pts + ' poin</b><span>' + T(NPC[cur].w) + '</span>';
+      var nm = W.npc[cur]; nm.mk.material.map = nm.cTex; nm.mk.material.needsUpdate = true;
+      $('dSubmit').textContent = done === N ? 'Lihat Hasil' : 'Lanjut Mencari';
+      beep(784, .12, 'triangle'); beep(988, .12, 'triangle', .11); beep(1318, .2, 'triangle', .22);
+    } else {
+      att[cur]++;
+      box.className = 'res nope';
+      box.innerHTML = '<b>Belum tepat, ' + NPC[cur].n + ' kabur!</b><span>Kamu memilih ' + hits + ' jawaban yang tepat dan ' + wrong + ' yang kurang tepat. Jumlah semua jawaban yang benar: ' + total + '.</span><span>' + T(NPC[cur].w) + '</span><span>Cari dia lagi, lalu jawab sampai benar semua.</span>';
+      $('dSubmit').textContent = 'Cari Dia Lagi';
+      beep(220, .25, 'sawtooth');
+    }
+    $('dHint').hidden = true; $('dLater').hidden = true; hudUpdate();
+    if (box.scrollIntoView) box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
   function closeDialog(answered) {
     $('dialog').hidden = true;
-    if (answered === true && qLocked && done === N) { showResults(); return; }
+    if (answered === true && qLocked && lastOk && done === N) { showResults(); return; }
     setState('play'); if (!isTouch) lockPointer();
+    if (answered === true && qLocked && !lastOk) startFlee(cur);
   }
   $('dSubmit').addEventListener('click', function () { submitAnswer(); });
   $('dLater').addEventListener('click', function () { closeDialog(false); });
@@ -1178,7 +1237,7 @@ window.GAME_DATA = {
   function openList() {
     releaseLock(); setState('list');
     $('lList').innerHTML = NPC.map(function (d, i) {
-      var r = res[i]; return '<li class="' + (r ? 'done' : '') + '"><span class="dot">' + (r ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5l2.6 2.6L10 3.4"/></svg>' : '') + '</span><span class="who"><b>' + d.n + '</b><span>' + d.r + ' · ' + d.clue + '</span></span>' + (r ? '<span class="p">' + r.pts + '</span>' : '') + '</li>';
+      var r = res[i]; return '<li class="' + (r ? 'done' : '') + '"><span class="dot">' + (r ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5l2.6 2.6L10 3.4"/></svg>' : '') + '</span><span class="who"><b>' + d.n + '</b><span>' + d.r + ' · ' + (r ? 'sudah benar' : d.clue) + (att[i] && !r ? ' · salah ' + att[i] + 'x' : '') + '</span></span>' + (r ? '<span class="p">' + r.pts + '</span>' : '') + '</li>';
     }).join('');
     $('daftar').hidden = false; $('lcard').focus();
   }
@@ -1188,15 +1247,15 @@ window.GAME_DATA = {
 
   /* ---------- results ---------- */
   function showResults() {
-    releaseLock(); setState('end'); $('hud').hidden = true; $('prompt').hidden = true;
-    var perfect = res.filter(function (r) { return r && r.perfect; }).length, avg = Math.round(score / N);
-    $('rName').textContent = (playerName ? playerName + ' · ' : '') + 'Misi selesai';
-    $('rTitle').textContent = avg >= 85 ? 'Juara Perataan Teks!' : (avg >= 65 ? 'Hebat, hampir sempurna!' : 'Kamu sudah berusaha!');
-    $('rMsg').textContent = avg >= 85 ? 'Kamu menguasai rata kiri, tengah, kanan, dan kiri-kanan. Dokumenmu pasti rapi.' : (avg >= 65 ? 'Sedikit lagi kamu ahli. Lihat soal yang masih kuning atau merah, lalu baca materinya sekali lagi.' : 'Baca materi sekali lagi, lalu coba main lagi. Perhatikan jenis tulisan yang cocok untuk setiap perataan.');
-    $('rScore').textContent = avg; $('rPerfect').textContent = perfect + ' / ' + N; $('rPts').textContent = score;
+    releaseLock(); setState('end'); $('hud').hidden = true; $('prompt').hidden = true; $('toast').hidden = true;
+    var first = res.filter(function (r) { return r && r.tries === 1; }).length, wrongs = att.reduce(function (x, y) { return x + y; }, 0), avg = Math.round(score / N);
+    $('rName').textContent = (playerName ? playerName + ' · ' : '') + 'Semua soal terjawab benar';
+    $('rTitle').textContent = avg >= 85 ? 'Juara Perataan Teks!' : (avg >= 65 ? 'Hebat, kamu pantang menyerah!' : 'Kamu berhasil sampai akhir!');
+    $('rMsg').textContent = avg >= 85 ? 'Hampir semua soal benar di percobaan pertama. Dokumenmu pasti rapi.' : 'Semua temanmu sudah kamu bantu dengan jawaban benar. Nilai makin tinggi kalau lebih sedikit salah, jadi coba main lagi!';
+    $('rScore').textContent = avg; $('rPerfect').textContent = first + ' / ' + N; $('rPts').textContent = wrongs;
     $('rList').innerHTML = NPC.map(function (d, i) {
-      var r = res[i], cls = r.perfect ? 'done' : (r.pts > 0 ? 'part' : 'bad');
-      return '<li class="' + cls + '"><span class="dot"></span><span class="who"><b>' + d.n + '</b><span>' + d.r + '</span></span><span class="p">' + r.pts + '</span></li>';
+      var r = res[i], cls = r.tries === 1 ? 'done' : (r.tries <= 3 ? 'part' : 'bad');
+      return '<li class="' + cls + '"><span class="dot"></span><span class="who"><b>' + d.n + '</b><span>Benar di percobaan ke-' + r.tries + '</span></span><span class="p">' + r.pts + '</span></li>';
     }).join('');
     show('hasil'); $('hasil').scrollTop = 0;
     beep(523, .15, 'triangle'); beep(659, .15, 'triangle', .14); beep(784, .15, 'triangle', .28); beep(1047, .3, 'triangle', .42);
