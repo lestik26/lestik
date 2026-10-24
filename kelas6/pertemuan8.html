@@ -307,20 +307,71 @@ code.f{font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.9em;
 .btn.danger:hover{background:#e0434a}
 #btnFinish{position:absolute;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 14px);pointer-events:auto}
 
-/* mini game */
+/* mini game: Ayo Dansa */
 #mgame{align-items:center}
-#mgcard{max-width:520px;text-align:center}
-#mgcard .dhead{justify-content:center;text-align:left}
-.mg-top{display:flex;justify-content:space-between;gap:12px;font-weight:600}
-.mg-top span{background:var(--wash);border:2px solid var(--ink);border-radius:99px;padding:3px 14px}
-.mg-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:380px;width:100%;margin:0 auto}
-.hole{
-  aspect-ratio:1;border-radius:50%;border:3px solid var(--ink);background:radial-gradient(circle at 50% 65%,#5a3a20 0 52%,#8a5a36 53%);
-  font-size:clamp(2rem,9vw,3.2rem);line-height:1;cursor:pointer;display:grid;place-items:center;padding:0;color:var(--ink);
-  touch-action:manipulation;user-select:none;-webkit-user-select:none;
+#mgcard{max-width:560px}
+#mgcard .dhead{justify-content:center;text-align:center}
+#mgBody{display:grid;gap:10px;text-align:left}
+#mgBody .list{max-height:none}
+.mgtxt{font-weight:500}
+.mgsteps{margin:0;padding-left:1.3em;display:grid;gap:6px;font-size:.95rem}
+.mgres{background:var(--mint-bg);border:2px solid var(--ink);border-radius:14px;padding:10px 14px;font-weight:500;text-align:center}
+.arrow-demo{display:flex;gap:6px;justify-content:center;background:#202846;border:2px solid var(--ink);border-radius:99px;padding:8px 14px;width:max-content;max-width:100%;margin:0 auto}
+
+#dance{position:fixed;inset:0;z-index:12;pointer-events:none}
+.dn-top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);left:50%;transform:translateX(-50%);display:grid;gap:6px;justify-items:center;width:min(320px,calc(100vw - 130px))}
+.dn-song{background:var(--ink);color:#fff;border-radius:99px;padding:5px 20px;font-family:var(--f-display);font-weight:700;font-size:1.2rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.dn-sbar{width:100%;height:10px;background:rgba(255,255,255,.75);border:2px solid var(--ink);border-radius:99px;overflow:hidden}
+.dn-sbar i{display:block;height:100%;width:0;background:var(--sun)}
+.dn-mute{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:max(12px,env(safe-area-inset-right,0px));width:46px;height:46px;border-radius:50%;border:2px solid var(--ink);background:#fff;box-shadow:0 3px 0 var(--ink);font-size:1.2rem;cursor:pointer;pointer-events:auto;padding:0;line-height:1}
+.dn-board{top:calc(env(safe-area-inset-top,0px) + 12px);left:max(12px,env(safe-area-inset-left,0px));min-width:200px;display:grid;gap:3px;padding:8px 10px}
+.dn-board .l{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);padding:0 4px 2px}
+.dn-board .row{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:600;padding:3px 6px;border-radius:9px;min-width:0}
+.dn-board .row.me{background:#fff0b8}
+.dn-board .rk{font-family:var(--f-display);font-weight:800;width:1.2em;text-align:center}
+.dn-board .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dn-board .pt{font-family:var(--f-display);font-weight:800;font-variant-numeric:tabular-nums}
+
+.dn-main{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);transform:translateX(-50%);width:min(560px,calc(100vw - 24px));display:grid;gap:8px;justify-items:center}
+.dn-fb{height:2.3rem;font-family:var(--f-display);font-weight:800;font-size:1.9rem;line-height:2.3rem;color:#fff;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--ink);opacity:0;white-space:nowrap}
+.dn-fb.perfect{color:#6dffb0}.dn-fb.good{color:#8fd0ff}.dn-fb.late{color:#ffd45a}.dn-fb.miss{color:#ff8a90}
+.dn-fb.show{animation:dnfb .8s ease-out}
+@keyframes dnfb{0%{opacity:0;transform:scale(.6)}18%{opacity:1;transform:scale(1.18)}75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:translateY(-16px)}}
+.dn-seq{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap;background:#202846;border:2px solid var(--ink);border-radius:99px;padding:8px 14px;min-height:58px;max-width:100%}
+.dn-seq.shake{animation:dnshake .28s}
+@keyframes dnshake{20%{transform:translateX(-8px)}50%{transform:translateX(8px)}80%{transform:translateX(-4px)}}
+.ar{width:40px;height:40px;border-radius:50%;background:var(--royal);border:2px solid #fff;display:grid;place-items:center;flex:none;transition:background .1s,transform .1s}
+.ar svg{width:22px;height:22px;display:block}
+.ar.ok{background:var(--mint);transform:scale(.88)}
+.ar.now{box-shadow:0 0 0 3px var(--sun);transform:scale(1.08)}
+.dn-bar{position:relative;width:100%;height:24px;background:#202846;border:2px solid var(--ink);border-radius:99px}
+.dn-zone{position:absolute;top:3px;bottom:3px;left:55%;width:30%;background:rgba(190,200,218,.5);border-radius:99px}
+.dn-zone.hot{background:rgba(255,255,255,.92)}
+.dn-zone i{position:absolute;left:50%;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;background:#fff;border-radius:2px}
+.dn-mk{position:absolute;top:50%;left:0;width:16px;height:30px;margin:-15px 0 0 -8px;border-radius:8px;background:var(--mint);border:2px solid #fff;box-shadow:0 0 0 2px var(--ink)}
+.dn-combo{height:1.5em;font-family:var(--f-display);font-weight:800;font-size:1.1rem;color:#fff;-webkit-text-stroke:1.5px var(--ink);paint-order:stroke fill}
+.dn-pad{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 18px);display:flex;gap:8px;pointer-events:auto}
+.dn-pad button{width:56px;height:56px;border-radius:16px;border:2px solid var(--ink);background:#fff;box-shadow:0 4px 0 var(--ink);display:grid;place-items:center;cursor:pointer;touch-action:manipulation;padding:0;-webkit-user-select:none;user-select:none}
+.dn-pad button.on,.dn-pad button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink);background:var(--sun)}
+.dn-pad svg{width:28px;height:28px;display:block}
+.dn-count{position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);font-family:var(--f-display);font-weight:800;font-size:clamp(4rem,16vw,8rem);line-height:1;color:#fff;-webkit-text-stroke:4px var(--ink);paint-order:stroke fill;text-shadow:0 6px 0 var(--ink);white-space:nowrap}
+.dn-banner{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 22vh);transform:translateX(-50%);background:var(--sun);border:2px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink);padding:9px 18px;font-family:var(--f-display);font-weight:800;font-size:1.3rem;text-align:center;width:max-content;max-width:calc(100vw - 32px)}
+@media (max-width:900px){
+  .dn-pad{right:50%;transform:translateX(50%)}
+  .dn-main{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
 }
-.hole.up{background:#c6ecff}
-.mgres{background:var(--mint-bg);border:2px solid var(--ink);border-radius:14px;padding:10px 14px;font-weight:500}
+@media (max-width:700px){
+  .dn-board{top:calc(env(safe-area-inset-top,0px) + 66px);min-width:176px}
+  .ar{width:34px;height:34px}
+  .ar svg{width:19px;height:19px}
+  .dn-seq{padding:7px 10px;gap:5px}
+}
+@media (max-height:520px){
+  .dn-board{min-width:150px;padding:5px 8px}
+  .dn-board .row{font-size:.78rem;padding:1px 5px}
+  .dn-main{bottom:calc(env(safe-area-inset-bottom,0px) + 80px);gap:4px}
+  .dn-fb{height:1.8rem;line-height:1.8rem;font-size:1.4rem}
+}
 </style>
 </head>
 <body>
@@ -338,7 +389,7 @@ code.f{font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.9em;
         <li><b>1</b><span>Baca materi dulu selama <strong>3 menit</strong>.</span></li>
         <li><b>2</b><span>Cari <strong>20 guru dan staf</strong> di kebun binatang. Tanda seru kuning muncul kalau mereka dekat.</span></li>
         <li><b>3</b><span>Dengarkan <strong>cerita</strong> mereka, lalu pecahkan masalahnya. Soalnya pilihan ganda (benarnya bisa <strong>2, 3, 4, atau semuanya</strong>). Kalau belum tepat, orangnya <strong>kabur</strong> dan harus dicari lagi.</span></li>
-        <li><b>4</b><span>Tiap <strong>5 soal benar</strong>, ada <strong>mini game</strong> seru dengan bintang bonus!</span></li>
+        <li><b>4</b><span>Tiap <strong>5 soal benar</strong>, ada mini game <strong>Ayo Dansa</strong>: adu dansa 2 menit dengan 3 teman untuk bintang bonus!</span></li>
       </ol>
       <div class="resume" id="resumeBox" hidden>
         <h2>Selamat datang kembali!</h2>
@@ -547,16 +598,32 @@ code.f{font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.9em;
   </div>
 </div>
 
-<!-- ======= MINI GAME ======= -->
+<!-- ======= MINI GAME: AYO DANSA ======= -->
+<div id="dance" hidden>
+  <div class="dn-top" id="dnTop" hidden>
+    <div class="dn-song">&#9835; <span id="dnClock">02:00</span></div>
+    <div class="dn-sbar"><i id="dnBar"></i></div>
+  </div>
+  <button class="dn-mute" id="dnMute" type="button" aria-label="Matikan suara lagu" hidden>&#128266;</button>
+  <div class="hp dn-board" id="dnBoard" hidden></div>
+  <div class="dn-banner" id="dnBanner" hidden role="status"></div>
+  <div class="dn-count" id="dnCount" hidden aria-live="assertive"></div>
+  <div class="dn-main" id="dnMain" hidden>
+    <div class="dn-fb" id="dnFb" aria-live="polite"></div>
+    <div class="dn-seq" id="dnSeq"></div>
+    <div class="dn-bar"><div class="dn-zone" id="dnZone"><i></i></div><div class="dn-mk" id="dnMk"></div></div>
+    <div class="dn-combo" id="dnCombo"></div>
+  </div>
+  <div class="dn-pad" id="dnPad" hidden></div>
+</div>
+
 <div id="mgame" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mgTitle">
   <div class="dcard" id="mgcard" tabindex="-1">
-    <div class="dhead"><div><div class="dname" id="mgTitle">Mini Game: Tangkap Hewan!</div><div class="drole" id="mgSub"></div></div></div>
-    <div class="mg-top"><span>Waktu: <b id="mgT">20</b> detik</span><span>Tangkapan: <b id="mgS">0</b></span></div>
-    <div class="mg-grid" id="mgGrid"></div>
-    <p class="hint" id="mgHint">Hewan akan muncul dari lubang. Ketuk hewan secepatnya! Jangan ketuk batu, nanti poin berkurang.</p>
+    <div class="dhead"><div><div class="dname" id="mgTitle">Tantangan Ayo Dansa!</div><div class="drole" id="mgSub"></div></div></div>
+    <div id="mgBody"></div>
     <div class="dfoot">
       <button class="btn alt" id="mgSkip" type="button">Lewati</button>
-      <button class="btn" id="mgGo" type="button">Mulai</button>
+      <button class="btn" id="mgGo" type="button">Ayo Dansa!</button>
     </div>
   </div>
 </div>
@@ -596,7 +663,7 @@ code.f{font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.9em;
       <div class="stat"><div class="n" id="rScore">0</div><div class="l">Nilai (0–100)</div></div>
       <div class="stat"><div class="n" id="rPerfect">0 / 20</div><div class="l">Benar di percobaan pertama</div></div>
       <div class="stat"><div class="n" id="rPts">0</div><div class="l">Total percobaan salah</div></div>
-      <div class="stat"><div class="n" id="rStars">0</div><div class="l">Bintang mini game</div></div>
+      <div class="stat"><div class="n" id="rStars">0</div><div class="l">Bintang Ayo Dansa</div></div>
     </div>
     <ul class="list" id="rList"></ul>
     <div class="ractions">
@@ -795,7 +862,7 @@ window.GAME_DATA = {
     s.npc.forEach(function (a, i) { NPC[i].x = +a[0]; NPC[i].z = +a[1]; NPC[i].clue = String(a[2] || NPC[i].oclue); });
     if (s.pos) { startX = clamp(+s.pos.x || 0, -65, 65); startZ = clamp(+s.pos.z || 22, -65, 65); startYaw = +s.pos.yaw || 0; }
   }
-  function saveNow() { if (inGame) save(); }
+  function saveNow() { if (inGame && state !== 'mini') save(); }
   window.addEventListener('pagehide', saveNow);
   document.addEventListener('visibilitychange', function () { if (document.hidden) saveNow(); });
   setInterval(function () { if (inGame && state === 'play') save(); }, 4000);
@@ -1230,7 +1297,7 @@ window.GAME_DATA = {
   }
   function hudUpdate() {
     $('hN').textContent = done; $('hBar').style.width = (done / N * 100) + '%'; $('hPts').textContent = score; $('hStars').textContent = stars;
-    $('hNext').textContent = done >= N ? 'Semua soal selesai!' : 'Mini game: ' + (5 - done % 5) + ' soal lagi';
+    $('hNext').textContent = done >= N ? 'Semua soal selesai!' : 'Ayo Dansa: ' + (5 - done % 5) + ' soal lagi';
   }
   function collide(p, rad, skip) {
     var r = rad || .45, i; p.x = clamp(p.x, -66, 66); p.z = clamp(p.z, -66, 66);
@@ -1264,7 +1331,8 @@ window.GAME_DATA = {
       collide(pos);
       if (moving) bobT += dt * (keys.ShiftLeft || keys.ShiftRight ? 13 : 9);
     }
-    camera.position.set(pos.x, 1.6 + (moving && state === 'play' ? Math.sin(bobT) * .035 : 0), pos.z); camera.rotation.set(pitch, yaw, 0);
+    if (state === 'mini') danceUpdate(dt, t);
+    if (CAM.mode === 'fp') { camera.position.set(pos.x, 1.6 + (moving && state === 'play' ? Math.sin(bobT) * .035 : 0), pos.z); camera.rotation.set(pitch, yaw, 0); } else camStep(dt);
     sky.position.copy(camera.position);
     clouds.forEach(function (c) { c.position.x += c.userData.sp * dt; if (c.position.x > 190) c.position.x = -190; });
     ANIM.forEach(function (a) {
@@ -1275,6 +1343,7 @@ window.GAME_DATA = {
     });
     for (var i = 0; i < N; i++) {
       var o = W.npc[i], d = NPC[i], dx, dz, dist;
+      if (o.dance) { o.mk.visible = false; continue; }
       if (o.flee) fleeStep(o, d, dt, t); else if (state === 'play') wanderStep(o, d, dt, t, i); else o.walking = false;
       dx = pos.x - d.x; dz = pos.z - d.z; dist = Math.hypot(dx, dz);
       o.body.position.y = o.flee ? Math.abs(Math.sin(t * 12)) * .12 : (o.walking ? Math.abs(Math.sin(t * 7 + o.ph)) * .05 : Math.sin(t * 2 + o.ph) * .015);
@@ -1489,64 +1558,443 @@ window.GAME_DATA = {
   $('dLater').addEventListener('click', function () { closeDialog(false); });
   $('dClose').addEventListener('click', function () { closeDialog(qLocked); });
 
-  /* ---------- mini game: Tangkap Hewan ---------- */
-  var ANI = ['\uD83D\uDC12', '\uD83E\uDD81', '\uD83D\uDC18', '\uD83D\uDC27', '\uD83E\uDD92', '\uD83D\uDC3C', '\uD83D\uDC2F', '\uD83E\uDD93'], ROCK = '\uD83E\uDEA8';
-  var mgHoles = [], mgScore = 0, mgLeft = 20, mgTick = null, mgSpawn = null, mgPhase = 'idle', mgCb = null, mgLvl = 1, mgStarsGot = 0, mgUp = -1;
-  (function buildHoles() {
-    var gr = $('mgGrid');
-    for (var i = 0; i < 9; i++) {
-      (function (i) {
-        var b = document.createElement('button'); b.type = 'button'; b.className = 'hole'; b.setAttribute('aria-label', 'Lubang ' + (i + 1));
-        b.addEventListener('click', function () { whack(i); }); gr.appendChild(b); mgHoles.push({ el: b, type: null });
-      })(i);
+  /* ---------- mini game: Ayo Dansa ----------
+     Alur: 3 teman datang ke depan pemain -> kamera pindah ke third person -> avatar pemain berjalan ke barisan ->
+     hitung mundur -> lagu 2 menit (24 putaran x 5 detik) -> papan skor -> teman kembali ke tempatnya -> kamera kembali first person. */
+  var DIRS = ['up', 'down', 'left', 'right'];
+  var DKEY = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right' };
+  var SONG_LEN = 120, ROUND_LEN = 5, N_ROUND = 24, ZONE0 = .55, ZONE1 = .85, NPC_SLOTS = [0, 2, 3];
+  var MEDAL = ['\uD83E\uDD47', '\uD83E\uDD48', '\uD83E\uDD49', '4'];
+  var FBTXT = { perfect: 'SEMPURNA!', good: 'TERLALU CEPAT', late: 'TELAT', miss: 'MELESET' };
+  var mgCb = null, mgLvl = 1, mgStarsGot = 0, mgPhase = 'idle';
+  var CAM = { mode: 'fp', t: 0, v: null }, DN = { phase: 'off', n: 0, npcs: [], labels: [], sc: [0, 0, 0, 0], combo: [0, 0, 0, 0], names: [], stat: {}, ev: [], seq: [], round: -1, el: 0 }, PR = null;
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function arrowSVG(dir, col) {
+    var rot = { up: 0, right: 90, down: 180, left: 270 }[dir];
+    return '<svg viewBox="0 0 24 24" style="transform:rotate(' + rot + 'deg)" fill="none" stroke="' + (col || '#fff') + '" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V5M5.5 11.5L12 5l6.5 6.5"/></svg>';
+  }
+  function ease(x) { return x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }
+  function turn(g, a, k) { var df = Math.atan2(Math.sin(a - g.rotation.y), Math.cos(a - g.rotation.y)); g.rotation.y += df * Math.min(1, k); }
+  function acx() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; } return AC; }
+  function blip(f, d, type, delay, v) {
+    try {
+      var a = acx(); if (!a) return; var t0 = a.currentTime + (delay || 0), o = a.createOscillator(), g = a.createGain();
+      o.type = type || 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(v || .14, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + d);
+      o.connect(g); g.connect(a.destination); o.start(t0); o.stop(t0 + d + .02);
+    } catch (e) { }
+  }
+
+  /* ----- lagu 2 menit (dibuat langsung oleh WebAudio, 120 BPM x 60 birama) ----- */
+  var SONG = { timer: null, step: 0, next: 0, t0: 0, ctx: null, fade: null, mute: null, noise: null, muted: false, on: false };
+  var CT = [[220, 261.63, 329.63], [174.61, 220, 261.63], [261.63, 329.63, 392], [196, 246.94, 293.66]];
+  var BR = [110, 87.31, 130.81, 98];
+  var LD = [[440, 523.25, 659.25, 523.25], [349.23, 440, 523.25, 440], [392, 523.25, 659.25, 392], [493.88, 587.33, 783.99, 587.33]];
+  var ARP = [0, 1, 2, 1, 0, 1, 2, 1, 0, 2, 1, 2, 0, 1, 2, 1];
+  function sNote(f, t, d, type, v) {
+    var a = SONG.ctx, o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + .008); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g); g.connect(SONG.fade); o.start(t); o.stop(t + d + .02);
+  }
+  function sNoise(t, d, ft, ff, v) {
+    var a = SONG.ctx, s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain(); s.buffer = SONG.noise; f.type = ft; f.frequency.value = ff;
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); s.connect(f); f.connect(g); g.connect(SONG.fade); s.start(t, Math.random() * .5); s.stop(t + d + .02);
+  }
+  function sKick(t) {
+    var a = SONG.ctx, o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(42, t + .13);
+    g.gain.setValueAtTime(.95, t); g.gain.exponentialRampToValueAtTime(.0001, t + .2); o.connect(g); g.connect(SONG.fade); o.start(t); o.stop(t + .22);
+  }
+  function songStep(s, t) {
+    var bar = s >> 4, st = s & 15, c = bar % 4, brk = (bar >= 28 && bar < 32), drums = bar >= 1 && !brk;
+    if (st === 0) CT[c].forEach(function (f) { sNote(f, t, 1.9, 'triangle', .05); });
+    if (drums && st % 4 === 0) sKick(t);
+    if (drums && bar >= 3 && (st === 4 || st === 12)) sNoise(t, .14, 'bandpass', 1800, .35);
+    if (bar >= 2 && !brk && st % 4 === 2) sNoise(t, .05, 'highpass', 7000, .18);
+    if (bar >= 16 && !brk && st % 2 === 1) sNoise(t, .03, 'highpass', 8000, .07);
+    if (bar >= 1 && !brk && st % 2 === 0) sNote(BR[c] * (st % 8 === 6 ? 2 : 1), t, .2, 'triangle', .24);
+    if (bar >= 4) sNote(CT[c][ARP[st]] * 2, t, .11, 'square', .035);
+    if (((bar >= 8 && bar < 28) || (bar >= 36 && bar < 56)) && (st === 0 || st === 6 || st === 8 || st === 12)) {
+      var f = LD[c][st === 0 ? 0 : (st === 6 ? 1 : (st === 8 ? 2 : 3))]; sNote(f, t, .28, 'triangle', .12); sNote(f, t, .16, 'square', .025);
     }
+    if (bar === 59 && st === 12) CT[0].concat(CT[2]).forEach(function (f2) { sNote(f2 * 2, t, 1.2, 'triangle', .07); });
+  }
+  function songStart() {
+    var a = acx(); SONG.on = true;
+    if (!a) { DN.t0 = performance.now() + 200; return; }
+    SONG.ctx = a;
+    var comp = a.createDynamicsCompressor(); SONG.fade = a.createGain(); SONG.mute = a.createGain(); SONG.mute.gain.value = SONG.muted ? 0 : .5;
+    SONG.fade.connect(SONG.mute); SONG.mute.connect(comp); comp.connect(a.destination);
+    if (!SONG.noise || SONG.noise.sampleRate !== a.sampleRate) { var nb = a.createBuffer(1, a.sampleRate, a.sampleRate), dd = nb.getChannelData(0); for (var i = 0; i < dd.length; i++) dd[i] = Math.random() * 2 - 1; SONG.noise = nb; }
+    SONG.t0 = a.currentTime + .2; SONG.next = SONG.t0; SONG.step = 0;
+    SONG.fade.gain.setValueAtTime(1, SONG.t0 + SONG_LEN - 3); SONG.fade.gain.linearRampToValueAtTime(.0001, SONG.t0 + SONG_LEN - .05);
+    DN.t0 = performance.now() + (SONG.t0 - a.currentTime) * 1000;
+    clearInterval(SONG.timer);
+    SONG.timer = setInterval(function () {
+      while (SONG.step < 960 && SONG.next < a.currentTime + .3) { songStep(SONG.step, SONG.next); SONG.next += .125; SONG.step++; }
+      if (SONG.step >= 960) clearInterval(SONG.timer);
+    }, 40);
+  }
+  function songStop() {
+    clearInterval(SONG.timer); SONG.on = false;
+    try { if (SONG.fade && SONG.ctx) { SONG.fade.gain.cancelScheduledValues(SONG.ctx.currentTime); SONG.fade.gain.setTargetAtTime(.0001, SONG.ctx.currentTime, .08); } } catch (e) { }
+  }
+  $('dnMute').addEventListener('click', function () {
+    SONG.muted = !SONG.muted; if (SONG.mute) SONG.mute.gain.value = SONG.muted ? 0 : .5;
+    this.textContent = SONG.muted ? '\uD83D\uDD07' : '\uD83D\uDD0A'; this.setAttribute('aria-label', SONG.muted ? 'Nyalakan suara lagu' : 'Matikan suara lagu');
+  });
+
+  /* ----- avatar pemain & panggung ----- */
+  function buildPlayerRig() {
+    if (PR) return;
+    var g = new THREE.Group(), body = new THREE.Group(), skin = lam(0xe0ac84), shirt = lam(0xffffff), pants = lam(0xd8232a), hair = lam(0x1c1c1c), red = lam(0xd8232a);
+    var legL = new THREE.Mesh(new THREE.BoxGeometry(.24, .72, .26), pants), legR = legL.clone(); legL.position.set(-.14, .36, 0); legR.position.set(.14, .36, 0);
+    var torso = new THREE.Mesh(new THREE.CylinderGeometry(.34, .38, .85, 12), shirt); torso.position.y = 1.12;
+    var armG = new THREE.BoxGeometry(.17, .72, .19).translate(0, -.36, 0), armL = new THREE.Mesh(armG, shirt), armR = new THREE.Mesh(armG, shirt); armL.position.set(-.47, 1.46, 0); armR.position.set(.47, 1.46, 0);
+    var head = new THREE.Mesh(new THREE.SphereGeometry(.27, 14, 12), skin); head.position.y = 1.76;
+    var eg = new THREE.SphereGeometry(.034, 6, 6), ebm = new THREE.MeshBasicMaterial({ color: 0x10233f }), e1 = new THREE.Mesh(eg, ebm), e2 = new THREE.Mesh(eg, ebm); e1.position.set(-.09, 1.8, .245); e2.position.set(.09, 1.8, .245);
+    var cap = new THREE.Mesh(new THREE.SphereGeometry(.295, 14, 8, 0, 6.283, 0, 1.75), hair); cap.position.y = 1.77;
+    var hat = new THREE.Mesh(new THREE.CylinderGeometry(.3, .31, .13, 14), red); hat.position.y = 2.0;
+    var vis = new THREE.Mesh(new THREE.BoxGeometry(.4, .04, .22), red); vis.position.set(0, 1.97, .3);
+    var sh = new THREE.Mesh(new THREE.CircleGeometry(.6, 14).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x1e3a20, transparent: true, opacity: .3, depthWrite: false })); sh.position.y = .045;
+    body.add(legL, legR, torso, armL, armR, head, e1, e2, cap, hat, vis); g.add(body, sh); g.visible = false; scene.add(g);
+    PR = { g: g, body: body, armL: armL, armR: armR, legL: legL, legR: legR };
+  }
+  function ensureStage() {
+    if (DN.floor) return;
+    var c = document.createElement('canvas'); c.width = 512; c.height = 160; var g = c.getContext('2d'), cols = ['#ff5fa2', '#ffc42e', '#3ad0ff', '#7cf06a'], x, y;
+    for (y = 0; y < 5; y++) for (x = 0; x < 16; x++) { g.fillStyle = cols[(x + y) % 4]; g.fillRect(x * 32, y * 32, 32, 32); if ((x + y) % 2) { g.fillStyle = 'rgba(255,255,255,.28)'; g.fillRect(x * 32, y * 32, 32, 32); } }
+    var fl = new THREE.Mesh(new THREE.PlaneGeometry(16, 5).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c) })); fl.position.y = .05; fl.visible = false; scene.add(fl); DN.floor = fl;
+    DN.beams = [];
+    for (var i = 0; i < 4; i++) {
+      var bm = new THREE.Mesh(new THREE.CylinderGeometry(.35, 1.5, 9, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }));
+      bm.position.y = 4.5; bm.visible = false; scene.add(bm); DN.beams.push(bm);
+    }
+  }
+  function addLabel(text, bg, who) {
+    var tex = textTex(text, 512, 100, bg, '#10233f'), sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, fog: false }));
+    sp.scale.set(2.7, .53, 1); sp.visible = false; scene.add(sp); DN.labels.push({ sp: sp, tex: tex, who: who }); return sp;
+  }
+  function npcPlace(o, d) { o.circle.x = d.x; o.circle.z = d.z; o.g.position.set(d.x, 0, d.z); o.sh.position.set(d.x, .045, d.z); o.mk.position.x = d.x; o.mk.position.z = d.z; }
+
+  /* ----- pose badan (kotak ala Roblox) ----- */
+  var POSE0 = { aL: -.12, aR: .12, xL: 0, xR: 0, by: 0, bz: 0, ty: 0, lL: 0, lR: 0 };
+  function rigPose(rig, tg, dt) {
+    var c = rig.cur || (rig.cur = { aL: -.12, aR: .12, xL: 0, xR: 0, by: 0, bz: 0, ty: 0, lL: 0, lR: 0 }), k = Math.min(1, dt * 14), n;
+    for (n in c) c[n] += ((tg[n] === undefined ? POSE0[n] : tg[n]) - c[n]) * k;
+    rig.armL.rotation.z = c.aL; rig.armR.rotation.z = c.aR; rig.armL.rotation.x = c.xL; rig.armR.rotation.x = c.xR;
+    rig.body.position.y = c.by; rig.body.rotation.z = c.bz; rig.body.rotation.y = c.ty; rig.legL.rotation.x = c.lL; rig.legR.rotation.x = c.lR;
+  }
+  function rigReset(rig) {
+    rig.cur = null; rig.armL.rotation.set(0, 0, 0); rig.armR.rotation.set(0, 0, 0); rig.body.position.y = 0; rig.body.rotation.set(0, 0, 0); rig.legL.rotation.set(0, 0, 0); rig.legR.rotation.set(0, 0, 0);
+  }
+  function danceTarget(dir, bp) {
+    var bn = Math.abs(Math.sin(bp * Math.PI)), sw = Math.sin(bp * Math.PI * 2);
+    switch (dir) {
+      case 'up': return { aL: -2.8, aR: 2.8, by: .08 + .1 * bn, lL: .15, lR: -.15 };
+      case 'down': return { aL: -.4, aR: .4, xL: -1, xR: -1, by: -.1, lL: .6, lR: -.6 };
+      case 'left': return { aL: -1.55, aR: 2.6, bz: .24, ty: .35, by: .05 * bn };
+      case 'right': return { aL: -2.6, aR: 1.55, bz: -.24, ty: -.35, by: .05 * bn };
+    }
+    return { aL: -.4 - .25 * sw, aR: .4 + .25 * sw, by: .06 * bn, lL: .08 * sw, lR: -.08 * sw };
+  }
+  function walkTarget(t, ph) { var s = Math.sin(t * 11 + ph); return { lL: s * .6, lR: -s * .6, xL: -s * .7, xR: s * .7, by: Math.abs(s) * .06 }; }
+
+  /* ----- kamera ----- */
+  function camStep(dt) {
+    var V = CAM.v; if (!V) { CAM.mode = 'fp'; return; }
+    var asp = window.innerWidth / window.innerHeight, need = 8 / (Math.tan(.6283) * asp), back = clamp(need - DN.dist, 3.6, 16), k;
+    V.c.set(pos.x - DN.fx * back, 3 + back * .14, pos.z - DN.fz * back); V.look.set(DN.sx, 1.15, DN.sz);
+    V.cam.position.copy(V.c); V.cam.lookAt(V.look); V.qc.copy(V.cam.quaternion);
+    V.fp.set(pos.x, 1.6, pos.z); V.qf.setFromEuler(V.eu.set(pitch, yaw, 0, 'YXZ'));
+    if (CAM.mode === 'to3') {
+      CAM.t += dt / 1.4; k = ease(Math.min(1, CAM.t)); camera.position.lerpVectors(V.fp, V.c, k); camera.quaternion.copy(V.qf).slerp(V.qc, k);
+      if (CAM.t >= 1) CAM.mode = '3p';
+    } else if (CAM.mode === '3p') { camera.position.copy(V.c); camera.quaternion.copy(V.qc); }
+    else if (CAM.mode === 'to1') {
+      CAM.t += dt / 1.4; k = ease(Math.min(1, CAM.t)); camera.position.lerpVectors(V.c, V.fp, k); camera.quaternion.copy(V.qc).slerp(V.qf, k);
+      if (k > .6 && PR) PR.g.visible = false;
+      if (CAM.t >= 1) CAM.mode = 'fp';
+    }
+  }
+
+  /* ----- papan skor & tampilan ----- */
+  function banner(txt) { var b = $('dnBanner'); if (txt) { b.textContent = txt; b.hidden = false; } else b.hidden = true; }
+  function boardRender() {
+    var rows = [], i; for (i = 0; i <= DN.n; i++) rows.push({ i: i, s: DN.sc[i] });
+    rows.sort(function (a, b) { return b.s - a.s || a.i - b.i; });
+    $('dnBoard').innerHTML = '<div class="l">Skor pertandingan</div>' + rows.map(function (r, k) {
+      return '<div class="row' + (r.i === 0 ? ' me' : '') + '"><span class="rk">' + (k + 1) + '</span><span class="nm">' + esc(DN.names[r.i]) + '</span><span class="pt">' + r.s + '</span></div>';
+    }).join('');
+  }
+  function fb(kind) {
+    var el = $('dnFb'); el.textContent = FBTXT[kind]; el.className = 'dn-fb ' + kind; void el.offsetWidth; el.className = 'dn-fb show ' + kind;
+    if (kind === 'perfect') { blip(880, .1, 'triangle', 0, .16); blip(1175, .16, 'triangle', .08, .16); }
+    else if (kind === 'good') blip(660, .14, 'triangle', 0, .14);
+    else if (kind === 'late') blip(440, .16, 'triangle', 0, .12);
+    else blip(150, .22, 'sawtooth', 0, .1);
+  }
+  function award(who, kind) {
+    if (kind === 'miss') { DN.combo[who] = 0; if (who === 0) DN.stat.miss++; }
+    else { DN.combo[who]++; DN.sc[who] += ({ perfect: 100, good: 60, late: 40 })[kind] + Math.min(DN.combo[who] - 1, 5) * 10; if (who === 0) DN.stat[kind]++; }
+    if (who === 0) $('dnCombo').textContent = DN.combo[0] > 1 ? 'Kombo x' + DN.combo[0] : '';
+    boardRender();
+  }
+
+  /* ----- putaran ----- */
+  function roundStart(r) {
+    DN.round = r; var n = r < 5 ? 4 : (r < 12 ? 5 : (r < 18 ? 6 : 7)), seq = [], k;
+    for (k = 0; k < n; k++) seq.push(DIRS[Math.floor(Math.random() * 4)]);
+    DN.seq = seq; DN.idx = 0; DN.done = false;
+    $('dnSeq').innerHTML = seq.map(function (d, i) { return '<span class="ar' + (i === 0 ? ' now' : '') + '">' + arrowSVG(d) + '</span>'; }).join('');
+    DN.ev = [];
+    for (k = 0; k < DN.n; k++) {
+      var s = DN.skill[k], roll = Math.random(), pm = Math.max(.03, (1 - s) * .45), pp = s * .65, kind, trig;
+      if (roll < pm) { kind = 'miss'; trig = .97; }
+      else if (roll < pm + pp) { kind = 'perfect'; trig = .58 + Math.random() * .24; }
+      else if (Math.random() < .5) { kind = 'good'; trig = .3 + Math.random() * .2; }
+      else { kind = 'late'; trig = .87 + Math.random() * .09; }
+      DN.ev.push({ kind: kind, trig: trig, fired: false });
+    }
+  }
+  function roundClose() {
+    if (DN.round < 0) return;
+    if (!DN.done) { DN.done = true; award(0, 'miss'); fb('miss'); }
+    DN.ev.forEach(function (ev, k) { if (!ev.fired) { ev.fired = true; award(k + 1, ev.kind); } });
+  }
+  function dnPress(dir) {
+    if (DN.phase !== 'play' || DN.round < 0 || DN.done) return;
+    var now = performance.now(), el = (now - DN.t0) / 1000; if (el < 0) return;
+    var kids = $('dnSeq').children, i;
+    if (dir === DN.seq[DN.idx]) {
+      kids[DN.idx].className = 'ar ok'; DN.idx++; DN.pose = { dir: dir, until: now + 380 }; blip(500 + DN.idx * 70, .08, 'triangle', 0, .1);
+      if (DN.idx >= DN.seq.length) {
+        var p = (el - DN.round * ROUND_LEN) / ROUND_LEN, kind = p < ZONE0 ? 'good' : (p <= ZONE1 ? 'perfect' : 'late');
+        DN.done = true; award(0, kind); fb(kind);
+      } else kids[DN.idx].className = 'ar now';
+    } else {
+      blip(170, .14, 'sawtooth', 0, .1); DN.idx = 0;
+      for (i = 0; i < kids.length; i++) kids[i].className = i === 0 ? 'ar now' : 'ar';
+      var sq = $('dnSeq'); sq.classList.remove('shake'); void sq.offsetWidth; sq.classList.add('shake');
+      DN.combo[0] = 0; $('dnCombo').textContent = '';
+    }
+  }
+  window.addEventListener('keydown', function (e) {
+    if (state !== 'mini' || DN.phase !== 'play') return;
+    var dir = DKEY[e.code]; if (!dir) return; e.preventDefault(); if (e.repeat) return;
+    dnPress(dir); var b = $('dnPad').querySelector('[data-dir="' + dir + '"]'); if (b) { b.classList.add('on'); setTimeout(function () { b.classList.remove('on'); }, 110); }
+  });
+  (function buildPad() {
+    var pad = $('dnPad'), names = { left: 'Kiri', down: 'Bawah', up: 'Atas', right: 'Kanan' };
+    ['left', 'down', 'up', 'right'].forEach(function (d) {
+      var b = document.createElement('button'); b.type = 'button'; b.setAttribute('data-dir', d); b.setAttribute('aria-label', 'Panah ' + names[d]); b.innerHTML = arrowSVG(d, '#10233f');
+      b.addEventListener('pointerdown', function (e) { e.preventDefault(); dnPress(d); });
+      pad.appendChild(b);
+    });
   })();
-  function clearHole(i) { if (i < 0) return; var h = mgHoles[i]; h.type = null; h.el.textContent = ''; h.el.classList.remove('up'); h.el.setAttribute('aria-label', 'Lubang ' + (i + 1)); }
+
+  /* ----- alur pertandingan ----- */
+  function pickStage() {
+    var offs = [0, .5, -.5, 1, -1, 1.5, -1.5, 2.1, -2.1, 2.8, 3.14], ds = [11, 9.5, 12.5], a, d, o, ang, fx, fz, sx, sz, ok, x, z;
+    for (a = 0; a < offs.length; a++) for (d = 0; d < ds.length; d++) {
+      ang = yaw + offs[a]; fx = -Math.sin(ang); fz = -Math.cos(ang); sx = pos.x + fx * ds[d]; sz = pos.z + fz * ds[d]; ok = true;
+      for (o = -6; o <= 6 && ok; o += 3) { x = sx - fz * o; z = sz + fx * o; if (Math.abs(x) > 58 || Math.abs(z) > 58 || !spotFree(x, z)) ok = false; }
+      if (ok) return { ang: ang, fx: fx, fz: fz, sx: sx, sz: sz, d: ds[d] };
+    }
+    ang = yaw; fx = -Math.sin(ang); fz = -Math.cos(ang);
+    return { ang: ang, fx: fx, fz: fz, sx: clamp(pos.x + fx * 10, -58, 58), sz: clamp(pos.z + fz * 10, -58, 58), d: 10 };
+  }
+  function danceBegin() {
+    buildPlayerRig(); ensureStage(); acx();
+    if (!CAM.v) CAM.v = { fp: new THREE.Vector3(), c: new THREE.Vector3(), look: new THREE.Vector3(), qf: new THREE.Quaternion(), qc: new THREE.Quaternion(), eu: new THREE.Euler(), cam: new THREE.PerspectiveCamera() };
+    mgPhase = 'run'; $('mgame').hidden = true; $('hud').hidden = true;
+    var st = pickStage(), i;
+    DN.fx = st.fx; DN.fz = st.fz; DN.sx = st.sx; DN.sz = st.sz; DN.dist = st.d; DN.yawT = st.ang; DN.faceCam = Math.atan2(-st.fx, -st.fz);
+    var rx = -st.fz, rz = st.fx;
+    DN.slot = [-4.5, -1.5, 1.5, 4.5].map(function (o) { return { x: st.sx + rx * o, z: st.sz + rz * o }; });
+    var cand = []; for (i = 0; i < N; i++) if (!W.npc[i].flee) cand.push({ i: i, d: Math.hypot(pos.x - NPC[i].x, pos.z - NPC[i].z) });
+    cand.sort(function (a, b) { return a.d - b.d; });
+    var ch = cand.slice(0, 3).map(function (c) { return c.i; });
+    ch.sort(function (a, b) { return ((NPC[a].x - pos.x) * rx + (NPC[a].z - pos.z) * rz) - ((NPC[b].x - pos.x) * rx + (NPC[b].z - pos.z) * rz); });
+    DN.npcs = ch; DN.n = ch.length; DN.names = [playerName || 'Kamu']; DN.sc = [0, 0, 0, 0]; DN.combo = [0, 0, 0, 0]; DN.stat = { perfect: 0, good: 0, late: 0, miss: 0 };
+    DN.round = -1; DN.seq = []; DN.ev = []; DN.pose = null; DN.rank = []; DN.el = 0; DN.t0 = 0; DN.cd = -1; DN.endShown = false;
+    var base = [.5, .62, .74, .84][mgLvl - 1]; DN.skill = [Math.min(.95, base + .08), base, base - .08];
+    DN.labels = [];
+    ch.forEach(function (ni, k) {
+      var o = W.npc[ni], d = NPC[ni], sl = DN.slot[NPC_SLOTS[k]], dd;
+      DN.names.push(d.n);
+      o.rig = { g: o.g, body: o.body, armL: o.armL, armR: o.armR, legL: o.body.children[0], legR: o.body.children[1], cur: null };
+      o.dance = { k: k, mode: 'walk', tx: sl.x, tz: sl.z, sp: 8.5, t: 0, home: { x: d.x, z: d.z }, arrived: false, ret: false, lab: addLabel(d.n, '#ffffff', k + 1) };
+      dd = Math.hypot(d.x - sl.x, d.z - sl.z);
+      if (dd > 26) { d.x = sl.x + (d.x - sl.x) / dd * 26; d.z = sl.z + (d.z - sl.z) / dd * 26; npcPlace(o, d); }
+      o.wander = null; o.walking = false; o.flee = null; o.mk.visible = false; o.dance.lab.visible = true;
+    });
+    DN.plLab = addLabel(DN.names[0], '#ffc42e', 0);
+    DN.pp = { x: pos.x, z: pos.z, mode: 'wait', tx: 0, tz: 0, sp: 5.5, face: DN.faceCam + Math.PI, arrived: false };
+    PR.g.position.set(pos.x, 0, pos.z); PR.g.rotation.y = DN.faceCam + Math.PI; rigReset(PR); PR.g.visible = false;
+    DN.floor.position.set(st.sx, .05, st.sz); DN.floor.rotation.y = DN.faceCam; DN.floor.visible = true;
+    DN.beams.forEach(function (b, k) { b.position.x = DN.slot[k].x; b.position.z = DN.slot[k].z; b.visible = true; });
+    ['dnTop', 'dnBoard', 'dnMain', 'dnPad', 'dnMute'].forEach(function (id) { $(id).hidden = true; });
+    $('dnCount').hidden = true; $('dance').hidden = false; $('dnClock').textContent = fmt(SONG_LEN * 1000); $('dnBar').style.width = '0%'; $('dnCombo').textContent = ''; $('dnFb').className = 'dn-fb';
+    boardRender(); setPhase('gather');
+  }
+  function setPhase(p) {
+    DN.phase = p; DN.pt = 0;
+    if (p === 'gather') { banner('Ada ' + DN.n + ' teman datang menantangmu berdansa!'); beep(523, .1, 'triangle'); beep(784, .15, 'triangle', .1); }
+    else if (p === 'cam3') {
+      banner('Kamera pindah! Bersiap berbaris bersama mereka.'); CAM.mode = 'to3'; CAM.t = 0; PR.g.position.set(pos.x, 0, pos.z); PR.g.visible = true; DN.plLab.visible = true;
+    } else if (p === 'walkin') { banner('Ayo berbaris sejajar dengan mereka!'); DN.pp.mode = 'walk'; DN.pp.tx = DN.slot[1].x; DN.pp.tz = DN.slot[1].z; DN.pp.arrived = false; DN.pp.face = DN.faceCam; }
+    else if (p === 'turn') { banner(null); }
+    else if (p === 'count') {
+      DN.cd = -1; ['dnTop', 'dnBoard', 'dnMute', 'dnPad'].forEach(function (id) { $(id).hidden = false; });
+      $('dnCount').hidden = false; $('dnCount').textContent = '3';
+    } else if (p === 'play') {
+      $('dnCount').textContent = 'DANSA!'; DN.cdHide = 1.1; $('dnMain').hidden = false; songStart();
+    } else if (p === 'end') {
+      songStop(); ['dnTop', 'dnBoard', 'dnMain', 'dnPad', 'dnMute'].forEach(function (id) { $(id).hidden = true; });
+      var order = []; for (var i = 0; i <= DN.n; i++) order.push(i);
+      order.sort(function (a, b) { return DN.sc[b] - DN.sc[a] || a - b; }); DN.order = order; DN.rank = []; order.forEach(function (w, r) { DN.rank[w] = r; });
+      $('dnCount').hidden = false; $('dnCount').textContent = DN.rank[0] === 0 ? 'JUARA!' : 'SELESAI!';
+      beep(523, .15, 'triangle'); beep(659, .15, 'triangle', .14); beep(784, .15, 'triangle', .28); beep(1047, .3, 'triangle', .42);
+    } else if (p === 'back') {
+      $('dnCount').hidden = true; DN.beams.forEach(function (b) { b.visible = false; });
+      DN.npcs.forEach(function (ni) { var D = W.npc[ni].dance; if (D) { D.mode = 'walk'; D.tx = D.home.x; D.tz = D.home.z; D.ret = true; D.t = 0; D.arrived = false; D.sp = 8.5; } });
+      DN.pp.mode = 'walk'; DN.pp.tx = pos.x; DN.pp.tz = pos.z; DN.pp.sp = 6; DN.pp.arrived = false; DN.pp.face = DN.faceCam + Math.PI;
+    } else if (p === 'cam1') { CAM.mode = 'to1'; CAM.t = 0; DN.plLab.visible = false; DN.floor.visible = false; }
+  }
+  function showMatchResult() {
+    var o = DN.order, me = DN.rank[0], got = [3, 2, 1, 0][Math.min(3, me)]; mgStarsGot = got; mgPhase = 'done';
+    var msg = me === 0 ? 'Juara 1! Kamu rajanya dansa!' : (me === 1 ? 'Hebat, juara 2!' : (me === 2 ? 'Bagus, juara 3!' : 'Tidak apa-apa, coba lagi nanti!'));
+    $('mgTitle').textContent = 'Hasil Pertandingan Dansa'; $('mgSub').textContent = DN.n + ' teman melawan ' + DN.names[0];
+    $('mgBody').innerHTML = '<p class="mgtxt"><strong>' + msg + '</strong> Skormu ' + DN.sc[0] + ', peringkat ' + (me + 1) + ' dari ' + (DN.n + 1) + '.</p>' +
+      '<ul class="list">' + o.map(function (w, r) {
+        return '<li class="' + (w === 0 ? 'done' : '') + '"><span class="who"><b>' + MEDAL[r] + ' ' + esc(DN.names[w]) + '</b><span>Peringkat ' + (r + 1) + '</span></span><span class="p">' + DN.sc[w] + '</span></li>';
+      }).join('') + '</ul>' +
+      '<p class="hint">Sempurna: ' + DN.stat.perfect + ' · Terlalu cepat: ' + DN.stat.good + ' · Telat: ' + DN.stat.late + ' · Meleset: ' + DN.stat.miss + '</p>' +
+      '<div class="mgres">Kamu mendapat <strong>' + got + ' bintang</strong> bonus.</div>';
+    $('mgGo').textContent = 'Lanjut Petualangan'; $('mgGo').hidden = false; $('mgGo').disabled = false; $('mgSkip').hidden = true; $('dance').hidden = true;
+    $('mgame').hidden = false; $('mgame').scrollTop = 0; $('mgcard').focus();
+  }
+  function finishDance() {
+    DN.phase = 'off'; $('dance').hidden = true; if (PR) PR.g.visible = false; if (DN.floor) DN.floor.visible = false;
+    DN.labels.forEach(function (l) { scene.remove(l.sp); l.tex.dispose(); l.sp.material.dispose(); }); DN.labels = [];
+    $('hud').hidden = false; mgFinish(mgStarsGot);
+  }
+  function danceUpdate(dt, t) {
+    var ph = DN.phase; if (ph === 'off' || ph === 'intro') return;
+    DN.pt += dt;
+    var i, allNpc = true, bp = t * 2, el = 0;
+    DN.npcs.forEach(function (ni) { var D = W.npc[ni].dance; if (D && !(D.arrived && !D.ret)) allNpc = false; });
+    if (ph === 'gather') {
+      yaw += Math.atan2(Math.sin(DN.yawT - yaw), Math.cos(DN.yawT - yaw)) * Math.min(1, dt * 3); pitch += (0 - pitch) * Math.min(1, dt * 3);
+      if ((allNpc && DN.pt > 1) || DN.pt > 12) setPhase('cam3');
+    } else if (ph === 'cam3') { if (CAM.mode === '3p') setPhase('walkin'); }
+    else if (ph === 'walkin') { if (DN.pp.arrived) setPhase('turn'); }
+    else if (ph === 'turn') { if (DN.pt > .8) setPhase('count'); }
+    else if (ph === 'count') {
+      var n = 3 - Math.floor(DN.pt); if (DN.pt < 3 && n !== DN.cd) { DN.cd = n; $('dnCount').textContent = String(n); blip(440, .12, 'triangle', 0, .15); }
+      if (DN.pt >= 3) setPhase('play');
+    } else if (ph === 'play') {
+      if (DN.cdHide > 0) { DN.cdHide -= dt; if (DN.cdHide <= 0) $('dnCount').hidden = true; }
+      el = (performance.now() - DN.t0) / 1000; DN.el = Math.max(0, el); bp = DN.el * 2;
+      if (el >= 0) {
+        if (el >= SONG_LEN) { roundClose(); setPhase('end'); }
+        else {
+          var r = Math.min(N_ROUND - 1, Math.floor(el / ROUND_LEN));
+          if (r !== DN.round) { roundClose(); roundStart(r); }
+          var p = (el - r * ROUND_LEN) / ROUND_LEN, hot = p >= ZONE0 && p <= ZONE1;
+          $('dnMk').style.left = (p * 100) + '%'; if (hot !== DN.hot) { DN.hot = hot; $('dnZone').classList.toggle('hot', hot); }
+          DN.ev.forEach(function (ev, k) { if (!ev.fired && p >= ev.trig) { ev.fired = true; award(k + 1, ev.kind); } });
+          var ck = fmt((SONG_LEN - el) * 1000); if ($('dnClock').textContent !== ck) $('dnClock').textContent = ck;
+          $('dnBar').style.width = (el / SONG_LEN * 100) + '%';
+        }
+      }
+    } else if (ph === 'end') {
+      if (DN.pt > 2.2 && !DN.endShown) { DN.endShown = true; showMatchResult(); }
+    } else if (ph === 'back') {
+      var home = true; DN.npcs.forEach(function (ni) { if (W.npc[ni].dance) home = false; });
+      if ((home && DN.pp.arrived && DN.pt > .6) || DN.pt > 14) { DN.npcs.forEach(function (ni) { var o = W.npc[ni]; if (o.dance) npcFinish(o, NPC[ni]); }); setPhase('cam1'); }
+    } else if (ph === 'cam1') { if (CAM.mode === 'fp') finishDance(); return; }
+
+    /* gerak lantai panggung & lampu */
+    if (DN.floor && DN.floor.visible) {
+      var pulse = ph === 'play' ? Math.pow(1 - (DN.el * 2) % 1, 2) : .3, v = .62 + .38 * pulse; DN.floor.material.color.setRGB(v, v, v);
+    }
+    if (DN.beams) DN.beams.forEach(function (b, k) { if (b.visible) b.material.color.setHSL((t * .12 + k * .25) % 1, .9, .6); });
+
+    /* avatar pemain */
+    var P = DN.pp;
+    if (PR && PR.g.visible) {
+      var tg;
+      if (P.mode === 'walk') {
+        var dx = P.tx - P.x, dz = P.tz - P.z, dd = Math.hypot(dx, dz);
+        if (dd < .1 || DN.pt > 12) { P.x = P.tx; P.z = P.tz; P.mode = 'idle'; P.arrived = true; }
+        else { var s2 = Math.min(dd, P.sp * dt); P.x += dx / dd * s2; P.z += dz / dd * s2; turn(PR.g, Math.atan2(dx, dz), dt * 10); }
+        tg = walkTarget(t, 0);
+      } else {
+        turn(PR.g, P.face, dt * 7);
+        if (ph === 'play' && DN.pose && performance.now() < DN.pose.until) tg = danceTarget(DN.pose.dir, bp);
+        else if (ph === 'end' && DN.rank[0] === 0) tg = danceTarget(Math.floor(bp) % 2 ? 'up' : 'idle', bp);
+        else tg = danceTarget('idle', bp);
+      }
+      PR.g.position.set(P.x, 0, P.z); rigPose(PR, tg, dt);
+      DN.plLab.position.set(P.x, 2.55, P.z);
+    }
+
+    /* teman-teman */
+    DN.npcs.forEach(function (ni) { var o = W.npc[ni]; if (o.dance) npcDance(ni, o, NPC[ni], dt, t, bp); });
+  }
+  function npcFinish(o, d) {
+    var D = o.dance; d.x = D.home.x; d.z = D.home.z; npcPlace(o, d); rigReset(o.rig); o.body.position.y = 0; o.rig = null;
+    D.lab.visible = false; o.dance = null; o.home = { x: d.x, z: d.z }; o.wander = null; o.walking = false;
+  }
+  function npcDance(ni, o, d, dt, t, bp) {
+    var D = o.dance, ph = DN.phase, tg;
+    if (D.mode === 'walk') {
+      var dx = D.tx - d.x, dz = D.tz - d.z, dd = Math.hypot(dx, dz); D.t += dt;
+      if (dd < .1 || D.t > 11) {
+        if (D.ret) { npcFinish(o, d); return; }
+        d.x = D.tx; d.z = D.tz; npcPlace(o, d); D.mode = 'idle'; D.arrived = true;
+      } else {
+        var st = Math.min(dd, D.sp * dt); d.x += dx / dd * st; d.z += dz / dd * st; if (dd > 1.5) collide(d, .6, o.circle); npcPlace(o, d);
+        turn(o.g, Math.atan2(dx, dz), dt * 10); rigPose(o.rig, walkTarget(t, ni), dt); D.lab.position.set(d.x, 2.55, d.z); return;
+      }
+    }
+    turn(o.g, DN.faceCam, dt * 8);
+    if (ph === 'play' && DN.seq.length) {
+      var ev = DN.ev[D.k];
+      if (ev && ev.fired && ev.kind === 'miss') tg = danceTarget('idle', bp);
+      else tg = danceTarget(DN.seq[(Math.floor(bp) + D.k) % DN.seq.length], bp);
+    } else if (ph === 'end' && DN.rank[D.k + 1] === 0) tg = danceTarget(Math.floor(bp) % 2 ? 'up' : 'idle', bp);
+    else tg = danceTarget('idle', bp + D.k * .25);
+    rigPose(o.rig, tg, dt); D.lab.position.set(d.x, 2.55, d.z);
+  }
+
+  /* ----- modal pembuka & penutup ----- */
   function startMini(cb) {
-    releaseLock(); setState('mini'); mgCb = cb; mgPhase = 'ready'; mgScore = 0; mgLeft = 20; mgUp = -1; mgLvl = Math.min(mg + 1, 4);
-    mgHoles.forEach(function (h, i) { clearHole(i); });
+    releaseLock(); setState('mini'); mgCb = cb; mgPhase = 'ready'; DN.phase = 'intro'; mgLvl = Math.min(mg + 1, 4); mgStarsGot = 0;
+    $('mgTitle').textContent = 'Tantangan Ayo Dansa!';
     $('mgSub').textContent = 'Hadiah untuk ' + (mg + 1) * 5 + ' soal benar · Tingkat ' + mgLvl + ' dari 4';
-    $('mgT').textContent = mgLeft; $('mgS').textContent = 0;
-    $('mgHint').textContent = 'Hewan akan muncul dari lubang. Ketuk hewan secepatnya! Jangan ketuk batu, nanti poin berkurang.';
-    $('mgGo').textContent = 'Mulai'; $('mgGo').hidden = false; $('mgSkip').hidden = false;
-    $('mgame').hidden = false; $('mgcard').focus(); beep(523, .1, 'triangle'); beep(784, .15, 'triangle', .1);
-  }
-  function mgBegin() {
-    mgPhase = 'run'; $('mgGo').hidden = true; $('mgSkip').hidden = true;
-    $('mgHint').textContent = 'Ayo tangkap hewannya!';
-    var gap = [900, 750, 620, 520][mgLvl - 1], rockP = [.15, .2, .25, .3][mgLvl - 1];
-    mgTick = setInterval(function () {
-      mgLeft--; $('mgT').textContent = Math.max(0, mgLeft);
-      if (mgLeft <= 0) mgEnd();
-    }, 1000);
-    mgSpawn = setInterval(function () {
-      clearHole(mgUp);
-      var i; do { i = Math.floor(Math.random() * 9); } while (i === mgUp);
-      mgUp = i; var h = mgHoles[i], rock = Math.random() < rockP;
-      h.type = rock ? 'rock' : 'animal'; h.el.textContent = rock ? ROCK : ANI[Math.floor(Math.random() * ANI.length)]; h.el.classList.add('up'); h.el.setAttribute('aria-label', rock ? 'Batu' : 'Hewan');
-    }, gap);
-  }
-  function whack(i) {
-    if (mgPhase !== 'run') return; var h = mgHoles[i]; if (!h.type) return;
-    if (h.type === 'animal') { mgScore++; beep(880, .06, 'triangle'); } else { mgScore = Math.max(0, mgScore - 1); beep(200, .12, 'sawtooth'); }
-    clearHole(i); if (mgUp === i) mgUp = -1; $('mgS').textContent = mgScore;
-  }
-  function mgEnd() {
-    clearInterval(mgTick); clearInterval(mgSpawn); mgPhase = 'done';
-    mgHoles.forEach(function (h, i) { clearHole(i); });
-    mgStarsGot = mgScore >= 12 ? 3 : (mgScore >= 8 ? 2 : (mgScore >= 4 ? 1 : 0));
-    var msg = mgStarsGot === 3 ? 'Luar biasa!' : (mgStarsGot === 2 ? 'Hebat!' : (mgStarsGot === 1 ? 'Bagus!' : 'Tidak apa-apa, coba lagi nanti!'));
-    $('mgHint').innerHTML = '<span class="mgres" style="display:block"><strong>' + msg + '</strong> Kamu menangkap ' + mgScore + ' hewan dan mendapat ' + mgStarsGot + ' bintang bonus.</span>';
-    $('mgGo').textContent = 'Lanjut Petualangan'; $('mgGo').hidden = false;
-    beep(523, .12, 'triangle'); beep(659, .12, 'triangle', .12); beep(784, .2, 'triangle', .24);
+    $('mgBody').innerHTML = '<p class="mgtxt">3 temanmu datang menantang berdansa! Lagunya berdurasi <strong>2 menit</strong>.</p>' +
+      '<div class="arrow-demo">' + ['up', 'down', 'left', 'right'].map(function (d) { return '<span class="ar">' + arrowSVG(d) + '</span>'; }).join('') + '</div>' +
+      '<ol class="mgsteps">' +
+      '<li>Lihat urutan panah di gelembung biru.</li>' +
+      '<li>Tekan panah yang sama berurutan: <span class="keys"><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&larr;</kbd><kbd>&rarr;</kbd></span> atau <span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span>, atau ketuk tombol panah di layar.</li>' +
+      '<li>Selesaikan urutan saat penanda hijau berada di <strong>zona abu-abu</strong> untuk nilai SEMPURNA.</li>' +
+      '<li>Salah tekan? Urutan mengulang dari awal.</li></ol>' +
+      '<p class="hint">Juara 1 dapat 3 bintang, juara 2 dapat 2 bintang, juara 3 dapat 1 bintang.</p>';
+    $('mgGo').textContent = 'Ayo Dansa!'; $('mgGo').hidden = false; $('mgGo').disabled = false; $('mgSkip').hidden = false;
+    $('mgame').hidden = false; $('mgame').scrollTop = 0; $('mgcard').focus(); beep(523, .1, 'triangle'); beep(784, .15, 'triangle', .1);
   }
   function mgFinish(got) {
-    clearInterval(mgTick); clearInterval(mgSpawn);
-    mg++; stars += got; mgPhase = 'idle'; $('mgame').hidden = true; hudUpdate(); save();
+    mg++; stars += got; mgPhase = 'idle'; DN.phase = 'off'; $('mgame').hidden = true; $('hud').hidden = false; hudUpdate(); save();
     var cb = mgCb; mgCb = null; if (cb) cb();
   }
-  $('mgGo').addEventListener('click', function () { if (mgPhase === 'ready') mgBegin(); else if (mgPhase === 'done') mgFinish(mgStarsGot); });
+  $('mgGo').addEventListener('click', function () {
+    if (mgPhase === 'ready') danceBegin();
+    else if (mgPhase === 'done') { mgPhase = 'back'; $('mgGo').disabled = true; $('mgame').hidden = true; setPhase('back'); }
+  });
   $('mgSkip').addEventListener('click', function () { if (mgPhase === 'ready') mgFinish(0); });
+
 
   /* ---------- list ---------- */
   function openList() {
