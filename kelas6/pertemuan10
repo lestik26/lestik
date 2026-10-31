@@ -1,0 +1,1923 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Only Up: Menara Logika IF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Lexend:wght@400;500;600&display=swap">
+<style>
+/* Layout concept: a bright zoo world. Paper-and-ink "sticker" panels float over a 3D first-person view; keycaps and badges carry the lesson itself. */
+:root{
+  color-scheme:light;
+  --ink:#10233f;
+  --ink2:#44566f;
+  --paper:#ffffff;
+  --wash:#eef6fb;
+  --sky:#a6dcf6;
+  --sun:#ffc42e;
+  --sun-d:#e5a200;
+  --mint:#14a06e;
+  --mint-bg:#e1f5ec;
+  --rose:#e0434a;
+  --rose-bg:#fdeaea;
+  --royal:#2a68dc;
+  --royal-bg:#eaf1ff;
+  --line:#cddae7;
+  --f-display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'Lexend','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]:not([hidden=until-found i]){display:none!important}
+img{max-width:100%}
+html,body{height:100%;overflow:hidden}
+body{
+  margin:0;
+  background:var(--sky);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0;
+}
+:focus-visible{outline:3px solid var(--royal);outline-offset:2px}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0}
+button{font-family:inherit}
+kbd,.key{
+  display:inline-block;font-family:var(--f-body);font-weight:600;font-size:.82em;line-height:1;
+  padding:.28em .6em .2em;border:2px solid var(--ink);border-bottom-width:4px;border-radius:7px;
+  background:#fff;color:var(--ink);margin:0 1px;white-space:nowrap;
+}
+.keys{display:inline-flex;align-items:center;gap:2px;flex-wrap:wrap}
+.keys i{font-style:normal;font-weight:600;color:var(--ink2);font-size:.8em}
+
+/* ---------- buttons ---------- */
+.btn{
+  font-family:var(--f-display);font-weight:700;font-size:1.2rem;line-height:1.1;
+  padding:.6em 1.4em;border:2px solid var(--ink);border-radius:999px;background:var(--sun);color:var(--ink);
+  box-shadow:0 4px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s,background .15s;
+}
+.btn:hover{background:#ffd04f}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn[disabled]{background:#dfe7ef;color:#7b8ba0;border-color:#9fb0c4;box-shadow:0 4px 0 #9fb0c4;cursor:not-allowed;transform:none}
+.btn.alt{background:#fff}
+.btn.alt:hover{background:var(--wash)}
+.btn.small{font-size:1rem;padding:.45em 1em}
+.linkbtn{background:none;border:0;color:var(--ink2);text-decoration:underline;cursor:pointer;font-size:.85rem;padding:6px}
+
+/* ---------- full screens ---------- */
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:none;visibility:hidden}
+#gl.on{visibility:visible}
+.screen{
+  position:fixed;inset:0;z-index:20;overflow-y:auto;overflow-x:hidden;
+  padding-top:calc(env(safe-area-inset-top,0px) + 20px);
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 28px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1040px;margin:0 auto;min-width:0}
+
+/* intro */
+#intro{background:var(--sky)}
+.intro-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:32px;align-items:center;min-height:calc(100vh - 80px)}
+.eyebrow{font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.title{font-size:clamp(2.6rem,7vw,4.6rem);font-weight:800;margin:10px 0 14px}
+.title .mark{background:var(--sun);padding:0 .22em;border-radius:.2em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.lead{font-size:1.1rem;max-width:34em;color:var(--ink)}
+.mission{list-style:none;padding:0;margin:22px 0;display:grid;gap:10px;max-width:34em}
+.mission li{display:flex;gap:12px;align-items:flex-start;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:10px 14px;box-shadow:0 3px 0 var(--ink)}
+.mission b{font-family:var(--f-display);font-size:1.4rem;line-height:1;width:1.6em;height:1.6em;flex:none;display:grid;place-items:center;background:var(--sun);border:2px solid var(--ink);border-radius:50%}
+.namebox{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.namebox label{font-weight:600;font-size:.9rem;width:100%}
+.namebox input{
+  font:inherit;padding:.65em .9em;border:2px solid var(--ink);border-radius:12px;background:#fff;color:var(--ink);
+  min-width:0;flex:1 1 220px;max-width:340px;
+}
+.resume{background:#fff;border:2px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 var(--ink);padding:14px 16px;margin-top:6px;display:grid;gap:10px;max-width:34em}
+.resume h2{font-size:1.3rem}
+.rbtns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sticker{
+  background:#fff;border:2px solid var(--ink);border-radius:20px;box-shadow:0 6px 0 var(--ink);padding:18px;
+  display:grid;gap:14px;min-width:0;
+}
+.sticker h2{font-size:1.2rem}
+.demo-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
+.demo-row span.t{font-weight:500;min-width:0}
+.legend-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:.95rem}
+
+/* reading */
+#baca{background:var(--wash)}
+#baca{padding-top:0}
+.rbar{
+  position:sticky;top:0;z-index:5;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) 0 12px;background:var(--wash);
+}
+.rbar-in{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.rbar h1{font-size:clamp(1.5rem,4vw,2.1rem)}
+.rbar p{color:var(--ink2);font-size:.9rem}
+.timer{display:flex;align-items:center;gap:12px}
+.clock{
+  font-family:var(--f-display);font-weight:800;font-size:2rem;line-height:1;font-variant-numeric:tabular-nums;
+  background:var(--ink);color:#fff;padding:.25em .6em;border-radius:14px;min-width:3.6em;text-align:center;
+}
+.clock.done{background:var(--mint)}
+.pbar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:10px}
+.pbar i{display:block;height:100%;width:0;background:var(--sun);border-right:2px solid var(--ink);transition:width .3s linear}
+.sec{margin-top:30px;display:grid;gap:14px;min-width:0}
+.sec>h2{font-size:1.5rem}
+.sec>.sub{color:var(--ink2);max-width:46em}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.card{background:#fff;border:2px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:10px;align-content:start;min-width:0}
+.card h3{font-size:1.25rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.card ul,.card ol{margin:0;padding-left:1.15em;display:grid;gap:3px}
+.card .lab{font-weight:600;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.acard{border-color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.tablewrap{overflow-x:auto;border:2px solid var(--ink);border-radius:14px;background:#fff}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.92rem}
+th{background:var(--ink);color:#fff;text-align:left;padding:10px 12px;font-family:var(--f-display);font-weight:700;font-size:1rem}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:middle}
+td:first-child{font-weight:600}
+.tip{border-left:6px solid var(--sun);background:#fff;border-radius:6px 14px 14px 6px;padding:10px 14px}
+.tip b{display:block;font-family:var(--f-display);font-size:1.05rem}
+.ready-bar{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;margin:36px 0 8px;text-align:center}
+.ready-bar .note{width:100%;color:var(--ink2);font-size:.9rem}
+.btn.pulse{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.05)}}
+.err{background:var(--rose-bg);border:2px solid var(--rose);border-radius:12px;padding:10px 14px;color:#7a1b20;max-width:34em}
+.hl{background:#fff176;padding:0 .2em;border-radius:3px}
+.cr{color:#d12f38;font-weight:600}
+.cb{color:#2a68dc;font-weight:600}
+
+/* HUD */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10}
+.hp{
+  position:absolute;background:#fff;border:2px solid var(--ink);border-radius:14px;box-shadow:0 3px 0 var(--ink);padding:8px 12px;
+}
+#hProg{top:calc(env(safe-area-inset-top,0px) + 12px);left:max(12px,env(safe-area-inset-left,0px));min-width:160px}
+#hProg .n{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1;font-variant-numeric:tabular-nums}
+#hProg .l{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+#hProg .pb{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+#hProg .pb i{display:block;height:100%;width:0;background:var(--mint);transition:width .4s}
+#hProg #hNext{text-transform:none;letter-spacing:0;margin-top:4px}
+#hScore{top:calc(env(safe-area-inset-top,0px) + 12px);right:max(12px,env(safe-area-inset-right,0px));display:flex;gap:12px;align-items:center;pointer-events:auto}
+#hScore .n{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1;font-variant-numeric:tabular-nums}
+#hScore .l{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+#zone{
+  position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);left:50%;transform:translateX(-50%);
+  background:var(--ink);color:#fff;border-radius:99px;padding:6px 16px;font-family:var(--f-display);font-weight:700;font-size:1.05rem;white-space:nowrap;
+  max-width:30vw;overflow:hidden;text-overflow:ellipsis;
+}
+#mapbox{top:calc(env(safe-area-inset-top,0px) + 112px);left:max(12px,env(safe-area-inset-left,0px));padding:4px;line-height:0}
+#mini{width:140px;height:140px;border-radius:9px;display:block}
+.cross{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1.5px var(--ink);opacity:.9}
+#prompt{
+  position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);transform:translateX(-50%);
+  display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--ink);border-radius:99px;box-shadow:0 4px 0 var(--ink);
+  padding:8px 10px 8px 18px;pointer-events:auto;max-width:calc(100vw - 24px);
+}
+#prompt.quiet{background:var(--mint-bg);padding:8px 18px}
+#prompt .pt{font-weight:500;min-width:0}
+#pause{
+  position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 86px);transform:translateX(-50%);
+  background:var(--ink);color:#fff;border-radius:12px;padding:8px 14px;font-size:.9rem;text-align:center;width:max-content;max-width:calc(100vw - 32px)
+}
+#toast{
+  position:absolute;top:calc(env(safe-area-inset-top,0px) + 17vh);left:50%;transform:translateX(-50%);
+  background:var(--rose);color:#fff;border:2px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink);
+  padding:9px 16px;font-weight:600;text-align:center;width:max-content;max-width:calc(100vw - 32px)
+}
+#legend{
+  position:absolute;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
+  background:rgba(255,255,255,.92);border:2px solid var(--ink);border-radius:12px;padding:8px 12px;font-size:.78rem;display:grid;gap:5px
+}
+#legend div{display:flex;gap:8px;align-items:center;justify-content:space-between}
+body.touch #legend,body.touch #pause{display:none}
+#tzL,#tzR{position:fixed;top:22%;bottom:0;width:50%;z-index:5;touch-action:none;display:none}
+#tzL{left:0}#tzR{right:0}
+body.touch.playing #tzL,body.touch.playing #tzR{display:block}
+#joyBase{position:fixed;width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:50%;border:3px solid rgba(255,255,255,.9);background:rgba(16,35,63,.25);z-index:6;pointer-events:none}
+#joyKnob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:#fff;border:2px solid var(--ink)}
+
+/* modals */
+.modal{
+  position:fixed;inset:0;z-index:30;background:rgba(16,35,63,.58);overflow-y:auto;
+  padding-top:calc(env(safe-area-inset-top,0px) + 14px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
+  padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));
+  display:flex;align-items:flex-start;justify-content:center;
+}
+.dcard{
+  width:100%;max-width:660px;margin:auto;background:var(--paper);border:2px solid var(--ink);border-radius:20px;box-shadow:0 6px 0 var(--ink);
+  padding:16px;display:grid;gap:12px;outline:none;
+}
+.dhead{display:flex;gap:12px;align-items:center}
+.av{
+  width:46px;height:46px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;flex:none;
+  font-family:var(--f-display);font-weight:800;font-size:1.3rem;color:#fff;
+}
+.dname{font-family:var(--f-display);font-weight:800;font-size:1.3rem;line-height:1.1}
+.drole{font-size:.85rem;color:var(--ink2)}
+.x{margin-left:auto;width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:#fff;cursor:pointer;display:grid;place-items:center;flex:none}
+.bubble{background:var(--wash);border-radius:14px 14px 14px 4px;padding:10px 14px;font-size:.95rem}
+.qbox{display:grid;gap:10px}
+.qtag{display:inline-block;justify-self:start;background:var(--sun);border:2px solid var(--ink);border-radius:99px;padding:3px 12px;font-size:.78rem;font-weight:600}
+.qs{font-weight:500;font-size:1.05rem}
+.story{background:#fff6d6;border-left:6px solid var(--sun);border-radius:6px 14px 14px 6px;padding:8px 12px;font-size:.95rem;line-height:1.45}
+code.f{font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.9em;background:var(--ink);color:#fff;padding:.2em .55em;border-radius:8px;display:inline-block;max-width:100%;overflow-wrap:anywhere}
+.opts{display:grid;gap:8px}
+.opt{
+  position:relative;display:flex;gap:12px;align-items:flex-start;padding:11px 14px;border:2px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;
+  transition:border-color .1s,background .1s;min-width:0;
+}
+.opt:hover{border-color:var(--ink2)}
+.opt input{position:absolute;opacity:0;width:1px;height:1px}
+.opt .box{flex:none;width:26px;height:26px;border:2px solid var(--ink);border-radius:7px;background:#fff;display:grid;place-items:center;margin-top:1px}
+.opt .box::after{content:"";width:12px;height:7px;border-left:3px solid #fff;border-bottom:3px solid #fff;transform:rotate(-45deg) translate(1px,-1px);opacity:0}
+.opt.sel{border-color:var(--royal);background:var(--royal-bg)}
+.opt.sel .box{background:var(--royal)}
+.opt.sel .box::after{opacity:1}
+.opt input:focus-visible+.box{outline:3px solid var(--royal);outline-offset:2px}
+.opt .ot{min-width:0;flex:1}
+.opt .tag{font-size:.74rem;font-weight:600;white-space:nowrap;align-self:center}
+.opt.lock{cursor:default}
+.opt.ok{border-color:var(--mint);background:var(--mint-bg)}
+.opt.ok .box{background:var(--mint)}
+.opt.ok .tag{color:#0b6a47}
+.res{border-radius:14px;padding:12px 14px;display:grid;gap:4px;border:2px solid var(--ink)}
+.res.good{background:var(--mint-bg)}.res.part{background:#fff6d6}.res.nope{background:var(--rose-bg)}
+.res b{font-family:var(--f-display);font-size:1.2rem}
+.dfoot{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.hint{font-size:.82rem;color:var(--ink2)}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:min(58vh,520px);overflow-y:auto}
+.list li{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:12px;padding:8px 12px;min-width:0}
+.list li.done{background:var(--mint-bg);border-color:var(--mint)}
+.list .dot{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--ink);background:#fff;display:grid;place-items:center}
+.list li.done .dot{background:var(--mint)}
+.list .who{min-width:0;flex:1}
+.list .who b{display:block;font-family:var(--f-display);font-size:1.05rem;line-height:1.2}
+.list .who span{font-size:.82rem;color:var(--ink2)}
+.list .p{font-family:var(--f-display);font-weight:800;font-variant-numeric:tabular-nums}
+
+/* results */
+#hasil{background:var(--sky)}
+.rhead{display:grid;gap:8px;justify-items:start}
+.rhead h1{font-size:clamp(2.2rem,6vw,3.6rem);font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+.stat{background:#fff;border:2px solid var(--ink);border-radius:16px;box-shadow:0 4px 0 var(--ink);padding:14px}
+.stat .n{font-family:var(--f-display);font-weight:800;font-size:2.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.stat .l{font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-top:4px}
+#rList{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;overflow:visible}
+#rList li.part{background:#fff6d6;border-color:var(--sun-d)}
+#rList li.bad{background:var(--rose-bg);border-color:var(--rose)}
+#rList li.part .dot{background:var(--sun)}
+#rList li.bad .dot{background:var(--rose)}
+.ractions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+
+@media (max-width:760px){
+  .intro-grid{grid-template-columns:minmax(0,1fr);min-height:0;gap:22px}
+  .grid2{grid-template-columns:minmax(0,1fr)}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #rList{grid-template-columns:minmax(0,1fr)}
+  #zone{top:calc(env(safe-area-inset-top,0px) + 76px);left:auto;right:max(12px,env(safe-area-inset-right,0px));transform:none;max-width:44vw;font-size:.85rem;padding:5px 12px}
+  #hProg{min-width:130px}
+  #mini{width:104px;height:104px}
+  #mapbox{top:calc(env(safe-area-inset-top,0px) + 104px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .btn.pulse{animation:none}
+  *{transition:none!important}
+}
+
+/* dialog soal: muat satu layar, tombol Periksa Jawaban selalu terlihat */
+#dialog{align-items:center;padding-top:calc(env(safe-area-inset-top,0px) + 8px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 8px)}
+#dcard{max-width:min(900px,100%);max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);display:flex;flex-direction:column;gap:8px;padding:12px 16px;margin:0 auto}
+#dcard .dhead{flex:none}
+#dcard .av{width:38px;height:38px;font-size:1.1rem}
+#dcard .dname{font-size:1.15rem}
+#dcard .bubble{flex:none;padding:6px 12px;font-size:.9rem}
+#dcard .qbox{flex:1 1 auto;min-height:0;overflow-y:auto;gap:8px;align-content:start}
+#dcard .qs{font-size:clamp(.95rem,2.2vh,1.05rem)}
+#dcard .opts{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+#dcard .opt{padding:8px 12px;font-size:.92rem;gap:10px}
+#dcard .opt .box{width:22px;height:22px}
+#dcard .dfoot{flex:none;padding-top:2px}
+#dcard .btn{padding:.5em 1.2em;font-size:1.05rem}
+@media (max-width:700px){#dcard .opts{grid-template-columns:minmax(0,1fr)}}
+@media (max-height:720px){#dcard .hint,#dcard .bubble{display:none}}
+.btn.danger{background:#d12f38;color:#fff}
+.btn.danger:hover{background:#e0434a}
+#btnFinish{position:absolute;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 14px);pointer-events:auto}
+
+/* mini game: Ayo Dansa */
+#mgame{align-items:center}
+#mgcard{max-width:560px}
+#mgcard .dhead{justify-content:center;text-align:center}
+#mgBody{display:grid;gap:10px;text-align:left}
+#mgBody .list{max-height:none}
+.mgtxt{font-weight:500}
+.mgsteps{margin:0;padding-left:1.3em;display:grid;gap:6px;font-size:.95rem}
+.mgres{background:var(--mint-bg);border:2px solid var(--ink);border-radius:14px;padding:10px 14px;font-weight:500;text-align:center}
+.arrow-demo{display:flex;gap:6px;justify-content:center;background:#202846;border:2px solid var(--ink);border-radius:99px;padding:8px 14px;width:max-content;max-width:100%;margin:0 auto}
+
+#dance{position:fixed;inset:0;z-index:12;pointer-events:none}
+.dn-top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);left:50%;transform:translateX(-50%);display:grid;gap:6px;justify-items:center;width:min(320px,calc(100vw - 130px))}
+.dn-song{background:var(--ink);color:#fff;border-radius:99px;padding:5px 20px;font-family:var(--f-display);font-weight:700;font-size:1.2rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.dn-sbar{width:100%;height:10px;background:rgba(255,255,255,.75);border:2px solid var(--ink);border-radius:99px;overflow:hidden}
+.dn-sbar i{display:block;height:100%;width:0;background:var(--sun)}
+.dn-mute{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:max(12px,env(safe-area-inset-right,0px));width:46px;height:46px;border-radius:50%;border:2px solid var(--ink);background:#fff;box-shadow:0 3px 0 var(--ink);font-size:1.2rem;cursor:pointer;pointer-events:auto;padding:0;line-height:1}
+.dn-board{top:calc(env(safe-area-inset-top,0px) + 12px);left:max(12px,env(safe-area-inset-left,0px));min-width:200px;display:grid;gap:3px;padding:8px 10px}
+.dn-board .l{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);padding:0 4px 2px}
+.dn-board .row{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:600;padding:3px 6px;border-radius:9px;min-width:0}
+.dn-board .row.me{background:#fff0b8}
+.dn-board .rk{font-family:var(--f-display);font-weight:800;width:1.2em;text-align:center}
+.dn-board .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dn-board .pt{font-family:var(--f-display);font-weight:800;font-variant-numeric:tabular-nums}
+
+.dn-main{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);transform:translateX(-50%);width:min(560px,calc(100vw - 24px));display:grid;gap:8px;justify-items:center}
+.dn-fb{height:2.3rem;font-family:var(--f-display);font-weight:800;font-size:1.9rem;line-height:2.3rem;color:#fff;-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:0 3px 0 var(--ink);opacity:0;white-space:nowrap}
+.dn-fb.perfect{color:#6dffb0}.dn-fb.good{color:#8fd0ff}.dn-fb.late{color:#ffd45a}.dn-fb.miss{color:#ff8a90}
+.dn-fb.show{animation:dnfb .8s ease-out}
+@keyframes dnfb{0%{opacity:0;transform:scale(.6)}18%{opacity:1;transform:scale(1.18)}75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:translateY(-16px)}}
+.dn-seq{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap;background:#202846;border:2px solid var(--ink);border-radius:99px;padding:8px 14px;min-height:58px;max-width:100%}
+.dn-seq.shake{animation:dnshake .28s}
+@keyframes dnshake{20%{transform:translateX(-8px)}50%{transform:translateX(8px)}80%{transform:translateX(-4px)}}
+.ar{width:40px;height:40px;border-radius:50%;background:var(--royal);border:2px solid #fff;display:grid;place-items:center;flex:none;transition:background .1s,transform .1s}
+.ar svg{width:22px;height:22px;display:block}
+.ar.ok{background:var(--mint);transform:scale(.88)}
+.ar.now{box-shadow:0 0 0 3px var(--sun);transform:scale(1.08)}
+.dn-bar{position:relative;width:100%;height:24px;background:#202846;border:2px solid var(--ink);border-radius:99px}
+.dn-zone{position:absolute;top:3px;bottom:3px;left:55%;width:30%;background:rgba(190,200,218,.5);border-radius:99px}
+.dn-zone.hot{background:rgba(255,255,255,.92)}
+.dn-zone i{position:absolute;left:50%;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;background:#fff;border-radius:2px}
+.dn-mk{position:absolute;top:50%;left:0;width:16px;height:30px;margin:-15px 0 0 -8px;border-radius:8px;background:var(--mint);border:2px solid #fff;box-shadow:0 0 0 2px var(--ink)}
+.dn-combo{height:1.5em;font-family:var(--f-display);font-weight:800;font-size:1.1rem;color:#fff;-webkit-text-stroke:1.5px var(--ink);paint-order:stroke fill}
+.dn-pad{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 18px);display:flex;gap:8px;pointer-events:auto}
+.dn-pad button{width:56px;height:56px;border-radius:16px;border:2px solid var(--ink);background:#fff;box-shadow:0 4px 0 var(--ink);display:grid;place-items:center;cursor:pointer;touch-action:manipulation;padding:0;-webkit-user-select:none;user-select:none}
+.dn-pad button.on,.dn-pad button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink);background:var(--sun)}
+.dn-pad svg{width:28px;height:28px;display:block}
+.dn-count{position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);font-family:var(--f-display);font-weight:800;font-size:clamp(4rem,16vw,8rem);line-height:1;color:#fff;-webkit-text-stroke:4px var(--ink);paint-order:stroke fill;text-shadow:0 6px 0 var(--ink);white-space:nowrap}
+.dn-banner{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 22vh);transform:translateX(-50%);background:var(--sun);border:2px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink);padding:9px 18px;font-family:var(--f-display);font-weight:800;font-size:1.3rem;text-align:center;width:max-content;max-width:calc(100vw - 32px)}
+@media (max-width:900px){
+  .dn-pad{right:50%;transform:translateX(50%)}
+  .dn-main{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
+}
+@media (max-width:700px){
+  .dn-board{top:calc(env(safe-area-inset-top,0px) + 66px);min-width:176px}
+  .ar{width:34px;height:34px}
+  .ar svg{width:19px;height:19px}
+  .dn-seq{padding:7px 10px;gap:5px}
+}
+@media (max-height:520px){
+  .dn-board{min-width:150px;padding:5px 8px}
+  .dn-board .row{font-size:.78rem;padding:1px 5px}
+  .dn-main{bottom:calc(env(safe-area-inset-bottom,0px) + 80px);gap:4px}
+  .dn-fb{height:1.8rem;line-height:1.8rem;font-size:1.4rem}
+}
+#btnJump{display:none;position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 70px);pointer-events:auto;touch-action:none;padding:.9em 1.2em}
+body.touch.playing #btnJump{display:block}
+</style>
+</head>
+<body>
+
+<canvas id="gl" aria-label="Menara Only Up 3D"></canvas>
+
+<!-- ======= INTRO ======= -->
+<section id="intro" class="screen">
+  <div class="wrap intro-grid">
+    <div>
+      <div class="eyebrow">TIK Kelas 6 SD · Fase C · Logika IF &amp; Kondisi Ganda</div>
+      <h1 class="title">Only Up: <span class="mark">Logika IF</span></h1>
+      <p class="lead">Panjat menara platform setinggi langit! Di setiap pos ada guru yang menunggu dengan sebuah cerita tentang logika IF. Jawab dengan benar, tapi hati-hati: kalau salah, kamu terpeleset jatuh!</p>
+      <ol class="mission">
+        <li><b>1</b><span>Baca materi dulu selama <strong>3 menit</strong>.</span></li>
+        <li><b>2</b><span>Lompati platform ke atas. Temui <strong>10 guru</strong> di pos bertanda seru kuning.</span></li>
+        <li><b>3</b><span>Dengarkan <strong>cerita</strong>, lalu pilih semua jawaban yang benar (bisa 2 sampai 5). Kalau salah, kamu <strong>jatuh ke pos sebelumnya</strong>.</span></li>
+        <li><b>4</b><span>Tiap <strong>3 soal benar</strong>, ada mini game <strong>Ayo Dansa</strong> untuk bintang bonus!</span></li>
+      </ol>
+      <div class="resume" id="resumeBox" hidden>
+        <h2>Selamat datang kembali!</h2>
+        <p id="resumeMsg"></p>
+        <div class="rbtns">
+          <button class="btn" id="btnResume" type="button">Lanjutkan Petualangan</button>
+          <button class="btn alt small" id="btnFresh" type="button">Mulai dari Awal</button>
+        </div>
+      </div>
+      <form class="namebox" id="nameForm">
+        <label for="nama">Nama siswa</label>
+        <input id="nama" type="text" maxlength="30" placeholder="Tulis namamu di sini" autocomplete="off">
+        <button class="btn" type="submit" id="btnMulai">Mulai Membaca</button>
+      </form>
+    </div>
+    <div class="sticker" aria-label="Cara bermain">
+      <h2>Cara bermain</h2>
+      <div class="legend-grid">
+        <span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Berjalan (atau tombol panah)</span>
+        <span class="keys"><kbd>Shift</kbd></span><span>Berlari</span>
+        <span class="keys"><kbd>Spasi</kbd></span><span>Melompat ke platform berikutnya</span>
+        <span class="keys"><kbd>Mouse</kbd></span><span>Klik layar lalu gerakkan mouse untuk melihat sekeliling</span>
+        <span class="keys"><kbd>E</kbd></span><span>Bicara dengan teman di dekatmu</span>
+        <span class="keys"><kbd>Tab</kbd></span><span>Daftar teman dan petunjuk tempatnya</span>
+      </div>
+      <p class="hint">Di tablet atau HP: geser jari di sisi kiri layar untuk berjalan, sisi kanan untuk melihat sekeliling, dan tombol Lompat di kanan bawah.</p>
+      <p class="hint">Kalau tidak sengaja keluar, tenang saja! Progresmu tersimpan otomatis dan bisa dilanjutkan sampai 24 jam kemudian.</p>
+      <div class="demo-row"><span class="keys"><kbd>IF</kbd><kbd>AND</kbd><kbd>OR</kbd></span><span class="t">Tiga kata kunci logika yang akan kamu temui.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= READING ======= -->
+<section id="baca" class="screen" hidden>
+  <div class="wrap">
+    <div class="rbar">
+      <div class="rbar-in">
+        <div>
+          <h1>Baca Dulu Materinya</h1>
+          <p>Waktu membaca 3 menit. Tombol mulai terbuka saat waktu habis.</p>
+        </div>
+        <div class="timer"><div class="clock" id="clock" role="timer" aria-live="off">03:00</div></div>
+      </div>
+      <div class="pbar"><i id="rProg"></i></div>
+    </div>
+
+    <div class="sec">
+      <h2>Apa itu logika IF?</h2>
+      <p class="sub">Logika IF (bersyarat) adalah cara komputer <strong>mengambil keputusan</strong> berdasarkan syarat tertentu. Bentuknya: <strong>JIKA</strong> syarat <strong>MAKA</strong> aksi. Contoh: JIKA hujan MAKA bawa payung.</p>
+      <div class="tip"><b>IF sederhana</b>Hanya memeriksa satu syarat. JIKA nilai &gt;= 75 MAKA "LULUS". Nilai 80 benar (LULUS), nilai 65 salah (TIDAK LULUS).</div>
+    </div>
+    <div class="sec">
+      <h2>Operator AND: semua harus benar</h2>
+      <div class="tablewrap"><table><thead><tr><th>Kondisi 1</th><th>Kondisi 2</th><th>Hasil AND</th></tr></thead><tbody>
+        <tr><td>Benar</td><td>Benar</td><td>BENAR</td></tr><tr><td>Benar</td><td>Salah</td><td>SALAH</td></tr>
+        <tr><td>Salah</td><td>Benar</td><td>SALAH</td></tr><tr><td>Salah</td><td>Salah</td><td>SALAH</td></tr>
+      </tbody></table></div>
+      <div class="tip"><b>Contoh</b>JIKA nilai &gt;= 75 AND kehadiran &gt;= 90% MAKA "LULUS". Nilai 85 dan hadir 95% LULUS. Nilai 85 tetapi hadir 80% TIDAK LULUS.</div>
+    </div>
+    <div class="sec">
+      <h2>Operator OR: cukup satu benar</h2>
+      <div class="tablewrap"><table><thead><tr><th>Kondisi 1</th><th>Kondisi 2</th><th>Hasil OR</th></tr></thead><tbody>
+        <tr><td>Benar</td><td>Benar</td><td>BENAR</td></tr><tr><td>Benar</td><td>Salah</td><td>BENAR</td></tr>
+        <tr><td>Salah</td><td>Benar</td><td>BENAR</td></tr><tr><td>Salah</td><td>Salah</td><td>SALAH</td></tr>
+      </tbody></table></div>
+      <div class="tip"><b>Contoh</b>JIKA hujan OR panas terik MAKA bawa pelindung. Salah satu terjadi, bawa pelindung. Keduanya tidak, tidak perlu.</div>
+    </div>
+    <div class="sec">
+      <h2>Menggabungkan IF + AND + OR</h2>
+      <p class="sub">JIKA (nilai &gt;= 75 AND kehadiran &gt;= 90%) OR juara lomba MAKA "LULUS"</p>
+      <div class="grid2">
+        <div class="card acard"><h3><span class="keys"><kbd>1</kbd></span>Kurung dulu</h3><p>Kerjakan bagian dalam kurung lebih dahulu.</p></div>
+        <div class="card acard"><h3><span class="keys"><kbd>2</kbd></span>Gabung dengan OR</h3><p>Gabungkan hasil kurung dengan syarat berikutnya.</p></div>
+        <div class="card acard"><h3><span class="keys"><kbd>3</kbd></span>Putuskan</h3><p>Hasil akhir BENAR berarti LULUS, SALAH berarti TIDAK LULUS.</p></div>
+      </div>
+    </div>
+    <div class="sec">
+      <h2>Contoh diskon toko</h2>
+      <p class="sub">JIKA total &gt;= Rp100.000 AND member MAKA diskon 20%. Rp150.000 member: diskon. Rp150.000 bukan member: tidak. Rp80.000 member: tidak. Satu syarat salah, diskon batal.</p>
+    </div>
+
+    <div class="ready-bar">
+      <button class="btn pulse" id="btnSiap" disabled>Tunggu waktu membaca…</button>
+      <div class="note" id="siapNote">Baca pelan-pelan. Soal akan meminta kamu berpikir logis memakai materi ini.</div>
+      <div id="glErr" class="err" hidden>Maaf, browser ini belum bisa menampilkan dunia 3D (WebGL). Coba buka di Chrome, Edge, atau Firefox versi terbaru.</div>
+      <button class="linkbtn" id="btnSkip" type="button">.</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======= HUD ======= -->
+<div id="hud" hidden>
+  <div class="hp" id="hProg"><div class="l">Dijawab benar</div><div class="n"><span id="hN">0</span> / 10</div><div class="pb"><i id="hBar"></i></div><div class="l" id="hNext"></div></div>
+  <div id="zone">Plaza Utama</div>
+  <div class="hp" id="hScore"><div><div class="l">Poin</div><div class="n" id="hPts">0</div></div><div><div class="l">Bintang</div><div class="n" id="hStars">0</div></div><button class="btn alt small" id="btnList" type="button">Daftar</button></div>
+  <div class="hp" id="mapbox"><canvas id="mini" width="140" height="140" aria-label="Peta kebun binatang"></canvas></div>
+  <div class="cross"></div>
+  <div id="prompt" hidden><span class="pt" id="pTxt"></span><button class="btn small" id="btnTalk" type="button">Bicara</button></div>
+  <div id="toast" hidden role="status"></div>
+  <div id="pause" hidden>Klik layar untuk mengunci kamera, atau tahan klik dan geser untuk melihat sekeliling</div>
+  <button class="btn danger small" id="btnFinish" type="button">Selesaikan Ujian</button>
+  <button class="btn" id="btnJump" type="button">Lompat</button>
+  <div id="legend">
+    <div><span>Jalan</span><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span></div>
+    <div><span>Lompat</span><span class="keys"><kbd>Spasi</kbd></span></div>
+    <div><span>Lari</span><span class="keys"><kbd>Shift</kbd></span></div>
+    <div><span>Bicara</span><span class="keys"><kbd>E</kbd></span></div>
+    <div><span>Daftar teman</span><span class="keys"><kbd>Tab</kbd></span></div>
+  </div>
+</div>
+<div id="tzL"></div><div id="tzR"></div>
+<div id="joyBase" hidden><div id="joyKnob"></div></div>
+
+<!-- ======= DIALOG ======= -->
+<div id="dialog" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="dName">
+  <div class="dcard" id="dcard" tabindex="-1">
+    <div class="dhead">
+      <div class="av" id="dAv"></div>
+      <div><div class="dname" id="dName"></div><div class="drole" id="dRole"></div></div>
+      <button class="x" id="dClose" type="button" aria-label="Tutup"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </div>
+    <p class="bubble" id="dHi"></p>
+    <div class="qbox">
+      <span class="qtag">Pilih SEMUA jawaban yang benar</span>
+      <p class="story" id="dStory"></p>
+      <p class="qs" id="dQ"></p>
+      <div class="opts" id="dOpts"></div>
+      <div class="res" id="dRes" hidden></div>
+      <p class="hint" id="dHint">Bisa 2, 3, 4, atau semua jawaban yang benar. Tombol angka 1 sampai 5 juga bisa dipakai. Kalau belum benar semua, kamu akan terpeleset jatuh!</p>
+    </div>
+    <div class="dfoot">
+      <button class="btn alt" id="dLater" type="button">Nanti dulu</button>
+      <button class="btn" id="dSubmit" type="button">Periksa Jawaban</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======= MINI GAME: AYO DANSA ======= -->
+<div id="dance" hidden>
+  <div class="dn-top" id="dnTop" hidden>
+    <div class="dn-song">&#9835; <span id="dnClock">02:00</span></div>
+    <div class="dn-sbar"><i id="dnBar"></i></div>
+  </div>
+  <button class="dn-mute" id="dnMute" type="button" aria-label="Matikan suara lagu" hidden>&#128266;</button>
+  <div class="hp dn-board" id="dnBoard" hidden></div>
+  <div class="dn-banner" id="dnBanner" hidden role="status"></div>
+  <div class="dn-count" id="dnCount" hidden aria-live="assertive"></div>
+  <div class="dn-main" id="dnMain" hidden>
+    <div class="dn-fb" id="dnFb" aria-live="polite"></div>
+    <div class="dn-seq" id="dnSeq"></div>
+    <div class="dn-bar"><div class="dn-zone" id="dnZone"><i></i></div><div class="dn-mk" id="dnMk"></div></div>
+    <div class="dn-combo" id="dnCombo"></div>
+  </div>
+  <div class="dn-pad" id="dnPad" hidden></div>
+</div>
+
+<div id="mgame" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mgTitle">
+  <div class="dcard" id="mgcard" tabindex="-1">
+    <div class="dhead"><div><div class="dname" id="mgTitle">Tantangan Ayo Dansa!</div><div class="drole" id="mgSub"></div></div></div>
+    <div id="mgBody"></div>
+    <div class="dfoot">
+      <button class="btn alt" id="mgSkip" type="button">Lewati</button>
+      <button class="btn" id="mgGo" type="button">Ayo Dansa!</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======= KONFIRMASI SELESAI ======= -->
+<div id="konfirm" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="kTitle">
+  <div class="dcard" tabindex="-1" id="kcard">
+    <div class="dname" id="kTitle">Selesaikan ujian sekarang?</div>
+    <p id="kMsg"></p>
+    <div class="dfoot">
+      <button class="btn alt" id="kNo" type="button">Lanjut Mencari</button>
+      <button class="btn danger" id="kYes" type="button">Ya, Selesaikan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======= LIST ======= -->
+<div id="daftar" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="lTitle">
+  <div class="dcard" tabindex="-1" id="lcard">
+    <div class="dhead">
+      <div><div class="dname" id="lTitle">Daftar teman</div><div class="drole">Petunjuk tempat mereka berdiri</div></div>
+      <button class="x" id="lClose" type="button" aria-label="Tutup"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+    </div>
+    <ul class="list" id="lList"></ul>
+  </div>
+</div>
+
+<!-- ======= RESULTS ======= -->
+<section id="hasil" class="screen" hidden>
+  <div class="wrap">
+    <div class="rhead">
+      <div class="eyebrow" id="rName">Misi selesai</div>
+      <h1 id="rTitle">Hebat!</h1>
+      <p class="lead" id="rMsg"></p>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n" id="rScore">0</div><div class="l">Nilai (0–100)</div></div>
+      <div class="stat"><div class="n" id="rPerfect">0 / 10</div><div class="l">Benar di percobaan pertama</div></div>
+      <div class="stat"><div class="n" id="rPts">0</div><div class="l">Total percobaan salah</div></div>
+      <div class="stat"><div class="n" id="rStars">0</div><div class="l">Bintang Ayo Dansa</div></div>
+    </div>
+    <ul class="list" id="rList"></ul>
+    <div class="ractions">
+      <button class="btn" id="btnAgain" type="button">Main Lagi</button>
+      <button class="btn alt" id="btnReread" type="button">Baca Materi Lagi</button>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ===== DATA SOAL: Only Up - Indentasi (TIK Kelas 4, Fase B) ===== */
+window.GAME_DATA = {
+  npcs: [
+    { n: 'Bu Syifa', r: 'Guru Kelas 1', look: 'hijab', skin: 0xe0ac84, hair: 0x2b1b12, c: 0xf08a24, p: 0x24344f, v: 0xf08a24 },
+    { n: 'Bu Septi', r: 'Guru Kelas 2', look: 'long', skin: 0xf1c7a0, hair: 0x2b1b12, c: 0x2a8fd0, p: 0x24344f },
+    { n: 'Bu Lina', r: 'Guru Kelas 3a', look: 'hijab', skin: 0xc68a5e, hair: 0x1c1c1c, c: 0x2f8f6a, p: 0x5b3a29, v: 0x2f8f6a },
+    { n: 'Bu Ayu', r: 'Guru Kelas 3b', look: 'long', skin: 0xf1c7a0, hair: 0x3a2418, c: 0xe0763a, p: 0x24344f },
+    { n: 'Bu Nurul', r: 'Guru Kelas 4b', look: 'hijab', skin: 0xe0ac84, hair: 0x1c1c1c, c: 0x7a3b5e, p: 0x1c1c2c, v: 0x7a3b5e },
+    { n: 'Bu Sena', r: 'Guru Kelas 5', look: 'long', skin: 0xf1c7a0, hair: 0x2b1b12, c: 0x1f6f8b, p: 0x24344f },
+    { n: 'Bu Nurhayati', r: 'Guru Kelas 6', look: 'hijab', skin: 0xc68a5e, hair: 0x1c1c1c, c: 0xd65f2a, p: 0x333d4f, v: 0xd65f2a },
+    { n: 'Bu Rohati', r: 'Guru Agama', look: 'hijab', skin: 0xe0ac84, hair: 0x1c1c1c, c: 0x14a06e, p: 0x24344f, v: 0x14a06e },
+    { n: 'Pa Anto', r: 'Guru TIK', look: 'short', skin: 0xc68a5e, hair: 0x1c1c1c, c: 0x2a68dc, p: 0x24344f },
+    { n: 'Bu Nia', r: 'Kepala Sekolah', look: 'hijab', skin: 0xe0ac84, hair: 0x1c1c1c, c: 0x10233f, p: 0x24344f, v: 0x10233f }
+  ],
+  questions: [
+    { t: 'Dina belajar bahwa komputer bisa mengambil keputusan sendiri. Contohnya: JIKA hujan MAKA bawa payung, dan JIKA bangun terlambat MAKA naik angkot.',
+      s: 'Pilih SEMUA pernyataan yang benar tentang logika IF!',
+      o: [['Logika IF adalah cara komputer mengambil keputusan berdasarkan syarat tertentu', 1], ['Pada "JIKA hujan MAKA bawa payung", hujan adalah syaratnya', 1], ['Pada contoh itu, bawa payung adalah aksinya', 1], ['Jika syarat terpenuhi, aksi dijalankan', 1], ['Aksi selalu dijalankan walaupun syarat tidak terpenuhi', 0]],
+      w: 'Logika IF memakai bentuk JIKA syarat MAKA aksi. Aksi hanya dijalankan kalau syaratnya terpenuhi.' },
+    { t: 'Sekolah memakai aturan IF sederhana: JIKA nilai >= 75 MAKA "LULUS". Nilai Ani 80, Budi 65, Citra 75, dan Dodi 74.',
+      s: 'Pilih SEMUA hasil yang benar!',
+      o: [['Ani: LULUS', 1], ['Budi: TIDAK LULUS', 1], ['Citra: LULUS, karena 75 >= 75 itu benar', 1], ['Dodi: TIDAK LULUS', 1], ['Dodi: LULUS, karena nilainya hampir 75', 0]],
+      w: 'IF sederhana hanya memeriksa satu syarat. Nilai 75 ke atas LULUS, jadi Dodi (74) tidak lulus.' },
+    { t: 'Murid kelas 6 mengisi tabel kebenaran operator AND. Kondisi 1 dan Kondisi 2 diisi Benar atau Salah.',
+      s: 'Pilih SEMUA baris yang benar!',
+      o: [['Benar AND Benar = BENAR', 1], ['Benar AND Salah = SALAH', 1], ['Salah AND Salah = SALAH', 1], ['AND bernilai BENAR hanya jika seluruh kondisi benar', 1], ['Salah AND Benar = BENAR', 0]],
+      w: 'Pada AND, satu saja kondisi salah membuat hasilnya SALAH.' },
+    { t: 'Kelompok lain mengisi tabel kebenaran operator OR untuk dua kondisi.',
+      s: 'Pilih SEMUA baris yang benar!',
+      o: [['Benar OR Salah = BENAR', 1], ['Salah OR Benar = BENAR', 1], ['Benar OR Benar = BENAR', 1], ['Salah OR Salah = SALAH', 1], ['OR bernilai BENAR hanya jika semua kondisi benar', 0]],
+      w: 'Pada OR, cukup satu kondisi benar agar hasilnya BENAR. Baru SALAH kalau semuanya salah.' },
+    { t: 'Aturan sekolah: JIKA nilai >= 75 AND kehadiran >= 90% MAKA "LULUS". Ani nilai 85 hadir 95%, Budi nilai 80 hadir 85%, Citra nilai 70 hadir 95%, Dani nilai 90 hadir 90%, Eka nilai 75 hadir 100%.',
+      s: 'Pilih SEMUA hasil yang benar!',
+      o: [['Ani: LULUS', 1], ['Budi: TIDAK LULUS', 1], ['Citra: TIDAK LULUS', 1], ['Dani dan Eka: LULUS', 1], ['Eka: TIDAK LULUS, karena 75 tidak lebih dari 75', 0]],
+      w: 'Dengan AND, kedua syarat harus benar. Dani (90 dan 90%) dan Eka (75 dan 100%) memenuhi keduanya karena memakai >=.' },
+    { t: 'Aturan membawa perlengkapan: JIKA hujan OR panas terik MAKA bawa pelindung.',
+      s: 'Pilih SEMUA pernyataan yang benar!',
+      o: [['Hujan, tidak panas: bawa pelindung', 1], ['Tidak hujan, panas terik: bawa pelindung', 1], ['Hujan dan panas terik: bawa pelindung', 1], ['Tidak hujan dan tidak panas: tidak perlu', 1], ['Tidak hujan, panas terik: tidak bawa pelindung', 0]],
+      w: 'Karena memakai OR, cukup salah satu syarat terpenuhi untuk membawa pelindung.' },
+    { t: 'Toko memberi aturan: JIKA total belanja >= Rp100.000 AND member MAKA diskon 20%.',
+      s: 'Pilih SEMUA pernyataan yang benar!',
+      o: [['Total Rp150.000 dan member: diskon 20%', 1], ['Total Rp150.000 dan bukan member: tanpa diskon', 1], ['Total Rp80.000 dan member: tanpa diskon', 1], ['Total Rp120.000 dan bukan member: tanpa diskon', 1], ['Total Rp80.000 dan member: diskon 20%', 0]],
+      w: 'Dengan AND, diskon hanya diberikan jika total belanja cukup dan pembeli adalah member.' },
+    { t: 'Sekolah membuat aturan: JIKA (nilai >= 75 AND kehadiran >= 90%) OR juara lomba MAKA "LULUS". Rani nilai 80 hadir 95% bukan juara, Sandi nilai 70 hadir 95% juara lomba, Tika nilai 90 hadir 80% bukan juara, Umar nilai 60 hadir 70% juara lomba.',
+      s: 'Pilih SEMUA hasil yang benar!',
+      o: [['Rani: LULUS', 1], ['Sandi: LULUS', 1], ['Tika: TIDAK LULUS', 1], ['Umar: LULUS karena juara lomba', 1], ['Tika: LULUS karena nilainya 90', 0]],
+      w: 'Kerjakan bagian dalam kurung dahulu, lalu gabungkan dengan OR. Tika gagal di kurung (hadir 80%) dan bukan juara, jadi TIDAK LULUS.', h: 1 },
+    { t: 'Sekolah membandingkan dua aturan. Aturan A: nilai >= 75 AND kehadiran >= 90%. Aturan B: nilai >= 75 OR kehadiran >= 90%. Budi nilai 90 hadir 80%, Citra nilai 70 hadir 95%, dan Dodi nilai 60 hadir 70%.',
+      s: 'Pilih SEMUA kesimpulan yang benar!',
+      o: [['Budi tidak lulus dengan aturan A', 1], ['Budi lulus dengan aturan B', 1], ['Citra lulus dengan aturan B', 1], ['Dodi tidak lulus dengan aturan A maupun B', 1], ['Citra lulus dengan aturan A karena kehadirannya 95%', 0]],
+      w: 'AND lebih sulit dipenuhi karena semua syarat harus benar. OR lebih mudah karena cukup satu. Dodi gagal di kedua syarat sehingga tidak lulus di kedua aturan.', h: 1 },
+    { t: 'Pa Guru meminta murid memilih operator yang tepat untuk beberapa masalah sehari-hari.',
+      s: 'Pilih SEMUA pilihan yang tepat!',
+      o: [['Diskon hanya untuk member yang belanja minimal Rp100.000: pakai AND', 1], ['Bawa payung kalau hujan atau berawan gelap: pakai OR', 1], ['Operasi di dalam kurung dikerjakan lebih dahulu', 1], ['AND berarti semua syarat harus benar, OR berarti cukup satu syarat benar', 1], ['OR berarti semua syarat harus benar', 0]],
+      w: 'Pilih AND jika semua syarat wajib terpenuhi, pilih OR jika cukup satu. Bagian dalam kurung dikerjakan lebih dulu.', h: 1 }
+  ]
+};
+/* Menara Only Up: platform bulat melingkar naik. Pos soal = platform besar tiap 5 platform. */
+window.TOWER = (function () {
+  var cx = 0, cz = -22, plat = [], top = 1.1, seed = 7, ci = 0, i;
+  function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+  for (i = 0; i < 51; i++) {
+    var a = Math.PI / 2 + i * .42, R = 12 + 2 * Math.sin(i * .8), cp = (i % 5 === 4 && i < 50);
+    if (i > 0) top += 1.0 + rnd() * .2;
+    var p = { x: cx + R * Math.cos(a), z: cz + R * Math.sin(a), r: cp ? 4.2 : (i === 50 ? 4.5 : 2.2), top: top, cp: cp, fin: i === 50 };
+    plat.push(p);
+    if (cp) { var d = window.GAME_DATA.npcs[ci++]; d.x = p.x; d.z = p.z; d.y = p.top; d.clue = 'Pos ' + ci + ' di menara, sekitar ' + Math.round(p.top) + ' m dari tanah'; }
+  }
+  return { cx: cx, cz: cz, plat: plat, h: top };
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var D = window.GAME_DATA, NPC = D.npcs, QS = D.questions, N = NPC.length;
+  NPC.forEach(function (d) { d.ox = d.x; d.oz = d.z; d.oclue = d.clue; });
+  var GREET = ['Halo! Dengarkan ceritaku, lalu bantu aku memecahkan masalahnya.', 'Hai! Aku punya cerita seru tentang logika IF.', 'Wah, kamu menemukanku! Dengarkan ceritaku dulu, ya.', 'Ayo berpikir bersama! Ceritaku ada masalahnya, lho.', 'Hore, ada teman! Mau bantu aku memecahkan cerita ini?'];
+  var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+  var isTouch = ((('ontouchstart' in window) || navigator.maxTouchPoints > 0) && window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+  if (isTouch) document.body.classList.add('touch');
+
+  /* ---------- audio ---------- */
+  var AC = null;
+  function beep(f, d, type, delay) {
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+      var t0 = AC.currentTime + (delay || 0), o = AC.createOscillator(), g = AC.createGain();
+      o.type = type || 'sine'; o.frequency.value = f; g.gain.setValueAtTime(.07, t0);
+      g.gain.exponentialRampToValueAtTime(.0001, t0 + d); o.connect(g); g.connect(AC.destination); o.start(t0); o.stop(t0 + d);
+    } catch (e) { }
+  }
+
+  /* ---------- state ---------- */
+  var state = 'intro', playerName = '', score = 0, done = 0, res = new Array(N).fill(null), att = new Array(N).fill(0), lastOk = false, cur = -1, qopts = [];
+  var qmap = [], mg = 0, stars = 0, finished = false, inGame = false, startX = 0, startZ = 22, startYaw = 0, startY = 0;
+  var W = { ready: false, fail: false, boxes: [], circles: [], npc: [] };
+  var ANIM = [];
+  var renderer, scene, camera, clock, sky, clouds = [];
+  var yaw = 0, pitch = 0, locked = false, dragging = false, keys = {}, joy = { x: 0, y: 0, id: null, ox: 0, oy: 0 }, lookId = null, lookLast = null;
+  var pos = { x: 0, y: 1.6, z: 22, set: function (x, y, z) { this.x = x; this.y = y; this.z = z; } }, bobT = 0, moving = false, frameN = 0, started = false;
+
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function applyQmap() {
+    NPC.forEach(function (d, i) { var q = QS[qmap[i]]; d.t = q.t || ''; d.s = q.s; d.o = q.o; d.w = q.w; d.h = q.h ? 1 : 0; });
+  }
+  function resetData() {
+    /* Soal HOTS (nomor 11, 12, 13) selalu untuk Pa Anto, Bu Nia, Pa Danny; soal lain diacak. */
+    var idx = [], i; for (i = 0; i < N; i++) idx.push(i);
+    shuffle(idx); qmap = idx;
+    applyQmap();
+    score = 0; done = 0; res = new Array(N).fill(null); att = new Array(N).fill(0); mg = 0; stars = 0; finished = false; cur = -1; lastOk = false;
+    NPC.forEach(function (d) { d.x = d.ox; d.z = d.oz; d.clue = d.oclue; });
+    startX = 0; startZ = 22; startYaw = 0; startY = 0;
+  }
+
+  /* ---------- simpan & lanjutkan (reset otomatis setelah lebih dari 24 jam) ---------- */
+  var SKEY = 'onlyUpLogikaIF.v1', DAY_MS = 24 * 60 * 60 * 1000;
+  function save() {
+    try {
+      localStorage.setItem(SKEY, JSON.stringify({
+        v: 1, savedAt: Date.now(), name: playerName, qmap: qmap, res: res, att: att, score: score, done: done, mg: mg, stars: stars, finished: finished,
+        pos: { x: pos.x, y: pos.y - 1.6, z: pos.z, yaw: yaw }, npc: NPC.map(function (d) { return [d.x, d.z, d.clue]; })
+      }));
+    } catch (e) { }
+  }
+  function clearSave() { try { localStorage.removeItem(SKEY); } catch (e) { } }
+  function loadSave() {
+    try {
+      var raw = localStorage.getItem(SKEY); if (!raw) return null;
+      var s = JSON.parse(raw);
+      if (!s || s.v !== 1) return null;
+      if (Date.now() - s.savedAt > DAY_MS) { localStorage.removeItem(SKEY); return null; }
+      if (!Array.isArray(s.qmap) || s.qmap.length !== N || !Array.isArray(s.res) || s.res.length !== N || !Array.isArray(s.att) || s.att.length !== N || !Array.isArray(s.npc) || s.npc.length !== N) return null;
+      var seen = {}; for (var i = 0; i < N; i++) { var q = s.qmap[i]; if (typeof q !== 'number' || q < 0 || q >= N || seen[q]) return null; seen[q] = 1; }
+      return s;
+    } catch (e) { return null; }
+  }
+  function restore(s) {
+    playerName = s.name || ''; qmap = s.qmap; applyQmap();
+    res = s.res; att = s.att; score = s.score | 0; done = s.done | 0; mg = s.mg | 0; stars = s.stars | 0; finished = !!s.finished;
+    s.npc.forEach(function (a, i) { NPC[i].x = +a[0]; NPC[i].z = +a[1]; NPC[i].clue = String(a[2] || NPC[i].oclue); });
+    if (s.pos) { startX = clamp(+s.pos.x || 0, -65, 65); startZ = clamp(+s.pos.z || 22, -65, 65); startYaw = +s.pos.yaw || 0; startY = clamp(+s.pos.y || 0, 0, 80); }
+  }
+  function saveNow() { if (inGame && state !== 'mini') save(); }
+  window.addEventListener('pagehide', saveNow);
+  document.addEventListener('visibilitychange', function () { if (document.hidden) saveNow(); });
+  setInterval(function () { if (inGame && state === 'play') save(); }, 4000);
+
+  function show(id) { ['intro', 'baca', 'hasil'].forEach(function (s) { $(s).hidden = (s !== id); }); }
+  function setState(s) {
+    state = s;
+    document.body.classList.toggle('playing', s === 'play');
+    updatePause();
+  }
+  function updatePause() { $('pause').hidden = !(state === 'play' && !locked && !isTouch); }
+
+  /* ---------- intro -> reading ---------- */
+  $('nameForm').addEventListener('submit', function (e) { e.preventDefault(); playerName = $('nama').value.trim(); startRead(); });
+  var readEnd = 0, readTimer = null, skipArm = false, READ_MS = 180000;
+  function fmt(ms) { var s = Math.max(0, Math.ceil(ms / 1000)); return ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + (s % 60)).slice(-2); }
+  function startRead() {
+    show('baca'); setState('read'); $('baca').scrollTop = 0;
+    readEnd = Date.now() + READ_MS; skipArm = false;
+    $('btnSkip').textContent = '.'; $('btnSkip').hidden = false;
+    $('btnSiap').disabled = true; $('btnSiap').textContent = 'Tunggu waktu membaca…'; $('clock').classList.remove('done');
+    $('glErr').hidden = true;
+    clearInterval(readTimer); tickRead(); readTimer = setInterval(tickRead, 250);
+    setTimeout(ensureWorld, 400);
+  }
+  function tickRead() {
+    var left = readEnd - Date.now();
+    $('clock').textContent = fmt(left);
+    $('rProg').style.width = clamp((1 - left / READ_MS) * 100, 0, 100) + '%';
+    if (left <= 0) {
+      clearInterval(readTimer); $('clock').classList.add('done');
+      $('btnSiap').disabled = false; $('btnSiap').textContent = 'Aku siap, mulai misi!';
+      $('siapNote').textContent = 'Waktu membaca selesai. Kamu boleh membaca lagi sebelum mulai.';
+      $('btnSkip').hidden = true;
+    }
+  }
+  $('btnSkip').addEventListener('click', function () {
+    if (!skipArm) { skipArm = true; $('btnSkip').textContent = 'Klik sekali lagi untuk melewati'; return; }
+    readEnd = Date.now(); tickRead();
+  });
+  $('btnSiap').addEventListener('click', function () { inGame = true; save(); startPlay(); });
+
+  /* ---------- world ---------- */
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+  var lam = function (c) { return new THREE.MeshLambertMaterial({ color: c }); };
+  var PATHS = [[0, 0, 0, -44], [0, 0, 37, -34], [0, 0, -37, -34], [0, 0, 47, 14], [0, 0, 28, 45], [0, 0, 0, 64], [0, 0, -44, 6], [0, 0, -34, 46]];
+  var POND = { x: -48, z: 4, r: 4.5 };
+  var BUILD = [
+    { name: 'RUMAH REPTIL', x: 0, z: -50, w: 26, d: 12, h: 7, c: 0xb9e3a0, roof: 0x2f8f46, f: [0, 1] },
+    { name: 'AKUARIUM', x: 46, z: -34, w: 18, d: 14, h: 6, c: 0x9cc8f2, roof: 0x2a68dc, f: [-1, 0] },
+    { name: 'RUMAH PRIMATA', x: -46, z: -34, w: 18, d: 14, h: 6, c: 0xf3d27a, roof: 0xb5532a, f: [1, 0] },
+    { name: 'KLINIK SATWA', x: 54, z: 14, w: 14, d: 22, h: 8, c: 0xffffff, roof: 0xd8232a, f: [-1, 0] },
+    { name: 'KAFE SAFARI', x: 28, z: 50, w: 18, d: 10, h: 5, c: 0xf7b26a, roof: 0x8b5a2b, f: [0, -1] }
+  ];
+  var PENS = [
+    { name: 'KANDANG SINGA', x: -24, z: -48, w: 12, d: 10, fl: '#d9c58f', an: ['lion', 'lioness'] },
+    { name: 'KANDANG ZEBRA', x: 24, z: -50, w: 12, d: 10, fl: '#d9c58f', an: ['zebra', 'zebra', 'zebra'] },
+    { name: 'KANDANG HARIMAU', x: -12, z: -26, w: 10, d: 10, fl: '#c9b27a', an: ['tiger', 'tiger'] },
+    { name: 'KANDANG GAJAH', x: -30, z: 22, w: 14, d: 12, fl: '#cdb98a', an: ['elephant', 'elephantS'] },
+    { name: 'KANDANG JERAPAH', x: -44, z: 54, w: 12, d: 12, fl: '#cfb46a', an: ['giraffe', 'giraffeS'] },
+    { name: 'KANDANG PENGUIN', x: -12, z: 36, w: 8, d: 8, fl: '#e8f4fb', pool: true, an: ['penguin', 'penguin', 'penguin', 'penguin', 'penguin', 'penguin'] },
+    { name: 'KANDANG PANDA', x: 50, z: -8, w: 12, d: 12, fl: '#a6d68a', an: ['panda', 'panda'] }
+  ];
+  var ZONES = [
+    { n: 'Plaza Utama', x: 0, z: 0, r: 17 }, { n: 'Rumah Reptil', x: 0, z: -46, r: 18 }, { n: 'Akuarium', x: 44, z: -32, r: 17 },
+    { n: 'Rumah Primata', x: -44, z: -32, r: 17 }, { n: 'Klinik Satwa', x: 54, z: 14, r: 18 }, { n: 'Kafe Safari', x: 28, z: 46, r: 16 },
+    { n: 'Pintu Masuk', x: 0, z: 62, r: 12 }, { n: 'Kolam Flamingo', x: -48, z: 6, r: 16 }, { n: 'Kandang Gajah', x: -30, z: 22, r: 13 },
+    { n: 'Kandang Jerapah', x: -44, z: 54, r: 14 }, { n: 'Kandang Penguin', x: -12, z: 36, r: 9 }, { n: 'Kandang Singa', x: -24, z: -48, r: 12 },
+    { n: 'Kandang Zebra', x: 24, z: -50, r: 12 }, { n: 'Kandang Harimau', x: -12, z: -26, r: 11 }, { n: 'Kandang Panda', x: 50, z: -8, r: 11 }
+  ];
+  function segDist(x, z, s) {
+    var dx = s[2] - s[0], dz = s[3] - s[1], t = clamp(((x - s[0]) * dx + (z - s[1]) * dz) / (dx * dx + dz * dz), 0, 1);
+    return Math.hypot(x - (s[0] + dx * t), z - (s[1] + dz * t));
+  }
+
+  function drawGround() {
+    var S = 2048, k = S / 140, c = document.createElement('canvas'); c.width = c.height = S; var g = c.getContext('2d');
+    var P = function (x, z) { return [(x + 70) * k, (z + 70) * k]; };
+    var r = mulberry(7), i, p;
+    g.fillStyle = '#80c566'; g.fillRect(0, 0, S, S);
+    for (i = 0; i < 9000; i++) { g.fillStyle = r() < .5 ? 'rgba(255,255,255,.07)' : 'rgba(20,80,30,.09)'; g.fillRect(r() * S, r() * S, 3 + r() * 6, 3 + r() * 6); }
+    // taman bunga di sekitar kolam
+    p = P(-50, 6); g.fillStyle = '#9ad87b'; g.beginPath(); g.arc(p[0], p[1], 16 * k, 0, 7); g.fill();
+    var cols = ['#ff6b81', '#ffd23f', '#ffffff', '#ff9f43', '#b57cff'];
+    for (i = 0; i < 380; i++) { var a = r() * 6.283, d = Math.sqrt(r()) * 15.5; g.fillStyle = cols[i % 5]; g.beginPath(); g.arc(p[0] + Math.cos(a) * d * k, p[1] + Math.sin(a) * d * k, k * .22, 0, 7); g.fill(); }
+    // paving kafe, jalan gerbang
+    p = P(17, 36); g.fillStyle = '#d8d0bf'; g.fillRect(p[0], p[1], 22 * k, 10 * k);
+    g.strokeStyle = 'rgba(0,0,0,.08)'; g.lineWidth = 2;
+    for (i = 0; i <= 22; i += 2) { g.beginPath(); g.moveTo(p[0] + i * k, p[1]); g.lineTo(p[0] + i * k, p[1] + 10 * k); g.stroke(); }
+    p = P(-5, 54); g.fillStyle = '#58626f'; g.fillRect(p[0], p[1], 10 * k, 16 * k);
+    g.strokeStyle = '#fff'; g.lineWidth = k * .25; g.setLineDash([k * 1.6, k * 1.4]); g.beginPath(); g.moveTo(P(0, 54)[0], P(0, 54)[1]); g.lineTo(P(0, 70)[0], P(0, 70)[1]); g.stroke(); g.setLineDash([]);
+    // jalan setapak
+    g.lineCap = 'round';
+    PATHS.forEach(function (s) { var a = P(s[0], s[1]), b = P(s[2], s[3]); g.strokeStyle = '#c9a86b'; g.lineWidth = 5.6 * k; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); });
+    PATHS.forEach(function (s) { var a = P(s[0], s[1]), b = P(s[2], s[3]); g.strokeStyle = '#e6cc98'; g.lineWidth = 4.6 * k; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); });
+    // plaza
+    p = P(0, 0); g.fillStyle = '#cfd6de'; g.beginPath(); g.arc(p[0], p[1], 14 * k, 0, 7); g.fill();
+    g.strokeStyle = '#ffffff'; g.lineWidth = k * .3; g.beginPath(); g.arc(p[0], p[1], 12.2 * k, 0, 7); g.stroke();
+    g.beginPath(); g.arc(p[0], p[1], 5 * k, 0, 7); g.stroke();
+    // lantai kandang
+    PENS.forEach(function (pn) {
+      var a = P(pn.x - pn.w / 2 - .5, pn.z - pn.d / 2 - .5); g.fillStyle = pn.fl; g.fillRect(a[0], a[1], (pn.w + 1) * k, (pn.d + 1) * k);
+      g.fillStyle = 'rgba(0,0,0,.06)'; for (var q = 0; q < 40; q++) g.fillRect(a[0] + r() * (pn.w + 1) * k, a[1] + r() * (pn.d + 1) * k, 4, 4);
+      if (pn.pool) { var c2 = P(pn.x, pn.z); g.fillStyle = '#58b8e8'; g.beginPath(); g.ellipse(c2[0], c2[1], 2.6 * k, 2.1 * k, 0, 0, 7); g.fill(); }
+    });
+    // kolam flamingo
+    p = P(POND.x, POND.z); g.fillStyle = '#e1cfa0'; g.beginPath(); g.arc(p[0], p[1], (POND.r + .8) * k, 0, 7); g.fill();
+    g.fillStyle = '#58b8e8'; g.beginPath(); g.arc(p[0], p[1], POND.r * k, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.6)'; g.lineWidth = k * .15; g.beginPath(); g.arc(p[0] - k, p[1] - k * .6, 2.2 * k, 3.6, 5.2); g.stroke();
+    return c;
+  }
+
+  function textTex(text, w, h, bg, fg) {
+    var c = document.createElement('canvas'); c.width = w; c.height = h; var g = c.getContext('2d');
+    g.fillStyle = bg; rr(g, 3, 3, w - 6, h - 6, h * .22); g.fill(); g.lineWidth = h * .06; g.strokeStyle = fg; g.stroke();
+    g.fillStyle = fg; g.font = '800 ' + Math.round(h * .5) + 'px "Baloo 2","Trebuchet MS",sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(text, w / 2, h / 2 + h * .04, w - 30);
+    var t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+  }
+  function markTex(kind) {
+    var c = document.createElement('canvas'); c.width = c.height = 128; var g = c.getContext('2d');
+    g.fillStyle = kind === 'q' ? '#ffc42e' : (kind === 'r' ? '#e0434a' : '#14a06e'); g.beginPath(); g.arc(64, 64, 56, 0, 7); g.fill();
+    g.lineWidth = 8; g.strokeStyle = '#10233f'; g.stroke();
+    if (kind === 'q' || kind === 'r') { g.fillStyle = kind === 'r' ? '#ffffff' : '#10233f'; rr(g, 57, 28, 14, 44, 6); g.fill(); g.beginPath(); g.arc(64, 90, 8, 0, 7); g.fill(); }
+    else { g.strokeStyle = '#fff'; g.lineWidth = 12; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); g.moveTo(38, 66); g.lineTo(57, 85); g.lineTo(90, 44); g.stroke(); }
+    return new THREE.CanvasTexture(c);
+  }
+
+  function addBuilding(b) {
+    var he = b.f[0] !== 0 ? b.w / 2 : b.d / 2;
+    var walls = new THREE.Mesh(new THREE.BoxGeometry(b.w, b.h, b.d), lam(b.c)); walls.position.set(b.x, b.h / 2, b.z); scene.add(walls);
+    var trim = new THREE.Mesh(new THREE.BoxGeometry(b.w + .5, .6, b.d + .5), lam(0xb9b2a5)); trim.position.set(b.x, .3, b.z); scene.add(trim);
+    var rg = new THREE.ConeGeometry(1, 2.8, 4); rg.rotateY(Math.PI / 4);
+    var roof = new THREE.Mesh(rg, lam(b.roof)); roof.scale.set((b.w + 1.4) / 1.4142, 1, (b.d + 1.4) / 1.4142); roof.position.set(b.x, b.h + 1.4, b.z); scene.add(roof);
+    var winM = new THREE.MeshBasicMaterial({ color: 0xbfe7ff }), frameM = lam(0xffffff);
+    [[0, 1], [0, -1], [1, 0], [-1, 0]].forEach(function (dir) {
+      var h2 = dir[0] !== 0 ? b.w / 2 : b.d / 2, len = dir[0] !== 0 ? b.d : b.w, tx = Math.abs(dir[1]), tz = Math.abs(dir[0]);
+      var cnt = Math.floor((len - 3) / 4), isDoor = (dir[0] === b.f[0] && dir[1] === b.f[1]);
+      for (var k = 0; k < cnt; k++) {
+        var off = -((cnt - 1) / 2) * 4 + k * 4; if (isDoor && Math.abs(off) < 2.8) continue;
+        var wy = b.h * .45 + .3, cx = b.x + dir[0] * (h2 + .04) + tx * off, cz = b.z + dir[1] * (h2 + .04) + tz * off;
+        var fr = new THREE.Mesh(new THREE.BoxGeometry(1.9, 1.9, .1), frameM), gl = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, .14), winM);
+        fr.position.set(cx, wy, cz); gl.position.set(cx, wy, cz); var ry = Math.atan2(dir[0], dir[1]); fr.rotation.y = gl.rotation.y = ry; scene.add(fr); scene.add(gl);
+      }
+    });
+    var fx = b.f[0], fz = b.f[1], ry2 = Math.atan2(fx, fz);
+    var door = new THREE.Mesh(new THREE.BoxGeometry(2.2, 3.2, .2), lam(0x7a4a2e)); door.position.set(b.x + fx * (he + .06), 1.6, b.z + fz * (he + .06)); door.rotation.y = ry2; scene.add(door);
+    var sg = new THREE.Mesh(new THREE.PlaneGeometry(8.4, 1.6), new THREE.MeshBasicMaterial({ map: textTex(b.name, 512, 100, '#ffffff', '#10233f') }));
+    sg.position.set(b.x + fx * (he + .12), b.h - 1.1, b.z + fz * (he + .12)); sg.rotation.y = ry2; scene.add(sg);
+    W.boxes.push({ x0: b.x - b.w / 2, x1: b.x + b.w / 2, z0: b.z - b.d / 2, z1: b.z + b.d / 2 });
+  }
+  function addBox(x, z, w, d, h, color, y0) {
+    var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), lam(color)); m.position.set(x, (y0 || 0) + h / 2, z); scene.add(m); return m;
+  }
+
+  /* ---------- hewan ---------- */
+  function quad(o) {
+    var g = new THREE.Group(), s = o.s || 1, bw = o.bw * s, bh = o.bh * s, bl = o.bl * s, lg = o.leg * s, hs = o.hs * s;
+    var bm = lam(o.c), lm = lam(o.lc || o.c), i;
+    var body = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bl), bm); body.position.y = lg + bh / 2; g.add(body);
+    var lw = Math.max(.16, bw * .28);
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (q) { var l = new THREE.Mesh(new THREE.BoxGeometry(lw, lg, lw), lm); l.position.set(q[0] * (bw / 2 - lw / 2), lg / 2, q[1] * (bl / 2 - lw / 2)); g.add(l); });
+    var tail = new THREE.Mesh(new THREE.BoxGeometry(.1 * s + .04, bh * .7, .1 * s + .04), lm); tail.position.set(0, lg + bh * .6, -bl / 2 - .02); g.add(tail);
+    var neck = (o.neck || 0) * s, hy, hz;
+    if (neck) {
+      var nk = new THREE.Mesh(new THREE.BoxGeometry(bw * .45, neck, bw * .45), bm); nk.position.set(0, lg + bh * .7 + neck / 2, bl / 2 - bw * .25); g.add(nk);
+      hy = lg + bh * .7 + neck + hs * .25; hz = bl / 2 - bw * .25 + hs * .35;
+    } else { hy = lg + bh * .85; hz = bl / 2 + hs * .35; }
+    var head = new THREE.Mesh(new THREE.BoxGeometry(hs, hs * .9, hs * 1.15), o.hc ? lam(o.hc) : bm); head.position.set(0, hy, hz); g.add(head);
+    var eyeM = new THREE.MeshBasicMaterial({ color: 0x10233f });
+    [-1, 1].forEach(function (sx) { var e = new THREE.Mesh(new THREE.SphereGeometry(hs * .07, 6, 6), eyeM); e.position.set(sx * hs * .27, hy + hs * .1, hz + hs * .58); g.add(e); });
+    if (o.stripe) {
+      var sm = lam(o.stripe);
+      for (i = 0; i < 6; i++) { var st = new THREE.Mesh(new THREE.BoxGeometry(bw + .04, bh + .04, .09 * s + .02), sm); st.position.set(0, lg + bh / 2, -bl / 2 + .25 * s + i * (bl - .5 * s) / 5); g.add(st); }
+    }
+    if (o.mane) { var mn = new THREE.Mesh(new THREE.SphereGeometry(hs * .85, 12, 10), lam(0x6b3b1e)); mn.position.set(0, hy, hz - hs * .25); g.add(mn); g.add(head); }
+    if (o.trunk) {
+      var tg = new THREE.Group(); tg.position.set(0, hy + hs * .1, hz + hs * .55);
+      var tm = new THREE.Mesh(new THREE.CylinderGeometry(.22 * s, .14 * s, 1.5 * s, 8), bm); tm.position.y = -.75 * s; tg.add(tm); g.add(tg); g.userData.trunk = tg;
+      [-1, 1].forEach(function (sx) { var ea = new THREE.Mesh(new THREE.BoxGeometry(.1 * s, hs * 1.1, hs * .9), bm); ea.position.set(sx * (hs / 2 + .08 * s), hy, hz - hs * .1); g.add(ea); });
+    }
+    if (o.spots) {
+      var spm = lam(0x8a5a2b), rs = mulberry(5);
+      for (i = 0; i < 12; i++) { var sp = new THREE.Mesh(new THREE.BoxGeometry(.06, .3 * s, .3 * s), spm); sp.position.set((i % 2 ? 1 : -1) * (bw / 2 + .01), lg + bh * (.25 + rs() * .5), (rs() * 2 - 1) * (bl / 2 - .2)); g.add(sp); }
+      for (i = 0; i < 6; i++) { var sp2 = new THREE.Mesh(new THREE.BoxGeometry(bw * .45 + .04, .22 * s, .22 * s), spm); sp2.position.set(0, lg + bh * .7 + neck * (.1 + i * .15), bl / 2 - bw * .25); g.add(sp2); }
+      [-1, 1].forEach(function (sx) { var h2 = new THREE.Mesh(new THREE.BoxGeometry(.06, .25 * s, .06), spm); h2.position.set(sx * hs * .25, hy + hs * .65, hz - hs * .2); g.add(h2); });
+    }
+    if (o.panda) {
+      var bk = lam(0x1c1c1c);
+      [-1, 1].forEach(function (sx) {
+        var ea = new THREE.Mesh(new THREE.SphereGeometry(hs * .18, 8, 8), bk); ea.position.set(sx * hs * .4, hy + hs * .55, hz - hs * .1); g.add(ea);
+        var ep = new THREE.Mesh(new THREE.SphereGeometry(hs * .16, 8, 8), bk); ep.scale.set(1, 1.3, .6); ep.position.set(sx * hs * .26, hy + hs * .12, hz + hs * .55); g.add(ep);
+      });
+      var nz = new THREE.Mesh(new THREE.SphereGeometry(hs * .1, 8, 8), bk); nz.position.set(0, hy - hs * .08, hz + hs * .6); g.add(nz);
+      var band = new THREE.Mesh(new THREE.BoxGeometry(bw + .04, bh + .04, bl * .25), bk); band.position.set(0, lg + bh / 2, bl / 2 - bl * .2); g.add(band);
+    }
+    return g;
+  }
+  function penguinMesh() {
+    var g = new THREE.Group(), blk = lam(0x1d2430), wht = lam(0xf4f4f4), org = lam(0xf08a24);
+    var b = new THREE.Mesh(new THREE.CylinderGeometry(.26, .32, .8, 10), blk); b.position.y = .55; g.add(b);
+    var bel = new THREE.Mesh(new THREE.SphereGeometry(.25, 10, 8), wht); bel.scale.set(1, 1.5, .5); bel.position.set(0, .52, .17); g.add(bel);
+    var hd = new THREE.Mesh(new THREE.SphereGeometry(.2, 10, 8), blk); hd.position.y = 1.08; g.add(hd);
+    var bk = new THREE.Mesh(new THREE.ConeGeometry(.06, .18, 6), org); bk.rotation.x = Math.PI / 2; bk.position.set(0, 1.05, .24); g.add(bk);
+    [-1, 1].forEach(function (sx) {
+      var ft = new THREE.Mesh(new THREE.BoxGeometry(.14, .05, .22), org); ft.position.set(sx * .12, .03, .08); g.add(ft);
+      var fl = new THREE.Mesh(new THREE.BoxGeometry(.05, .5, .18), blk); fl.position.set(sx * .33, .6, 0); fl.rotation.z = sx * .25; g.add(fl);
+    });
+    return g;
+  }
+  function flamingoMesh() {
+    var g = new THREE.Group(), pk = lam(0xf27ea9), dk = lam(0x1c1c1c);
+    [-1, 1].forEach(function (sx) { var l = new THREE.Mesh(new THREE.CylinderGeometry(.025, .025, 1.1, 5), pk); l.position.set(sx * .07, .55, 0); g.add(l); });
+    var b = new THREE.Mesh(new THREE.SphereGeometry(.3, 10, 8), pk); b.scale.set(1, .8, 1.5); b.position.y = 1.25; g.add(b);
+    var nk = new THREE.Mesh(new THREE.CylinderGeometry(.05, .06, .95, 6), pk); nk.position.set(0, 1.78, .3); nk.rotation.x = -.3; g.add(nk);
+    var hd = new THREE.Mesh(new THREE.SphereGeometry(.1, 8, 8), pk); hd.position.set(0, 2.25, .45); g.add(hd);
+    var bk = new THREE.Mesh(new THREE.ConeGeometry(.045, .2, 5), dk); bk.rotation.x = Math.PI / 2; bk.position.set(0, 2.22, .58); g.add(bk);
+    return g;
+  }
+  function mkAnimal(k) {
+    switch (k) {
+      case 'lion': return quad({ c: 0xd9a441, bw: .8, bh: .85, bl: 1.5, leg: .75, hs: .5, mane: true });
+      case 'lioness': return quad({ c: 0xe3b86a, bw: .7, bh: .75, bl: 1.35, leg: .7, hs: .45 });
+      case 'zebra': return quad({ c: 0xffffff, lc: 0xf2f2f2, stripe: 0x1c1c1c, bw: .7, bh: .9, bl: 1.6, leg: 1.0, hs: .45 });
+      case 'tiger': return quad({ c: 0xe8832a, stripe: 0x1c1c1c, bw: .75, bh: .8, bl: 1.6, leg: .7, hs: .5 });
+      case 'elephant': return quad({ c: 0x8f9aa6, bw: 1.6, bh: 1.7, bl: 2.4, leg: 1.3, hs: .95, trunk: true });
+      case 'elephantS': return quad({ c: 0x9aa5b1, bw: 1.6, bh: 1.7, bl: 2.4, leg: 1.3, hs: .95, trunk: true, s: .55 });
+      case 'giraffe': return quad({ c: 0xe8b84a, bw: .6, bh: .9, bl: 1.4, leg: 2.2, neck: 2.4, hs: .35, spots: true });
+      case 'giraffeS': return quad({ c: 0xedc15a, bw: .6, bh: .9, bl: 1.4, leg: 2.2, neck: 2.4, hs: .35, spots: true, s: .6 });
+      case 'panda': return quad({ c: 0xffffff, lc: 0x1c1c1c, bw: .9, bh: .9, bl: 1.1, leg: .5, hs: .6, panda: true });
+      case 'penguin': return penguinMesh();
+    }
+    return new THREE.Group();
+  }
+  function addPen(p) {
+    var hw = p.w / 2, hd = p.d / 2, postM = lam(0x8a5a36), railM = lam(0xc99a63);
+    function seg(x, z, len, alongX) {
+      [.45, .95].forEach(function (y) { var r = new THREE.Mesh(new THREE.BoxGeometry(alongX ? len : .12, .12, alongX ? .12 : len), railM); r.position.set(x, y, z); scene.add(r); });
+      var n = Math.round(len / 2.5);
+      for (var i = 0; i <= n; i++) { var px = alongX ? x - len / 2 + i * len / n : x, pz = alongX ? z : z - len / 2 + i * len / n; var po = new THREE.Mesh(new THREE.BoxGeometry(.2, 1.2, .2), postM); po.position.set(px, .6, pz); scene.add(po); }
+    }
+    seg(p.x, p.z - hd, p.w, true); seg(p.x, p.z + hd, p.w, true); seg(p.x - hw, p.z, p.d, false); seg(p.x + hw, p.z, p.d, false);
+    W.boxes.push(
+      { x0: p.x - hw - .3, x1: p.x + hw + .3, z0: p.z - hd - .3, z1: p.z - hd + .3 },
+      { x0: p.x - hw - .3, x1: p.x + hw + .3, z0: p.z + hd - .3, z1: p.z + hd + .3 },
+      { x0: p.x - hw - .3, x1: p.x - hw + .3, z0: p.z - hd, z1: p.z + hd },
+      { x0: p.x + hw - .3, x1: p.x + hw + .3, z0: p.z - hd, z1: p.z + hd });
+    var tx = textTex(p.name, 512, 100, '#ffffff', '#10233f');
+    [[1, 0], [-1, Math.PI]].forEach(function (sd) {
+      var sg = new THREE.Mesh(new THREE.PlaneGeometry(3.4, .7), new THREE.MeshBasicMaterial({ map: tx }));
+      sg.position.set(p.x, 2.4, p.z + sd[0] * (hd + .18)); sg.rotation.y = sd[1]; scene.add(sg);
+      [-1.6, 1.6].forEach(function (ox) { var po = new THREE.Mesh(new THREE.BoxGeometry(.12, 2.7, .12), postM); po.position.set(p.x + ox, 1.35, p.z + sd[0] * (hd + .1)); scene.add(po); });
+    });
+    var rs = mulberry(Math.round(p.x * 7 + p.z * 3 + 99)), placed = [];
+    p.an.forEach(function (k) {
+      var g = mkAnimal(k), x, z, t = 0, sep = k === 'penguin' ? 1.3 : 3.4;
+      do { x = p.x + (rs() * 2 - 1) * (hw - 2.2); z = p.z + (rs() * 2 - 1) * (hd - 2.2); t++; }
+      while (t < 40 && placed.some(function (q) { return Math.hypot(q[0] - x, q[1] - z) < sep; }));
+      placed.push([x, z]); g.position.set(x, 0, z); var r0 = rs() * 6.28; g.rotation.y = r0; scene.add(g);
+      ANIM.push({ g: g, k: k, r0: r0, ph: rs() * 6.28 });
+    });
+  }
+
+  function buildWorld() {
+    if (!window.THREE) throw new Error('THREE tidak tersedia');
+    renderer = new THREE.WebGLRenderer({ canvas: $('gl'), antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    scene = new THREE.Scene(); scene.fog = new THREE.Fog(0xcfeaf7, 70, 230);
+    camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, .1, 700); camera.rotation.order = 'YXZ';
+    clock = new THREE.Clock();
+    scene.add(new THREE.HemisphereLight(0xe3f4ff, 0x6fa35a, .95));
+    var sun = new THREE.DirectionalLight(0xfff2d2, .8); sun.position.set(60, 100, 40); scene.add(sun);
+
+    // langit
+    var sc = document.createElement('canvas'); sc.width = 8; sc.height = 256; var sg = sc.getContext('2d'), gr = sg.createLinearGradient(0, 0, 0, 256);
+    gr.addColorStop(0, '#4fb0ec'); gr.addColorStop(.5, '#b9e3f7'); gr.addColorStop(.62, '#dff3fb'); gr.addColorStop(1, '#dff3fb'); sg.fillStyle = gr; sg.fillRect(0, 0, 8, 256);
+    sky = new THREE.Mesh(new THREE.SphereGeometry(450, 24, 14), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), side: THREE.BackSide, fog: false, depthWrite: false })); scene.add(sky);
+    // bukit
+    var hr = mulberry(11);
+    for (var h = 0; h < 14; h++) {
+      var ang = h / 14 * 6.283 + hr() * .3, dist = 150 + hr() * 30, rad = 35 + hr() * 30;
+      var hill = new THREE.Mesh(new THREE.SphereGeometry(rad, 16, 8), lam(h % 2 ? 0x7dbb8a : 0x6aa87a)); hill.scale.y = .42; hill.position.set(Math.cos(ang) * dist, -4, Math.sin(ang) * dist); scene.add(hill);
+    }
+    // awan
+    var cm = new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false, transparent: true, opacity: .93 });
+    for (var cI = 0; cI < 9; cI++) {
+      var cg = new THREE.Group(), n = 3 + (cI % 3);
+      for (var q = 0; q < n; q++) { var sp = new THREE.Mesh(new THREE.SphereGeometry(5 + hr() * 3, 10, 8), cm); sp.position.set(q * 6 - n * 3, hr() * 2, hr() * 3); sp.scale.y = .6; cg.add(sp); }
+      var ca = hr() * 6.283, cd = 90 + hr() * 70; cg.position.set(Math.cos(ca) * cd, 60 + hr() * 20, Math.sin(ca) * cd); cg.userData.sp = .6 + hr() * .8; scene.add(cg); clouds.push(cg);
+    }
+    // ===== Only Up: pulau melayang + menara platform =====
+    var gm = lam(0x80c566), em = lam(0x8a5a36);
+    var isl = new THREE.Mesh(new THREE.BoxGeometry(140, 12, 140), [em, em, gm, em, em, em]); isl.position.y = -6; scene.add(isl);
+    var sea = new THREE.Mesh(new THREE.PlaneGeometry(900, 900), new THREE.MeshBasicMaterial({ color: 0xf4fbff })); sea.rotation.x = -Math.PI / 2; sea.position.y = -14; scene.add(sea);
+    var T = window.TOWER, pal = [0xff7a59, 0xffc42e, 0x3ad0ff, 0x7cf06a, 0xb57cff, 0xff5fa2];
+    var trunk = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 3.2, T.h + 8, 14), lam(0x7a5233)); trunk.position.set(T.cx, (T.h + 8) / 2, T.cz); scene.add(trunk);
+    T.plat.forEach(function (p, i) {
+      var m = new THREE.Mesh(new THREE.CylinderGeometry(p.r, p.r, .8, 18), lam(p.cp ? 0xfff3c4 : (p.fin ? 0xffc42e : pal[i % 6]))); m.position.set(p.x, p.top - .4, p.z); scene.add(m);
+      if (p.cp || p.fin) {
+        var rg = new THREE.Mesh(new THREE.TorusGeometry(p.r - .35, .13, 6, 28), lam(p.fin ? 0xffffff : 0xff7a59)); rg.rotation.x = Math.PI / 2; rg.position.set(p.x, p.top + .06, p.z); scene.add(rg);
+        var pole = new THREE.Mesh(new THREE.CylinderGeometry(.07, .07, 3, 6), lam(0xffffff)); pole.position.set(p.x - p.r + 1, p.top + 1.5, p.z); scene.add(pole);
+        var fl = new THREE.Mesh(new THREE.BoxGeometry(1.2, .8, .05), lam(p.fin ? 0xffc42e : 0xe0434a)); fl.position.set(p.x - p.r + 1.65, p.top + 2.6, p.z); scene.add(fl);
+      }
+    });
+    var sgn = new THREE.Mesh(new THREE.PlaneGeometry(9, 1.6), new THREE.MeshBasicMaterial({ map: textTex('ONLY UP! MENARA LOGIKA IF', 640, 110, '#ffc42e', '#10233f'), side: THREE.DoubleSide })); sgn.position.set(0, 3.2, 12); scene.add(sgn);
+    [-3.6, 3.6].forEach(function (ox) { addBox(ox, 12, .2, .2, 3.2, 0x8a5a36); });
+    // teman (NPC)
+    var qTex = markTex('q'), cTex = markTex('c'), rTex = markTex('r'), shG = new THREE.CircleGeometry(.6, 14).rotateX(-Math.PI / 2), shM = new THREE.MeshBasicMaterial({ color: 0x1e3a20, transparent: true, opacity: .3, depthWrite: false });
+    NPC.forEach(function (d, i) {
+      var g = new THREE.Group(), body = new THREE.Group(), skin = lam(d.skin), shirt = lam(d.c), pants = lam(d.p || 0x24344f), hair = lam(d.hair);
+      var legL = new THREE.Mesh(new THREE.BoxGeometry(.24, .72, .26), pants), legR = legL.clone(); legL.position.set(-.14, .36, 0); legR.position.set(.14, .36, 0);
+      var torso = new THREE.Mesh(new THREE.CylinderGeometry(.34, .38, .85, 12), shirt); torso.position.y = 1.12;
+      var armG = new THREE.BoxGeometry(.17, .72, .19).translate(0, -.36, 0), armL = new THREE.Mesh(armG, shirt), armR = new THREE.Mesh(armG, shirt); armL.position.set(-.47, 1.46, 0); armR.position.set(.47, 1.46, 0);
+      var head = new THREE.Mesh(new THREE.SphereGeometry(.27, 14, 12), skin); head.position.y = 1.76;
+      var eg = new THREE.SphereGeometry(.034, 6, 6), ebm = new THREE.MeshBasicMaterial({ color: 0x10233f }), e1 = new THREE.Mesh(eg, ebm), e2 = new THREE.Mesh(eg, ebm); e1.position.set(-.09, 1.8, .245); e2.position.set(.09, 1.8, .245);
+      body.add(legL, legR, torso, armL, armR, head, e1, e2);
+      var cap = new THREE.Mesh(new THREE.SphereGeometry(.295, 14, 8, 0, 6.283, 0, 1.75), hair); cap.position.y = 1.77;
+      if (d.look === 'hijab') {
+        var vm = lam(d.v || 0xffffff), veil = new THREE.Mesh(new THREE.SphereGeometry(.34, 14, 12), vm); veil.position.set(0, 1.76, -.1); veil.scale.y = 1.06; body.add(veil);
+        var vt = new THREE.Mesh(new THREE.SphereGeometry(.31, 12, 8, 0, 6.283, 0, 1.2), vm); vt.position.set(0, 1.8, -.03); body.add(vt);
+      } else {
+        body.add(cap);
+        if (d.look === 'long') { var lh = new THREE.Mesh(new THREE.BoxGeometry(.52, .75, .14), hair); lh.position.set(0, 1.5, -.2); body.add(lh); }
+        if (d.look === 'cap') { var ch = new THREE.Mesh(new THREE.CylinderGeometry(.3, .31, .13, 14), lam(0x2f6b3a)); ch.position.y = 2.0; var vis = new THREE.Mesh(new THREE.BoxGeometry(.4, .04, .22), lam(0x2f6b3a)); vis.position.set(0, 1.97, .3); body.add(ch, vis); }
+      }
+      g.add(body); g.position.set(d.x, d.y, d.z); g.rotation.y = Math.atan2(-d.x, -d.z); scene.add(g);
+      var sh = new THREE.Mesh(shG, shM); sh.position.set(d.x, d.y + .045, d.z); scene.add(sh);
+      var mk = new THREE.Sprite(new THREE.SpriteMaterial({ map: res[i] ? cTex : qTex, fog: false, depthTest: true })); mk.scale.set(.95, .95, 1); mk.position.set(d.x, d.y + 2.7, d.z); scene.add(mk);
+      var circ = { x: d.x, z: d.z, r: .6 };
+      W.npc.push({ g: g, body: body, armL: armL, armR: armR, mk: mk, sh: sh, circle: circ, flee: null, home: { x: d.x, z: d.z }, wander: null, walking: false, ph: i * 1.7, qTex: qTex, cTex: cTex, rTex: rTex });
+      
+    });
+    window.addEventListener('resize', onResize);
+  }
+  function onResize() {
+    if (!renderer) return;
+    renderer.setSize(window.innerWidth, window.innerHeight, false); camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+  }
+  function ensureWorld() {
+    if (W.ready || W.fail) return;
+    try { buildWorld(); W.ready = true; } catch (err) { if (window.console) console.error(err); W.fail = true; }
+  }
+  function syncWorld() {
+    if (!W.ready) return;
+    W.npc.forEach(function (o, i) {
+      var d = NPC[i]; o.home = { x: d.x, z: d.z }; o.wander = null; o.walking = false; o.flee = null; o.armL.rotation.x = 0; o.armR.rotation.x = 0;
+      o.circle.x = d.x; o.circle.z = d.z; o.g.position.set(d.x, d.y || 0, d.z); o.sh.position.set(d.x, (d.y || 0) + .045, d.z); o.mk.position.x = d.x; o.mk.position.z = d.z;
+      o.mk.material.map = res[i] ? o.cTex : o.qTex; o.mk.material.needsUpdate = true;
+    });
+  }
+
+  /* ---------- play ---------- */
+  function startPlay() {
+    ensureWorld();
+    if (W.fail) { show('baca'); $('glErr').hidden = false; setState('read'); return; }
+    show(''); $('hud').hidden = false; $('gl').classList.add('on'); $('btnSkip').hidden = true;
+    setState('play'); hudUpdate();
+    if (!started) { started = true; yaw = startYaw; pitch = 0; pos.set(startX, startY + 1.6, startZ); loop(); }
+    onResize();
+    if (!isTouch) lockPointer();
+  }
+  function resetGame() {
+    resetData(); syncWorld();
+    $('toast').hidden = true;
+    pos.set(startX, startY + 1.6, startZ); yaw = startYaw; pitch = 0; hudUpdate();
+  }
+  function hudUpdate() {
+    $('hN').textContent = done; $('hBar').style.width = (done / N * 100) + '%'; $('hPts').textContent = score; $('hStars').textContent = stars;
+    $('hNext').textContent = done >= N ? 'Semua soal selesai!' : 'Ayo Dansa: ' + (3 - done % 3) + ' soal lagi';
+  }
+  function collide(p, rad, skip) {
+    var r = rad || .45, i; p.x = clamp(p.x, -66, 66); p.z = clamp(p.z, -66, 66);
+    for (i = 0; i < W.boxes.length; i++) {
+      var b = W.boxes[i];
+      if (p.x > b.x0 - r && p.x < b.x1 + r && p.z > b.z0 - r && p.z < b.z1 + r) {
+        var dl = p.x - (b.x0 - r), dr = (b.x1 + r) - p.x, dt = p.z - (b.z0 - r), db = (b.z1 + r) - p.z, m = Math.min(dl, dr, dt, db);
+        if (m === dl) p.x = b.x0 - r; else if (m === dr) p.x = b.x1 + r; else if (m === dt) p.z = b.z0 - r; else p.z = b.z1 + r;
+      }
+    }
+    for (i = 0; i < W.circles.length; i++) {
+      var c = W.circles[i], dx = p.x - c.x, dz = p.z - c.z, rr2 = r + c.r, d2 = dx * dx + dz * dz;
+      if (c !== skip && d2 < rr2 * rr2) { var d = Math.sqrt(d2) || .001; p.x = c.x + dx / d * rr2; p.z = c.z + dz / d * rr2; }
+    }
+  }
+  function nearest(maxD) {
+    var best = -1, bd = maxD;
+    for (var i = 0; i < N; i++) { if (W.npc[i].flee) continue; var d = Math.hypot(pos.x - NPC[i].x, pos.z - NPC[i].z, (pos.y - 1.6) - NPC[i].y); if (d < bd) { bd = d; best = i; } }
+    return best;
+  }
+  /* ---------- fisika Only Up ---------- */
+  var TW = window.TOWER, PL = TW.plat, vy = 0, grounded = true, jumpT = false, RET = null;
+  function floorAt(x, z, fy) {
+    var b = 0, i, p; for (i = 0; i < PL.length; i++) { p = PL[i]; if (p.top <= fy + .12 && p.top > b && Math.hypot(x - p.x, z - p.z) <= p.r + .25) b = p.top; } return b;
+  }
+  function spot(lim) {
+    var b = null; NPC.forEach(function (d, i) { if (res[i] && d.y < lim && (!b || d.y > b.y)) b = d; });
+    return b ? { x: b.x + 1.5, y: b.y, z: b.z + 1.5, cp: 1 } : { x: 0, y: 0, z: 22, cp: 0 };
+  }
+  function firstOpen() { for (var i = 0; i < N; i++) if (!res[i]) return i; return -1; }
+  $('lList').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-go]'); if (!b) return; var d = NPC[+b.getAttribute('data-go')];
+    closeList(); putAt({ x: d.x + 1.5, y: d.y, z: d.z + 1.5 });
+  });
+  function putAt(p) { pos.set(p.x, p.y + 1.6, p.z); vy = 0; grounded = true; yaw = Math.atan2(-(TW.cx - p.x), -(TW.cz - p.z)); pitch = 0; }
+  function dropPlayer(i) {
+    var p = spot(NPC[i].y); putAt(p); beep(200, .3, 'sawtooth');
+    showToast('Belum tepat! Kamu terpeleset jatuh ke ' + (p.cp ? 'pos terakhir' : 'tanah') + '. Panjat lagi ke ' + NPC[i].n + '!');
+  }
+  function physics(dt) {
+    collide(pos);
+    var fy = pos.y - 1.6, fl = floorAt(pos.x, pos.z, fy);
+    if (grounded && fy > fl + .06) grounded = false;
+    if (grounded) { fy = fl; vy = 0; if (keys.Space || jumpT) { vy = 9; grounded = false; beep(520, .08, 'triangle'); } }
+    if (!grounded) { vy = Math.max(-35, vy - 24 * dt); fy += vy * dt; fl = floorAt(pos.x, pos.z, pos.y - 1.6); if (fy <= fl) { fy = fl; vy = 0; grounded = true; } }
+    pos.y = fy + 1.6;
+    var c = spot(1e9); if (c.cp && fy < c.y - 14) { putAt(c); showToast('Kamu jatuh jauh! Kembali ke pos terakhir.'); }
+  }
+  var bj = $('btnJump'); bj.addEventListener('pointerdown', function (e) { e.preventDefault(); jumpT = true; });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { bj.addEventListener(ev, function () { jumpT = false; }); });
+
+  function loop() {
+    requestAnimationFrame(loop);
+    var dt = Math.min(clock.getDelta(), .05), t = clock.elapsedTime;
+    if (state === 'play') {
+      var f = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0) + joy.y;
+      var s = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0) + joy.x;
+      var len = Math.hypot(f, s); if (len > 1) { f /= len; s /= len; }
+      var spd = (keys.ShiftLeft || keys.ShiftRight ? 10 : 6) * dt;
+      moving = len > .05;
+      pos.x += (-Math.sin(yaw) * f + Math.cos(yaw) * s) * spd; pos.z += (-Math.cos(yaw) * f - Math.sin(yaw) * s) * spd;
+      physics(dt);
+      if (moving) bobT += dt * (keys.ShiftLeft || keys.ShiftRight ? 13 : 9);
+    }
+    if (state === 'mini') danceUpdate(dt, t);
+    if (CAM.mode === 'fp') { camera.position.set(pos.x, pos.y + (moving && state === 'play' ? Math.sin(bobT) * .035 : 0), pos.z); camera.rotation.set(pitch, yaw, 0); } else camStep(dt);
+    sky.position.copy(camera.position);
+    clouds.forEach(function (c) { c.position.x += c.userData.sp * dt; if (c.position.x > 190) c.position.x = -190; });
+    ANIM.forEach(function (a) {
+      var k = a.k;
+      if (k === 'penguin') { a.g.rotation.y = a.r0 + Math.sin(t * .5 + a.ph) * 1.2; a.g.rotation.z = Math.sin(t * 4 + a.ph) * .08; a.g.position.y = Math.abs(Math.sin(t * 3 + a.ph)) * .04; }
+      else if (k === 'flamingo') { a.g.rotation.y = a.r0 + Math.sin(t * .4 + a.ph) * .5; }
+      else { a.g.rotation.y = a.r0 + Math.sin(t * .3 + a.ph) * .6; a.g.position.y = Math.abs(Math.sin(t * .9 + a.ph)) * .02; if (a.g.userData.trunk) a.g.userData.trunk.rotation.x = Math.sin(t * 1.2 + a.ph) * .25; }
+    });
+    for (var i = 0; i < N; i++) {
+      var o = W.npc[i], d = NPC[i], dx, dz, dist;
+      if (o.dance) { o.mk.visible = false; continue; }
+      o.walking = false;
+      dx = pos.x - d.x; dz = pos.z - d.z; dist = Math.hypot(dx, dz);
+      o.body.position.y = o.flee ? Math.abs(Math.sin(t * 12)) * .12 : (o.walking ? Math.abs(Math.sin(t * 7 + o.ph)) * .05 : Math.sin(t * 2 + o.ph) * .015);
+      if (!o.flee && !o.walking && dist < 9) { var target = Math.atan2(dx, dz), diff = Math.atan2(Math.sin(target - o.g.rotation.y), Math.cos(target - o.g.rotation.y)); o.g.rotation.y += diff * Math.min(1, dt * 4); }
+      if (res[i] && dist < 14) { o.armR.rotation.z = 2.6 + Math.sin(t * 7 + o.ph) * .3; o.armL.rotation.z = -.1; }
+      else { o.armR.rotation.z = Math.sin(t * 1.5 + o.ph) * .05; o.armL.rotation.z = -Math.sin(t * 1.5 + o.ph) * .05; }
+      if (!o.flee) { o.armL.rotation.x = o.walking ? Math.sin(t * 6 + o.ph) * .6 : 0; o.armR.rotation.x = o.walking ? -Math.sin(t * 6 + o.ph) * .6 : 0; }
+      o.mk.visible = dist < 34; o.mk.position.y = (d.y || 0) + 2.65 + Math.sin(t * 3 + o.ph) * .12;
+    }
+    frameN++;
+    if (frameN % 6 === 0) { drawMini(); promptUpdate(); }
+    if (frameN % 20 === 0) zoneUpdate();
+    renderer.render(scene, camera);
+  }
+  var toastT = null;
+  function showToast(msg) { var el = $('toast'); el.textContent = msg; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { el.hidden = true; }, 4500); }
+  function zoneAt(x, z) {
+    var best = 'kebun binatang', bs = 1;
+    ZONES.forEach(function (zn) { var q = Math.hypot(x - zn.x, z - zn.z) / zn.r; if (q < bs) { bs = q; best = zn.n; } });
+    return best;
+  }
+  function spotFree(x, z) {
+    var i;
+    for (i = 0; i < W.boxes.length; i++) { var b = W.boxes[i]; if (x > b.x0 - 2.5 && x < b.x1 + 2.5 && z > b.z0 - 2.5 && z < b.z1 + 2.5) return false; }
+    for (i = 0; i < W.circles.length; i++) { var c = W.circles[i]; if (Math.hypot(x - c.x, z - c.z) < c.r + 1.8) return false; }
+    return true;
+  }
+  function startFlee(i) {
+    var d = NPC[i], o = W.npc[i], tx = 0, tz = 0, ok = false, k;
+    for (k = 0; k < 80 && !ok; k++) {
+      var a = Math.random() * 6.283, rd = 26 + Math.random() * 32; tx = d.x + Math.cos(a) * rd; tz = d.z + Math.sin(a) * rd;
+      ok = Math.abs(tx) < 60 && Math.abs(tz) < 60 && Math.hypot(tx - pos.x, tz - pos.z) > 28 && spotFree(tx, tz);
+    }
+    if (!ok) { tx = clamp(-pos.x * .8, -58, 58); tz = clamp(-pos.z * .8, -58, 58); }
+    o.flee = { tx: tx, tz: tz, t: 0 }; o.mk.material.map = o.rTex; o.mk.material.needsUpdate = true;
+    d.clue = 'Kabur ke arah ' + zoneAt(tx, tz);
+    showToast(d.n + ' kabur ke arah ' + zoneAt(tx, tz) + '! Cari dia lagi.');
+  }
+  function fleeStep(o, d, dt, t) {
+    var f = o.flee, dx = f.tx - d.x, dz = f.tz - d.z, dd = Math.hypot(dx, dz); f.t += dt;
+    if (dd < .8 || f.t > 10) { o.flee = null; o.home = { x: d.x, z: d.z }; o.wander = null; o.armL.rotation.x = 0; o.armR.rotation.x = 0; d.clue = 'Terlihat di ' + zoneAt(d.x, d.z); return; }
+    var st = 7.5 * dt; d.x += dx / dd * st; d.z += dz / dd * st; collide(d, .6, o.circle);
+    o.circle.x = d.x; o.circle.z = d.z; o.g.position.set(d.x, d.y || 0, d.z); o.sh.position.set(d.x, (d.y || 0) + .045, d.z); o.mk.position.x = d.x; o.mk.position.z = d.z;
+    var tg = Math.atan2(dx, dz), df = Math.atan2(Math.sin(tg - o.g.rotation.y), Math.cos(tg - o.g.rotation.y)); o.g.rotation.y += df * Math.min(1, dt * 10);
+    o.armL.rotation.x = Math.sin(t * 14) * .9; o.armR.rotation.x = -Math.sin(t * 14) * .9; o.armL.rotation.z = 0; o.armR.rotation.z = 0;
+  }
+  function pickWander(o, d, w) {
+    var k, tx = d.x, tz = d.z, ok = false;
+    for (k = 0; k < 30 && !ok; k++) {
+      var a = Math.random() * 6.283, r = 2.5 + Math.random() * 6;
+      tx = o.home.x + Math.cos(a) * r; tz = o.home.z + Math.sin(a) * r;
+      ok = Math.abs(tx) < 60 && Math.abs(tz) < 60 && spotFree(tx, tz) && Math.hypot(tx - pos.x, tz - pos.z) > 3;
+    }
+    if (ok) { w.tx = tx; w.tz = tz; } else { w.tx = d.x; w.tz = d.z; }
+    w.wait = 1 + Math.random() * 3; w.t = 0; o.walking = false;
+  }
+  function wanderStep(o, d, dt, t, i) {
+    var dp = Math.hypot(pos.x - d.x, pos.z - d.z);
+    if (dp < 4.5 || (res[i] && dp < 14)) { o.walking = false; return; }
+    var w = o.wander;
+    if (!w) { w = o.wander = { tx: d.x, tz: d.z, wait: 0, t: 0 }; pickWander(o, d, w); w.wait = Math.random() * 1.5; }
+    if (w.wait > 0) { w.wait -= dt; o.walking = false; return; }
+    var dx = w.tx - d.x, dz = w.tz - d.z, dd = Math.hypot(dx, dz); w.t += dt;
+    if (dd < .5 || w.t > 9) { pickWander(o, d, w); return; }
+    var st = 1.5 * dt; d.x += dx / dd * st; d.z += dz / dd * st; collide(d, .6, o.circle);
+    o.circle.x = d.x; o.circle.z = d.z; o.g.position.set(d.x, d.y || 0, d.z); o.sh.position.set(d.x, (d.y || 0) + .045, d.z); o.mk.position.x = d.x; o.mk.position.z = d.z;
+    var tg = Math.atan2(dx, dz), df = Math.atan2(Math.sin(tg - o.g.rotation.y), Math.cos(tg - o.g.rotation.y)); o.g.rotation.y += df * Math.min(1, dt * 8);
+    o.walking = true;
+  }
+  function zoneUpdate() {
+    var h = Math.max(0, Math.round(pos.y - 1.6)), n = h < 8 ? 'Kaki Menara' : h < 22 ? 'Lereng Hijau' : h < 38 ? 'Lautan Awan' : h < 52 ? 'Puncak Angin' : 'Atap Langit', t = h + ' m · ' + n;
+    if ($('zone').textContent !== t) $('zone').textContent = t;
+  }
+  function promptUpdate() {
+    var el = $('prompt');
+    if (state !== 'play') { el.hidden = true; return; }
+    var i = nearest(3.8);
+    if (i < 0) { el.hidden = true; return; }
+    el.hidden = false; el.classList.toggle('quiet', !!res[i]); var lk = !res[i] && i !== firstOpen(); $('btnTalk').hidden = !!res[i] || lk;
+    $('pTxt').innerHTML = lk ? 'Soal pos sebelumnya belum selesai. Buka Daftar untuk kembali.' : res[i] ? NPC[i].n + ' sudah kamu bantu.' : (isTouch ? 'Ada ' + NPC[i].n + ' di dekatmu' : 'Tekan <kbd>E</kbd> untuk bicara dengan <strong>' + NPC[i].n + '</strong>');
+  }
+  var mctx = $('mini').getContext('2d'), mdpr = Math.min(window.devicePixelRatio || 1, 2);
+  function drawMini() {
+    var cv = $('mini'), S = cv.clientWidth || 140; if (cv.width !== Math.round(S * mdpr)) { cv.width = cv.height = Math.round(S * mdpr); }
+    var m = cv.width / 140, g = mctx, H = TW.h, fy = pos.y - 1.6, Y = function (y) { return (132 - clamp(y / H, 0, 1) * 120) * m; }, py = Y(fy);
+    g.clearRect(0, 0, 140 * m, 140 * m); g.fillStyle = '#eef6fb'; g.fillRect(0, 0, 140 * m, 140 * m);
+    g.fillStyle = '#cddae7'; g.fillRect(30 * m, 12 * m, 10 * m, 120 * m); g.fillStyle = '#14a06e'; g.fillRect(30 * m, py, 10 * m, 132 * m - py);
+    NPC.forEach(function (d, i) { g.fillStyle = res[i] ? '#14a06e' : '#ffc42e'; g.beginPath(); g.arc(35 * m, Y(d.y), 3 * m, 0, 7); g.fill(); g.lineWidth = m; g.strokeStyle = '#10233f'; g.stroke(); });
+    g.fillStyle = '#e0434a'; g.beginPath(); g.moveTo(43 * m, py); g.lineTo(53 * m, py - 5 * m); g.lineTo(53 * m, py + 5 * m); g.fill();
+    g.fillStyle = '#10233f'; g.textBaseline = 'middle'; g.font = '800 ' + (22 * m) + 'px sans-serif'; g.fillText(Math.max(0, Math.round(fy)) + ' m', 62 * m, 50 * m);
+    g.font = '600 ' + (11 * m) + 'px sans-serif'; g.fillText('Tinggi', 62 * m, 30 * m); g.fillText(done + ' / ' + N + ' pos', 62 * m, 76 * m);
+  }
+
+  /* ---------- input ---------- */
+  var cv = $('gl');
+  function lockPointer() { try { var p = cv.requestPointerLock && cv.requestPointerLock(); if (p && p.catch) p.catch(function () { }); } catch (e) { } }
+  cv.addEventListener('mousedown', function (e) { if (state !== 'play') return; dragging = true; lockPointer(); e.preventDefault(); });
+  window.addEventListener('mouseup', function () { dragging = false; });
+  window.addEventListener('mousemove', function (e) {
+    if (state !== 'play' || !(locked || dragging)) return;
+    yaw -= (e.movementX || 0) * .0023; pitch = clamp(pitch - (e.movementY || 0) * .0023, -1.3, 1.3);
+  });
+  document.addEventListener('pointerlockchange', function () { locked = (document.pointerLockElement === cv); updatePause(); });
+  window.addEventListener('blur', function () { keys = {}; dragging = false; });
+  window.addEventListener('keydown', function (e) {
+    if (state === 'mini') return;
+    if (state === 'dialog') {
+      if (e.code === 'Escape') { closeDialog(qLocked); return; }
+      var m = /^(Digit|Numpad)([1-5])$/.exec(e.code);
+      if (m && !$('dSubmit').hidden && !qLocked) { toggleOpt(+m[2] - 1); e.preventDefault(); }
+      if (e.code === 'Enter' && e.target.tagName !== 'BUTTON') { e.preventDefault(); (qLocked ? closeDialog : submitAnswer)(qLocked ? true : undefined); }
+      return;
+    }
+    if (state === 'list') { if (e.code === 'Escape' || e.code === 'Tab' || e.code === 'KeyH') { e.preventDefault(); closeList(); } return; }
+    if (state === 'confirm') { if (e.code === 'Escape') { e.preventDefault(); closeFinish(); } return; }
+    if (state !== 'play') return;
+    if (e.code === 'Tab' || e.code === 'KeyH') { e.preventDefault(); openList(); return; }
+    if (e.code === 'KeyE') { tryTalk(); return; }
+    keys[e.code] = true;
+    if (e.code.indexOf('Arrow') === 0 || e.code === 'Space') e.preventDefault();
+  });
+  window.addEventListener('keyup', function (e) { keys[e.code] = false; });
+  // touch
+  var tzL = $('tzL'), tzR = $('tzR'), jb = $('joyBase'), jk = $('joyKnob');
+  tzL.addEventListener('pointerdown', function (e) {
+    if (joy.id !== null) return; joy.id = e.pointerId; joy.ox = e.clientX; joy.oy = e.clientY; jb.style.left = e.clientX + 'px'; jb.style.top = e.clientY + 'px'; jb.hidden = false; jk.style.transform = ''; try { tzL.setPointerCapture(e.pointerId); } catch (x) { }
+  });
+  tzL.addEventListener('pointermove', function (e) {
+    if (e.pointerId !== joy.id) return; var dx = e.clientX - joy.ox, dy = e.clientY - joy.oy, l = Math.hypot(dx, dy), mx = 50; if (l > mx) { dx = dx / l * mx; dy = dy / l * mx; }
+    joy.x = dx / mx; joy.y = -dy / mx; jk.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+  });
+  function joyEnd(e) { if (e.pointerId !== joy.id) return; joy.id = null; joy.x = joy.y = 0; jb.hidden = true; }
+  tzL.addEventListener('pointerup', joyEnd); tzL.addEventListener('pointercancel', joyEnd);
+  tzR.addEventListener('pointerdown', function (e) { if (lookId !== null) return; lookId = e.pointerId; lookLast = [e.clientX, e.clientY]; try { tzR.setPointerCapture(e.pointerId); } catch (x) { } });
+  tzR.addEventListener('pointermove', function (e) {
+    if (e.pointerId !== lookId) return; yaw -= (e.clientX - lookLast[0]) * .0055; pitch = clamp(pitch - (e.clientY - lookLast[1]) * .0055, -1.3, 1.3); lookLast = [e.clientX, e.clientY];
+  });
+  function lookEnd(e) { if (e.pointerId === lookId) lookId = null; }
+  tzR.addEventListener('pointerup', lookEnd); tzR.addEventListener('pointercancel', lookEnd);
+
+  /* ---------- dialog ---------- */
+  var qLocked = false;
+  function releaseLock() { try { if (document.exitPointerLock) document.exitPointerLock(); } catch (e) { } keys = {}; joy.x = joy.y = 0; dragging = false; }
+  function backToPlay() { setState('play'); if (!isTouch) lockPointer(); }
+  function tryTalk() {
+    if (state !== 'play') return; var i = nearest(3.8); if (i < 0 || res[i]) return;
+    if (i !== firstOpen()) { showToast('Selesaikan soal di pos sebelumnya dulu. Buka Daftar (Tab), lalu pilih "Ke pos ini".'); return; }
+    openDialog(i);
+  }
+  $('btnTalk').addEventListener('click', tryTalk);
+  function openDialog(i) {
+    cur = i; qLocked = false; releaseLock(); setState('dialog'); beep(660, .1, 'triangle'); beep(880, .12, 'triangle', .09);
+    var d = NPC[i]; $('dAv').textContent = d.n.replace(/^(Bu|Pak|Pa|Nenek|Kak|Mang)\s/, '').charAt(0); $('dAv').style.background = '#' + ('000000' + (d.c === 0xffffff ? 0xd8232a : d.c).toString(16)).slice(-6);
+    $('dName').textContent = d.n; $('dRole').textContent = d.r; $('dQ').textContent = d.s; $('dStory').textContent = d.t; $('dStory').hidden = !d.t;
+    $('dHi').textContent = att[i] ? 'Kamu menemukanku lagi! Coba jawab sekali lagi, ya. Pilih semua jawaban yang benar.' : GREET[Math.floor(Math.random() * GREET.length)];
+    document.querySelector('.qtag').textContent = 'Pilih SEMUA jawaban yang benar · Cerita Logika' + (d.h ? ' · HOTS' : '') + (att[i] ? ' · Percobaan ke-' + (att[i] + 1) : '');
+    qopts = shuffle(d.o.map(function (o) { return { t: o[0], ok: !!o[1] }; }));
+    var box = $('dOpts'); box.innerHTML = '';
+    qopts.forEach(function (o, k) {
+      var lab = document.createElement('label'); lab.className = 'opt'; lab.innerHTML = '<input type="checkbox" id="opt' + k + '"><span class="box"></span><span class="ot"></span><span class="tag"></span>';
+      lab.querySelector('.ot').textContent = o.t; o.el = lab; o.inp = lab.querySelector('input');
+      o.inp.addEventListener('change', function () { lab.classList.toggle('sel', o.inp.checked); });
+      box.appendChild(lab);
+    });
+    $('dRes').hidden = true; $('dHint').hidden = false; $('dSubmit').textContent = 'Periksa Jawaban'; $('dLater').hidden = false;
+    $('dialog').hidden = false; $('dialog').scrollTop = 0; $('dcard').focus();
+  }
+  function toggleOpt(k) { var o = qopts[k]; if (!o) return; o.inp.checked = !o.inp.checked; o.el.classList.toggle('sel', o.inp.checked); }
+  function submitAnswer() {
+    if (qLocked) { closeDialog(true); return; }
+    var hits = 0, wrong = 0, total = 0;
+    qopts.forEach(function (o) { if (o.ok) total++; if (o.inp.checked && o.ok) hits++; if (o.inp.checked && !o.ok) wrong++; });
+    var perfect = (hits === total && wrong === 0);
+    qLocked = true; lastOk = perfect;
+    qopts.forEach(function (o) {
+      o.inp.disabled = true; o.el.classList.add('lock');
+      if (perfect) { o.el.classList.remove('sel'); o.el.classList.add('ok'); o.el.querySelector('.tag').textContent = 'Benar'; }
+    });
+    var box = $('dRes'); box.hidden = false;
+    if (perfect) {
+      var pts = Math.max(20, 100 - 20 * att[cur]);
+      res[cur] = { pts: pts, tries: att[cur] + 1 }; done++; score += pts;
+      box.className = 'res good';
+      box.innerHTML = '<b>Sempurna! +' + pts + ' poin</b><span>' + NPC[cur].w + '</span>';
+      var nm = W.npc[cur]; nm.mk.material.map = nm.cTex; nm.mk.material.needsUpdate = true;
+      var needMini = Math.floor(done / 3) > mg;
+      $('dSubmit').textContent = needMini ? 'Main Mini Game!' : (done === N ? 'Lihat Hasil' : 'Lanjut Mencari');
+      beep(784, .12, 'triangle'); beep(988, .12, 'triangle', .11); beep(1318, .2, 'triangle', .22);
+    } else {
+      att[cur]++;
+      box.className = 'res nope';
+      box.innerHTML = '<b>Belum tepat, kamu akan terpeleset!</b><span>Kamu memilih ' + hits + ' jawaban yang tepat dan ' + wrong + ' yang kurang tepat. Jumlah semua jawaban yang benar: ' + total + '.</span><span>' + NPC[cur].w + '</span><span>Kamu jatuh ke pos sebelumnya. Panjat lagi, lalu jawab sampai benar semua.</span>';
+      $('dSubmit').textContent = 'Jatuh ke Bawah';
+      beep(220, .25, 'sawtooth');
+    }
+    $('dHint').hidden = true; $('dLater').hidden = true; hudUpdate(); save();
+    if (box.scrollIntoView) box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  function closeDialog(answered) {
+    $('dialog').hidden = true;
+    var solved = (answered === true && qLocked && lastOk);
+    if (solved && Math.floor(done / 3) > mg) { startMini(function () { if (done === N) showResults(); else backToPlay(); }); return; }
+    if (solved && done === N) { showResults(); return; }
+    backToPlay();
+    if (answered === true && qLocked && !lastOk) dropPlayer(cur);
+  }
+  $('dSubmit').addEventListener('click', function () { submitAnswer(); });
+  $('dLater').addEventListener('click', function () { closeDialog(false); });
+  $('dClose').addEventListener('click', function () { closeDialog(qLocked); });
+
+  /* ---------- mini game: Ayo Dansa ----------
+     Alur: 3 teman datang ke depan pemain -> kamera pindah ke third person -> avatar pemain berjalan ke barisan ->
+     hitung mundur -> lagu 2 menit (24 putaran x 5 detik) -> papan skor -> teman kembali ke tempatnya -> kamera kembali first person. */
+  var DIRS = ['up', 'down', 'left', 'right'];
+  var DKEY = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right' };
+  var SONG_LEN = 120, ROUND_LEN = 5, N_ROUND = 24, ZONE0 = .55, ZONE1 = .85, NPC_SLOTS = [0, 2, 3];
+  var MEDAL = ['\uD83E\uDD47', '\uD83E\uDD48', '\uD83E\uDD49', '4'];
+  var FBTXT = { perfect: 'SEMPURNA!', good: 'TERLALU CEPAT', late: 'TELAT', miss: 'MELESET' };
+  var mgCb = null, mgLvl = 1, mgStarsGot = 0, mgPhase = 'idle';
+  var CAM = { mode: 'fp', t: 0, v: null }, DN = { phase: 'off', n: 0, npcs: [], labels: [], sc: [0, 0, 0, 0], combo: [0, 0, 0, 0], names: [], stat: {}, ev: [], seq: [], round: -1, el: 0 }, PR = null;
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function arrowSVG(dir, col) {
+    var rot = { up: 0, right: 90, down: 180, left: 270 }[dir];
+    return '<svg viewBox="0 0 24 24" style="transform:rotate(' + rot + 'deg)" fill="none" stroke="' + (col || '#fff') + '" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V5M5.5 11.5L12 5l6.5 6.5"/></svg>';
+  }
+  function ease(x) { return x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }
+  function turn(g, a, k) { var df = Math.atan2(Math.sin(a - g.rotation.y), Math.cos(a - g.rotation.y)); g.rotation.y += df * Math.min(1, k); }
+  function acx() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; } return AC; }
+  function blip(f, d, type, delay, v) {
+    try {
+      var a = acx(); if (!a) return; var t0 = a.currentTime + (delay || 0), o = a.createOscillator(), g = a.createGain();
+      o.type = type || 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(v || .14, t0); g.gain.exponentialRampToValueAtTime(.0001, t0 + d);
+      o.connect(g); g.connect(a.destination); o.start(t0); o.stop(t0 + d + .02);
+    } catch (e) { }
+  }
+
+  /* ----- lagu 2 menit (dibuat langsung oleh WebAudio, 120 BPM x 60 birama) ----- */
+  var SONG = { timer: null, step: 0, next: 0, t0: 0, ctx: null, fade: null, mute: null, noise: null, muted: false, on: false };
+  var CT = [[220, 261.63, 329.63], [174.61, 220, 261.63], [261.63, 329.63, 392], [196, 246.94, 293.66]];
+  var BR = [110, 87.31, 130.81, 98];
+  var LD = [[440, 523.25, 659.25, 523.25], [349.23, 440, 523.25, 440], [392, 523.25, 659.25, 392], [493.88, 587.33, 783.99, 587.33]];
+  var ARP = [0, 1, 2, 1, 0, 1, 2, 1, 0, 2, 1, 2, 0, 1, 2, 1];
+  function sNote(f, t, d, type, v) {
+    var a = SONG.ctx, o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + .008); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g); g.connect(SONG.fade); o.start(t); o.stop(t + d + .02);
+  }
+  function sNoise(t, d, ft, ff, v) {
+    var a = SONG.ctx, s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain(); s.buffer = SONG.noise; f.type = ft; f.frequency.value = ff;
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); s.connect(f); f.connect(g); g.connect(SONG.fade); s.start(t, Math.random() * .5); s.stop(t + d + .02);
+  }
+  function sKick(t) {
+    var a = SONG.ctx, o = a.createOscillator(), g = a.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(42, t + .13);
+    g.gain.setValueAtTime(.95, t); g.gain.exponentialRampToValueAtTime(.0001, t + .2); o.connect(g); g.connect(SONG.fade); o.start(t); o.stop(t + .22);
+  }
+  function songStep(s, t) {
+    var bar = s >> 4, st = s & 15, c = bar % 4, brk = (bar >= 28 && bar < 32), drums = bar >= 1 && !brk;
+    if (st === 0) CT[c].forEach(function (f) { sNote(f, t, 1.9, 'triangle', .05); });
+    if (drums && st % 4 === 0) sKick(t);
+    if (drums && bar >= 3 && (st === 4 || st === 12)) sNoise(t, .14, 'bandpass', 1800, .35);
+    if (bar >= 2 && !brk && st % 4 === 2) sNoise(t, .05, 'highpass', 7000, .18);
+    if (bar >= 16 && !brk && st % 2 === 1) sNoise(t, .03, 'highpass', 8000, .07);
+    if (bar >= 1 && !brk && st % 2 === 0) sNote(BR[c] * (st % 8 === 6 ? 2 : 1), t, .2, 'triangle', .24);
+    if (bar >= 4) sNote(CT[c][ARP[st]] * 2, t, .11, 'square', .035);
+    if (((bar >= 8 && bar < 28) || (bar >= 36 && bar < 56)) && (st === 0 || st === 6 || st === 8 || st === 12)) {
+      var f = LD[c][st === 0 ? 0 : (st === 6 ? 1 : (st === 8 ? 2 : 3))]; sNote(f, t, .28, 'triangle', .12); sNote(f, t, .16, 'square', .025);
+    }
+    if (bar === 59 && st === 12) CT[0].concat(CT[2]).forEach(function (f2) { sNote(f2 * 2, t, 1.2, 'triangle', .07); });
+  }
+  function songStart() {
+    var a = acx(); SONG.on = true;
+    if (!a) { DN.t0 = performance.now() + 200; return; }
+    SONG.ctx = a;
+    var comp = a.createDynamicsCompressor(); SONG.fade = a.createGain(); SONG.mute = a.createGain(); SONG.mute.gain.value = SONG.muted ? 0 : .5;
+    SONG.fade.connect(SONG.mute); SONG.mute.connect(comp); comp.connect(a.destination);
+    if (!SONG.noise || SONG.noise.sampleRate !== a.sampleRate) { var nb = a.createBuffer(1, a.sampleRate, a.sampleRate), dd = nb.getChannelData(0); for (var i = 0; i < dd.length; i++) dd[i] = Math.random() * 2 - 1; SONG.noise = nb; }
+    SONG.t0 = a.currentTime + .2; SONG.next = SONG.t0; SONG.step = 0;
+    SONG.fade.gain.setValueAtTime(1, SONG.t0 + SONG_LEN - 3); SONG.fade.gain.linearRampToValueAtTime(.0001, SONG.t0 + SONG_LEN - .05);
+    DN.t0 = performance.now() + (SONG.t0 - a.currentTime) * 1000;
+    clearInterval(SONG.timer);
+    SONG.timer = setInterval(function () {
+      while (SONG.step < 960 && SONG.next < a.currentTime + .3) { songStep(SONG.step, SONG.next); SONG.next += .125; SONG.step++; }
+      if (SONG.step >= 960) clearInterval(SONG.timer);
+    }, 40);
+  }
+  function songStop() {
+    clearInterval(SONG.timer); SONG.on = false;
+    try { if (SONG.fade && SONG.ctx) { SONG.fade.gain.cancelScheduledValues(SONG.ctx.currentTime); SONG.fade.gain.setTargetAtTime(.0001, SONG.ctx.currentTime, .08); } } catch (e) { }
+  }
+  $('dnMute').addEventListener('click', function () {
+    SONG.muted = !SONG.muted; if (SONG.mute) SONG.mute.gain.value = SONG.muted ? 0 : .5;
+    this.textContent = SONG.muted ? '\uD83D\uDD07' : '\uD83D\uDD0A'; this.setAttribute('aria-label', SONG.muted ? 'Nyalakan suara lagu' : 'Matikan suara lagu');
+  });
+
+  /* ----- avatar pemain & panggung ----- */
+  function buildPlayerRig() {
+    if (PR) return;
+    var g = new THREE.Group(), body = new THREE.Group(), skin = lam(0xe0ac84), shirt = lam(0xffffff), pants = lam(0xd8232a), hair = lam(0x1c1c1c), red = lam(0xd8232a);
+    var legL = new THREE.Mesh(new THREE.BoxGeometry(.24, .72, .26), pants), legR = legL.clone(); legL.position.set(-.14, .36, 0); legR.position.set(.14, .36, 0);
+    var torso = new THREE.Mesh(new THREE.CylinderGeometry(.34, .38, .85, 12), shirt); torso.position.y = 1.12;
+    var armG = new THREE.BoxGeometry(.17, .72, .19).translate(0, -.36, 0), armL = new THREE.Mesh(armG, shirt), armR = new THREE.Mesh(armG, shirt); armL.position.set(-.47, 1.46, 0); armR.position.set(.47, 1.46, 0);
+    var head = new THREE.Mesh(new THREE.SphereGeometry(.27, 14, 12), skin); head.position.y = 1.76;
+    var eg = new THREE.SphereGeometry(.034, 6, 6), ebm = new THREE.MeshBasicMaterial({ color: 0x10233f }), e1 = new THREE.Mesh(eg, ebm), e2 = new THREE.Mesh(eg, ebm); e1.position.set(-.09, 1.8, .245); e2.position.set(.09, 1.8, .245);
+    var cap = new THREE.Mesh(new THREE.SphereGeometry(.295, 14, 8, 0, 6.283, 0, 1.75), hair); cap.position.y = 1.77;
+    var hat = new THREE.Mesh(new THREE.CylinderGeometry(.3, .31, .13, 14), red); hat.position.y = 2.0;
+    var vis = new THREE.Mesh(new THREE.BoxGeometry(.4, .04, .22), red); vis.position.set(0, 1.97, .3);
+    var sh = new THREE.Mesh(new THREE.CircleGeometry(.6, 14).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x1e3a20, transparent: true, opacity: .3, depthWrite: false })); sh.position.y = .045;
+    body.add(legL, legR, torso, armL, armR, head, e1, e2, cap, hat, vis); g.add(body, sh); g.visible = false; scene.add(g);
+    PR = { g: g, body: body, armL: armL, armR: armR, legL: legL, legR: legR };
+  }
+  function ensureStage() {
+    if (DN.floor) return;
+    var c = document.createElement('canvas'); c.width = 512; c.height = 160; var g = c.getContext('2d'), cols = ['#ff5fa2', '#ffc42e', '#3ad0ff', '#7cf06a'], x, y;
+    for (y = 0; y < 5; y++) for (x = 0; x < 16; x++) { g.fillStyle = cols[(x + y) % 4]; g.fillRect(x * 32, y * 32, 32, 32); if ((x + y) % 2) { g.fillStyle = 'rgba(255,255,255,.28)'; g.fillRect(x * 32, y * 32, 32, 32); } }
+    var fl = new THREE.Mesh(new THREE.PlaneGeometry(16, 5).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c) })); fl.position.y = .05; fl.visible = false; scene.add(fl); DN.floor = fl;
+    DN.beams = [];
+    for (var i = 0; i < 4; i++) {
+      var bm = new THREE.Mesh(new THREE.CylinderGeometry(.35, 1.5, 9, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .16, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }));
+      bm.position.y = 4.5; bm.visible = false; scene.add(bm); DN.beams.push(bm);
+    }
+  }
+  function addLabel(text, bg, who) {
+    var tex = textTex(text, 512, 100, bg, '#10233f'), sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, fog: false }));
+    sp.scale.set(2.7, .53, 1); sp.visible = false; scene.add(sp); DN.labels.push({ sp: sp, tex: tex, who: who }); return sp;
+  }
+  function npcPlace(o, d) { o.circle.x = d.x; o.circle.z = d.z; o.g.position.set(d.x, d.y || 0, d.z); o.sh.position.set(d.x, (d.y || 0) + .045, d.z); o.mk.position.x = d.x; o.mk.position.z = d.z; }
+
+  /* ----- pose badan (kotak ala Roblox) ----- */
+  var POSE0 = { aL: -.12, aR: .12, xL: 0, xR: 0, by: 0, bz: 0, ty: 0, lL: 0, lR: 0 };
+  function rigPose(rig, tg, dt) {
+    var c = rig.cur || (rig.cur = { aL: -.12, aR: .12, xL: 0, xR: 0, by: 0, bz: 0, ty: 0, lL: 0, lR: 0 }), k = Math.min(1, dt * 14), n;
+    for (n in c) c[n] += ((tg[n] === undefined ? POSE0[n] : tg[n]) - c[n]) * k;
+    rig.armL.rotation.z = c.aL; rig.armR.rotation.z = c.aR; rig.armL.rotation.x = c.xL; rig.armR.rotation.x = c.xR;
+    rig.body.position.y = c.by; rig.body.rotation.z = c.bz; rig.body.rotation.y = c.ty; rig.legL.rotation.x = c.lL; rig.legR.rotation.x = c.lR;
+  }
+  function rigReset(rig) {
+    rig.cur = null; rig.armL.rotation.set(0, 0, 0); rig.armR.rotation.set(0, 0, 0); rig.body.position.y = 0; rig.body.rotation.set(0, 0, 0); rig.legL.rotation.set(0, 0, 0); rig.legR.rotation.set(0, 0, 0);
+  }
+  function danceTarget(dir, bp) {
+    var bn = Math.abs(Math.sin(bp * Math.PI)), sw = Math.sin(bp * Math.PI * 2);
+    switch (dir) {
+      case 'up': return { aL: -2.8, aR: 2.8, by: .08 + .1 * bn, lL: .15, lR: -.15 };
+      case 'down': return { aL: -.4, aR: .4, xL: -1, xR: -1, by: -.1, lL: .6, lR: -.6 };
+      case 'left': return { aL: -1.55, aR: 2.6, bz: .24, ty: .35, by: .05 * bn };
+      case 'right': return { aL: -2.6, aR: 1.55, bz: -.24, ty: -.35, by: .05 * bn };
+    }
+    return { aL: -.4 - .25 * sw, aR: .4 + .25 * sw, by: .06 * bn, lL: .08 * sw, lR: -.08 * sw };
+  }
+  function walkTarget(t, ph) { var s = Math.sin(t * 11 + ph); return { lL: s * .6, lR: -s * .6, xL: -s * .7, xR: s * .7, by: Math.abs(s) * .06 }; }
+
+  /* ----- kamera ----- */
+  function camStep(dt) {
+    var V = CAM.v; if (!V) { CAM.mode = 'fp'; return; }
+    var asp = window.innerWidth / window.innerHeight, need = 8 / (Math.tan(.6283) * asp), back = clamp(need - DN.dist, 3.6, 16), k;
+    V.c.set(pos.x - DN.fx * back, 3 + back * .14, pos.z - DN.fz * back); V.look.set(DN.sx, 1.15, DN.sz);
+    V.cam.position.copy(V.c); V.cam.lookAt(V.look); V.qc.copy(V.cam.quaternion);
+    V.fp.set(pos.x, 1.6, pos.z); V.qf.setFromEuler(V.eu.set(pitch, yaw, 0, 'YXZ'));
+    if (CAM.mode === 'to3') {
+      CAM.t += dt / 1.4; k = ease(Math.min(1, CAM.t)); camera.position.lerpVectors(V.fp, V.c, k); camera.quaternion.copy(V.qf).slerp(V.qc, k);
+      if (CAM.t >= 1) CAM.mode = '3p';
+    } else if (CAM.mode === '3p') { camera.position.copy(V.c); camera.quaternion.copy(V.qc); }
+    else if (CAM.mode === 'to1') {
+      CAM.t += dt / 1.4; k = ease(Math.min(1, CAM.t)); camera.position.lerpVectors(V.c, V.fp, k); camera.quaternion.copy(V.qc).slerp(V.qf, k);
+      if (k > .6 && PR) PR.g.visible = false;
+      if (CAM.t >= 1) CAM.mode = 'fp';
+    }
+  }
+
+  /* ----- papan skor & tampilan ----- */
+  function banner(txt) { var b = $('dnBanner'); if (txt) { b.textContent = txt; b.hidden = false; } else b.hidden = true; }
+  function boardRender() {
+    var rows = [], i; for (i = 0; i <= DN.n; i++) rows.push({ i: i, s: DN.sc[i] });
+    rows.sort(function (a, b) { return b.s - a.s || a.i - b.i; });
+    $('dnBoard').innerHTML = '<div class="l">Skor pertandingan</div>' + rows.map(function (r, k) {
+      return '<div class="row' + (r.i === 0 ? ' me' : '') + '"><span class="rk">' + (k + 1) + '</span><span class="nm">' + esc(DN.names[r.i]) + '</span><span class="pt">' + r.s + '</span></div>';
+    }).join('');
+  }
+  function fb(kind) {
+    var el = $('dnFb'); el.textContent = FBTXT[kind]; el.className = 'dn-fb ' + kind; void el.offsetWidth; el.className = 'dn-fb show ' + kind;
+    if (kind === 'perfect') { blip(880, .1, 'triangle', 0, .16); blip(1175, .16, 'triangle', .08, .16); }
+    else if (kind === 'good') blip(660, .14, 'triangle', 0, .14);
+    else if (kind === 'late') blip(440, .16, 'triangle', 0, .12);
+    else blip(150, .22, 'sawtooth', 0, .1);
+  }
+  function award(who, kind) {
+    if (kind === 'miss') { DN.combo[who] = 0; if (who === 0) DN.stat.miss++; }
+    else { DN.combo[who]++; DN.sc[who] += ({ perfect: 100, good: 60, late: 40 })[kind] + Math.min(DN.combo[who] - 1, 5) * 10; if (who === 0) DN.stat[kind]++; }
+    if (who === 0) $('dnCombo').textContent = DN.combo[0] > 1 ? 'Kombo x' + DN.combo[0] : '';
+    boardRender();
+  }
+
+  /* ----- putaran ----- */
+  function roundStart(r) {
+    DN.round = r; var n = r < 5 ? 4 : (r < 12 ? 5 : (r < 18 ? 6 : 7)), seq = [], k;
+    for (k = 0; k < n; k++) seq.push(DIRS[Math.floor(Math.random() * 4)]);
+    DN.seq = seq; DN.idx = 0; DN.done = false;
+    $('dnSeq').innerHTML = seq.map(function (d, i) { return '<span class="ar' + (i === 0 ? ' now' : '') + '">' + arrowSVG(d) + '</span>'; }).join('');
+    DN.ev = [];
+    for (k = 0; k < DN.n; k++) {
+      var s = DN.skill[k], roll = Math.random(), pm = Math.max(.03, (1 - s) * .45), pp = s * .65, kind, trig;
+      if (roll < pm) { kind = 'miss'; trig = .97; }
+      else if (roll < pm + pp) { kind = 'perfect'; trig = .58 + Math.random() * .24; }
+      else if (Math.random() < .5) { kind = 'good'; trig = .3 + Math.random() * .2; }
+      else { kind = 'late'; trig = .87 + Math.random() * .09; }
+      DN.ev.push({ kind: kind, trig: trig, fired: false });
+    }
+  }
+  function roundClose() {
+    if (DN.round < 0) return;
+    if (!DN.done) { DN.done = true; award(0, 'miss'); fb('miss'); }
+    DN.ev.forEach(function (ev, k) { if (!ev.fired) { ev.fired = true; award(k + 1, ev.kind); } });
+  }
+  function dnPress(dir) {
+    if (DN.phase !== 'play' || DN.round < 0 || DN.done) return;
+    var now = performance.now(), el = (now - DN.t0) / 1000; if (el < 0) return;
+    var kids = $('dnSeq').children, i;
+    if (dir === DN.seq[DN.idx]) {
+      kids[DN.idx].className = 'ar ok'; DN.idx++; DN.pose = { dir: dir, until: now + 380 }; blip(500 + DN.idx * 70, .08, 'triangle', 0, .1);
+      if (DN.idx >= DN.seq.length) {
+        var p = (el - DN.round * ROUND_LEN) / ROUND_LEN, kind = p < ZONE0 ? 'good' : (p <= ZONE1 ? 'perfect' : 'late');
+        DN.done = true; award(0, kind); fb(kind);
+      } else kids[DN.idx].className = 'ar now';
+    } else {
+      blip(170, .14, 'sawtooth', 0, .1); DN.idx = 0;
+      for (i = 0; i < kids.length; i++) kids[i].className = i === 0 ? 'ar now' : 'ar';
+      var sq = $('dnSeq'); sq.classList.remove('shake'); void sq.offsetWidth; sq.classList.add('shake');
+      DN.combo[0] = 0; $('dnCombo').textContent = '';
+    }
+  }
+  window.addEventListener('keydown', function (e) {
+    if (state !== 'mini' || DN.phase !== 'play') return;
+    var dir = DKEY[e.code]; if (!dir) return; e.preventDefault(); if (e.repeat) return;
+    dnPress(dir); var b = $('dnPad').querySelector('[data-dir="' + dir + '"]'); if (b) { b.classList.add('on'); setTimeout(function () { b.classList.remove('on'); }, 110); }
+  });
+  (function buildPad() {
+    var pad = $('dnPad'), names = { left: 'Kiri', down: 'Bawah', up: 'Atas', right: 'Kanan' };
+    ['left', 'down', 'up', 'right'].forEach(function (d) {
+      var b = document.createElement('button'); b.type = 'button'; b.setAttribute('data-dir', d); b.setAttribute('aria-label', 'Panah ' + names[d]); b.innerHTML = arrowSVG(d, '#10233f');
+      b.addEventListener('pointerdown', function (e) { e.preventDefault(); dnPress(d); });
+      pad.appendChild(b);
+    });
+  })();
+
+  /* ----- alur pertandingan ----- */
+  function pickStage() {
+    var offs = [0, .5, -.5, 1, -1, 1.5, -1.5, 2.1, -2.1, 2.8, 3.14], ds = [11, 9.5, 12.5], a, d, o, ang, fx, fz, sx, sz, ok, x, z;
+    for (a = 0; a < offs.length; a++) for (d = 0; d < ds.length; d++) {
+      ang = yaw + offs[a]; fx = -Math.sin(ang); fz = -Math.cos(ang); sx = pos.x + fx * ds[d]; sz = pos.z + fz * ds[d]; ok = true;
+      for (o = -6; o <= 6 && ok; o += 3) { x = sx - fz * o; z = sz + fx * o; if (Math.abs(x) > 58 || Math.abs(z) > 58 || !spotFree(x, z)) ok = false; }
+      if (ok) return { ang: ang, fx: fx, fz: fz, sx: sx, sz: sz, d: ds[d] };
+    }
+    ang = yaw; fx = -Math.sin(ang); fz = -Math.cos(ang);
+    return { ang: ang, fx: fx, fz: fz, sx: clamp(pos.x + fx * 10, -58, 58), sz: clamp(pos.z + fz * 10, -58, 58), d: 10 };
+  }
+  function danceBegin() {
+    RET = { x: pos.x, y: pos.y, z: pos.z, yaw: yaw, p: pitch }; pos.set(0, 1.6, 40); yaw = 0; pitch = 0; buildPlayerRig(); ensureStage(); acx();
+    if (!CAM.v) CAM.v = { fp: new THREE.Vector3(), c: new THREE.Vector3(), look: new THREE.Vector3(), qf: new THREE.Quaternion(), qc: new THREE.Quaternion(), eu: new THREE.Euler(), cam: new THREE.PerspectiveCamera() };
+    mgPhase = 'run'; $('mgame').hidden = true; $('hud').hidden = true;
+    var st = pickStage(), i;
+    DN.fx = st.fx; DN.fz = st.fz; DN.sx = st.sx; DN.sz = st.sz; DN.dist = st.d; DN.yawT = st.ang; DN.faceCam = Math.atan2(-st.fx, -st.fz);
+    var rx = -st.fz, rz = st.fx;
+    DN.slot = [-4.5, -1.5, 1.5, 4.5].map(function (o) { return { x: st.sx + rx * o, z: st.sz + rz * o }; });
+    var cand = []; for (i = 0; i < N; i++) if (!W.npc[i].flee) cand.push({ i: i, d: Math.hypot(pos.x - NPC[i].x, pos.z - NPC[i].z) });
+    cand.sort(function (a, b) { return a.d - b.d; });
+    var ch = cand.slice(0, 3).map(function (c) { return c.i; });
+    ch.sort(function (a, b) { return ((NPC[a].x - pos.x) * rx + (NPC[a].z - pos.z) * rz) - ((NPC[b].x - pos.x) * rx + (NPC[b].z - pos.z) * rz); });
+    DN.npcs = ch; DN.n = ch.length; DN.names = [playerName || 'Kamu']; DN.sc = [0, 0, 0, 0]; DN.combo = [0, 0, 0, 0]; DN.stat = { perfect: 0, good: 0, late: 0, miss: 0 };
+    DN.round = -1; DN.seq = []; DN.ev = []; DN.pose = null; DN.rank = []; DN.el = 0; DN.t0 = 0; DN.cd = -1; DN.endShown = false;
+    var base = [.5, .62, .74, .84][mgLvl - 1]; DN.skill = [Math.min(.95, base + .08), base, base - .08];
+    DN.labels = [];
+    ch.forEach(function (ni, k) {
+      var o = W.npc[ni], d = NPC[ni], sl = DN.slot[NPC_SLOTS[k]], dd;
+      DN.names.push(d.n);
+      o.rig = { g: o.g, body: o.body, armL: o.armL, armR: o.armR, legL: o.body.children[0], legR: o.body.children[1], cur: null };
+      o.dance = { k: k, mode: 'walk', tx: sl.x, tz: sl.z, sp: 8.5, t: 0, home: { x: d.x, z: d.z }, homeY: d.y, arrived: false, ret: false, lab: addLabel(d.n, '#ffffff', k + 1) };
+      dd = Math.hypot(d.x - sl.x, d.z - sl.z);
+      d.y = 0; npcPlace(o, d); if (dd > 26) { d.x = sl.x + (d.x - sl.x) / dd * 26; d.z = sl.z + (d.z - sl.z) / dd * 26; npcPlace(o, d); }
+      o.wander = null; o.walking = false; o.flee = null; o.mk.visible = false; o.dance.lab.visible = true;
+    });
+    DN.plLab = addLabel(DN.names[0], '#ffc42e', 0);
+    DN.pp = { x: pos.x, z: pos.z, mode: 'wait', tx: 0, tz: 0, sp: 5.5, face: DN.faceCam + Math.PI, arrived: false };
+    PR.g.position.set(pos.x, 0, pos.z); PR.g.rotation.y = DN.faceCam + Math.PI; rigReset(PR); PR.g.visible = false;
+    DN.floor.position.set(st.sx, .05, st.sz); DN.floor.rotation.y = DN.faceCam; DN.floor.visible = true;
+    DN.beams.forEach(function (b, k) { b.position.x = DN.slot[k].x; b.position.z = DN.slot[k].z; b.visible = true; });
+    ['dnTop', 'dnBoard', 'dnMain', 'dnPad', 'dnMute'].forEach(function (id) { $(id).hidden = true; });
+    $('dnCount').hidden = true; $('dance').hidden = false; $('dnClock').textContent = fmt(SONG_LEN * 1000); $('dnBar').style.width = '0%'; $('dnCombo').textContent = ''; $('dnFb').className = 'dn-fb';
+    boardRender(); setPhase('gather');
+  }
+  function setPhase(p) {
+    DN.phase = p; DN.pt = 0;
+    if (p === 'gather') { banner('Ada ' + DN.n + ' teman datang menantangmu berdansa!'); beep(523, .1, 'triangle'); beep(784, .15, 'triangle', .1); }
+    else if (p === 'cam3') {
+      banner('Kamera pindah! Bersiap berbaris bersama mereka.'); CAM.mode = 'to3'; CAM.t = 0; PR.g.position.set(pos.x, 0, pos.z); PR.g.visible = true; DN.plLab.visible = true;
+    } else if (p === 'walkin') { banner('Ayo berbaris sejajar dengan mereka!'); DN.pp.mode = 'walk'; DN.pp.tx = DN.slot[1].x; DN.pp.tz = DN.slot[1].z; DN.pp.arrived = false; DN.pp.face = DN.faceCam; }
+    else if (p === 'turn') { banner(null); }
+    else if (p === 'count') {
+      DN.cd = -1; ['dnTop', 'dnBoard', 'dnMute', 'dnPad'].forEach(function (id) { $(id).hidden = false; });
+      $('dnCount').hidden = false; $('dnCount').textContent = '3';
+    } else if (p === 'play') {
+      $('dnCount').textContent = 'DANSA!'; DN.cdHide = 1.1; $('dnMain').hidden = false; songStart();
+    } else if (p === 'end') {
+      songStop(); ['dnTop', 'dnBoard', 'dnMain', 'dnPad', 'dnMute'].forEach(function (id) { $(id).hidden = true; });
+      var order = []; for (var i = 0; i <= DN.n; i++) order.push(i);
+      order.sort(function (a, b) { return DN.sc[b] - DN.sc[a] || a - b; }); DN.order = order; DN.rank = []; order.forEach(function (w, r) { DN.rank[w] = r; });
+      $('dnCount').hidden = false; $('dnCount').textContent = DN.rank[0] === 0 ? 'JUARA!' : 'SELESAI!';
+      beep(523, .15, 'triangle'); beep(659, .15, 'triangle', .14); beep(784, .15, 'triangle', .28); beep(1047, .3, 'triangle', .42);
+    } else if (p === 'back') {
+      $('dnCount').hidden = true; DN.beams.forEach(function (b) { b.visible = false; });
+      DN.npcs.forEach(function (ni) { var D = W.npc[ni].dance; if (D) { D.mode = 'walk'; D.tx = D.home.x; D.tz = D.home.z; D.ret = true; D.t = 0; D.arrived = false; D.sp = 8.5; } });
+      DN.pp.mode = 'walk'; DN.pp.tx = pos.x; DN.pp.tz = pos.z; DN.pp.sp = 6; DN.pp.arrived = false; DN.pp.face = DN.faceCam + Math.PI;
+    } else if (p === 'cam1') { CAM.mode = 'to1'; CAM.t = 0; DN.plLab.visible = false; DN.floor.visible = false; }
+  }
+  function showMatchResult() {
+    var o = DN.order, me = DN.rank[0], got = [3, 2, 1, 0][Math.min(3, me)]; mgStarsGot = got; mgPhase = 'done';
+    var msg = me === 0 ? 'Juara 1! Kamu rajanya dansa!' : (me === 1 ? 'Hebat, juara 2!' : (me === 2 ? 'Bagus, juara 3!' : 'Tidak apa-apa, coba lagi nanti!'));
+    $('mgTitle').textContent = 'Hasil Pertandingan Dansa'; $('mgSub').textContent = DN.n + ' teman melawan ' + DN.names[0];
+    $('mgBody').innerHTML = '<p class="mgtxt"><strong>' + msg + '</strong> Skormu ' + DN.sc[0] + ', peringkat ' + (me + 1) + ' dari ' + (DN.n + 1) + '.</p>' +
+      '<ul class="list">' + o.map(function (w, r) {
+        return '<li class="' + (w === 0 ? 'done' : '') + '"><span class="who"><b>' + MEDAL[r] + ' ' + esc(DN.names[w]) + '</b><span>Peringkat ' + (r + 1) + '</span></span><span class="p">' + DN.sc[w] + '</span></li>';
+      }).join('') + '</ul>' +
+      '<p class="hint">Sempurna: ' + DN.stat.perfect + ' · Terlalu cepat: ' + DN.stat.good + ' · Telat: ' + DN.stat.late + ' · Meleset: ' + DN.stat.miss + '</p>' +
+      '<div class="mgres">Kamu mendapat <strong>' + got + ' bintang</strong> bonus.</div>';
+    $('mgGo').textContent = 'Lanjut Petualangan'; $('mgGo').hidden = false; $('mgGo').disabled = false; $('mgSkip').hidden = true; $('dance').hidden = true;
+    $('mgame').hidden = false; $('mgame').scrollTop = 0; $('mgcard').focus();
+  }
+  function finishDance() {
+    if (RET) { pos.set(RET.x, RET.y, RET.z); yaw = RET.yaw; pitch = RET.p; RET = null; vy = 0; grounded = true; }
+    DN.phase = 'off'; $('dance').hidden = true; if (PR) PR.g.visible = false; if (DN.floor) DN.floor.visible = false;
+    DN.labels.forEach(function (l) { scene.remove(l.sp); l.tex.dispose(); l.sp.material.dispose(); }); DN.labels = [];
+    $('hud').hidden = false; mgFinish(mgStarsGot);
+  }
+  function danceUpdate(dt, t) {
+    var ph = DN.phase; if (ph === 'off' || ph === 'intro') return;
+    DN.pt += dt;
+    var i, allNpc = true, bp = t * 2, el = 0;
+    DN.npcs.forEach(function (ni) { var D = W.npc[ni].dance; if (D && !(D.arrived && !D.ret)) allNpc = false; });
+    if (ph === 'gather') {
+      yaw += Math.atan2(Math.sin(DN.yawT - yaw), Math.cos(DN.yawT - yaw)) * Math.min(1, dt * 3); pitch += (0 - pitch) * Math.min(1, dt * 3);
+      if ((allNpc && DN.pt > 1) || DN.pt > 12) setPhase('cam3');
+    } else if (ph === 'cam3') { if (CAM.mode === '3p') setPhase('walkin'); }
+    else if (ph === 'walkin') { if (DN.pp.arrived) setPhase('turn'); }
+    else if (ph === 'turn') { if (DN.pt > .8) setPhase('count'); }
+    else if (ph === 'count') {
+      var n = 3 - Math.floor(DN.pt); if (DN.pt < 3 && n !== DN.cd) { DN.cd = n; $('dnCount').textContent = String(n); blip(440, .12, 'triangle', 0, .15); }
+      if (DN.pt >= 3) setPhase('play');
+    } else if (ph === 'play') {
+      if (DN.cdHide > 0) { DN.cdHide -= dt; if (DN.cdHide <= 0) $('dnCount').hidden = true; }
+      el = (performance.now() - DN.t0) / 1000; DN.el = Math.max(0, el); bp = DN.el * 2;
+      if (el >= 0) {
+        if (el >= SONG_LEN) { roundClose(); setPhase('end'); }
+        else {
+          var r = Math.min(N_ROUND - 1, Math.floor(el / ROUND_LEN));
+          if (r !== DN.round) { roundClose(); roundStart(r); }
+          var p = (el - r * ROUND_LEN) / ROUND_LEN, hot = p >= ZONE0 && p <= ZONE1;
+          $('dnMk').style.left = (p * 100) + '%'; if (hot !== DN.hot) { DN.hot = hot; $('dnZone').classList.toggle('hot', hot); }
+          DN.ev.forEach(function (ev, k) { if (!ev.fired && p >= ev.trig) { ev.fired = true; award(k + 1, ev.kind); } });
+          var ck = fmt((SONG_LEN - el) * 1000); if ($('dnClock').textContent !== ck) $('dnClock').textContent = ck;
+          $('dnBar').style.width = (el / SONG_LEN * 100) + '%';
+        }
+      }
+    } else if (ph === 'end') {
+      if (DN.pt > 2.2 && !DN.endShown) { DN.endShown = true; showMatchResult(); }
+    } else if (ph === 'back') {
+      var home = true; DN.npcs.forEach(function (ni) { if (W.npc[ni].dance) home = false; });
+      if ((home && DN.pp.arrived && DN.pt > .6) || DN.pt > 14) { DN.npcs.forEach(function (ni) { var o = W.npc[ni]; if (o.dance) npcFinish(o, NPC[ni]); }); setPhase('cam1'); }
+    } else if (ph === 'cam1') { if (CAM.mode === 'fp') finishDance(); return; }
+
+    /* gerak lantai panggung & lampu */
+    if (DN.floor && DN.floor.visible) {
+      var pulse = ph === 'play' ? Math.pow(1 - (DN.el * 2) % 1, 2) : .3, v = .62 + .38 * pulse; DN.floor.material.color.setRGB(v, v, v);
+    }
+    if (DN.beams) DN.beams.forEach(function (b, k) { if (b.visible) b.material.color.setHSL((t * .12 + k * .25) % 1, .9, .6); });
+
+    /* avatar pemain */
+    var P = DN.pp;
+    if (PR && PR.g.visible) {
+      var tg;
+      if (P.mode === 'walk') {
+        var dx = P.tx - P.x, dz = P.tz - P.z, dd = Math.hypot(dx, dz);
+        if (dd < .1 || DN.pt > 12) { P.x = P.tx; P.z = P.tz; P.mode = 'idle'; P.arrived = true; }
+        else { var s2 = Math.min(dd, P.sp * dt); P.x += dx / dd * s2; P.z += dz / dd * s2; turn(PR.g, Math.atan2(dx, dz), dt * 10); }
+        tg = walkTarget(t, 0);
+      } else {
+        turn(PR.g, P.face, dt * 7);
+        if (ph === 'play' && DN.pose && performance.now() < DN.pose.until) tg = danceTarget(DN.pose.dir, bp);
+        else if (ph === 'end' && DN.rank[0] === 0) tg = danceTarget(Math.floor(bp) % 2 ? 'up' : 'idle', bp);
+        else tg = danceTarget('idle', bp);
+      }
+      PR.g.position.set(P.x, 0, P.z); rigPose(PR, tg, dt);
+      DN.plLab.position.set(P.x, 2.55, P.z);
+    }
+
+    /* teman-teman */
+    DN.npcs.forEach(function (ni) { var o = W.npc[ni]; if (o.dance) npcDance(ni, o, NPC[ni], dt, t, bp); });
+  }
+  function npcFinish(o, d) {
+    var D = o.dance; d.x = D.home.x; d.z = D.home.z; d.y = D.homeY; npcPlace(o, d); rigReset(o.rig); o.body.position.y = 0; o.rig = null;
+    D.lab.visible = false; o.dance = null; o.home = { x: d.x, z: d.z }; o.wander = null; o.walking = false;
+  }
+  function npcDance(ni, o, d, dt, t, bp) {
+    var D = o.dance, ph = DN.phase, tg;
+    if (D.mode === 'walk') {
+      var dx = D.tx - d.x, dz = D.tz - d.z, dd = Math.hypot(dx, dz); D.t += dt;
+      if (dd < .1 || D.t > 11) {
+        if (D.ret) { npcFinish(o, d); return; }
+        d.x = D.tx; d.z = D.tz; npcPlace(o, d); D.mode = 'idle'; D.arrived = true;
+      } else {
+        var st = Math.min(dd, D.sp * dt); d.x += dx / dd * st; d.z += dz / dd * st; if (dd > 1.5) collide(d, .6, o.circle); npcPlace(o, d);
+        turn(o.g, Math.atan2(dx, dz), dt * 10); rigPose(o.rig, walkTarget(t, ni), dt); D.lab.position.set(d.x, 2.55, d.z); return;
+      }
+    }
+    turn(o.g, DN.faceCam, dt * 8);
+    if (ph === 'play' && DN.seq.length) {
+      var ev = DN.ev[D.k];
+      if (ev && ev.fired && ev.kind === 'miss') tg = danceTarget('idle', bp);
+      else tg = danceTarget(DN.seq[(Math.floor(bp) + D.k) % DN.seq.length], bp);
+    } else if (ph === 'end' && DN.rank[D.k + 1] === 0) tg = danceTarget(Math.floor(bp) % 2 ? 'up' : 'idle', bp);
+    else tg = danceTarget('idle', bp + D.k * .25);
+    rigPose(o.rig, tg, dt); D.lab.position.set(d.x, 2.55, d.z);
+  }
+
+  /* ----- modal pembuka & penutup ----- */
+  function startMini(cb) {
+    releaseLock(); setState('mini'); mgCb = cb; mgPhase = 'ready'; DN.phase = 'intro'; mgLvl = Math.min(mg + 1, 4); mgStarsGot = 0;
+    $('mgTitle').textContent = 'Tantangan Ayo Dansa!';
+    $('mgSub').textContent = 'Hadiah untuk ' + (mg + 1) * 3 + ' soal benar · Tingkat ' + mgLvl + ' dari 4';
+    $('mgBody').innerHTML = '<p class="mgtxt">3 temanmu datang menantang berdansa! Lagunya berdurasi <strong>2 menit</strong>.</p>' +
+      '<div class="arrow-demo">' + ['up', 'down', 'left', 'right'].map(function (d) { return '<span class="ar">' + arrowSVG(d) + '</span>'; }).join('') + '</div>' +
+      '<ol class="mgsteps">' +
+      '<li>Lihat urutan panah di gelembung biru.</li>' +
+      '<li>Tekan panah yang sama berurutan: <span class="keys"><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&larr;</kbd><kbd>&rarr;</kbd></span> atau <span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span>, atau ketuk tombol panah di layar.</li>' +
+      '<li>Selesaikan urutan saat penanda hijau berada di <strong>zona abu-abu</strong> untuk nilai SEMPURNA.</li>' +
+      '<li>Salah tekan? Urutan mengulang dari awal.</li></ol>' +
+      '<p class="hint">Juara 1 dapat 3 bintang, juara 2 dapat 2 bintang, juara 3 dapat 1 bintang.</p>';
+    $('mgGo').textContent = 'Ayo Dansa!'; $('mgGo').hidden = false; $('mgGo').disabled = false; $('mgSkip').hidden = false;
+    $('mgame').hidden = false; $('mgame').scrollTop = 0; $('mgcard').focus(); beep(523, .1, 'triangle'); beep(784, .15, 'triangle', .1);
+  }
+  function mgFinish(got) {
+    mg++; stars += got; mgPhase = 'idle'; DN.phase = 'off'; $('mgame').hidden = true; $('hud').hidden = false; hudUpdate(); save();
+    var cb = mgCb; mgCb = null; if (cb) cb();
+  }
+  $('mgGo').addEventListener('click', function () {
+    if (mgPhase === 'ready') danceBegin();
+    else if (mgPhase === 'done') { mgPhase = 'back'; $('mgGo').disabled = true; $('mgame').hidden = true; setPhase('back'); }
+  });
+  $('mgSkip').addEventListener('click', function () { if (mgPhase === 'ready') mgFinish(0); });
+
+
+  /* ---------- list ---------- */
+  function openList() {
+    releaseLock(); setState('list');
+    $('lList').innerHTML = NPC.map(function (d, i) {
+      var r = res[i]; return '<li class="' + (r ? 'done' : '') + '"><span class="dot">' + (r ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5l2.6 2.6L10 3.4"/></svg>' : '') + '</span><span class="who"><b>' + d.n + '</b><span>' + d.r + ' · ' + (r ? 'sudah benar' : d.clue) + (att[i] && !r ? ' · salah ' + att[i] + 'x' : '') + '</span></span>' + (r ? '<span class="p">' + r.pts + '</span>' : (i === firstOpen() ? '<button class="btn small" data-go="' + i + '" type="button">Ke pos ini</button>' : '')) + '</li>';
+    }).join('');
+    $('daftar').hidden = false; $('lcard').focus();
+  }
+  function closeList() { $('daftar').hidden = true; setState('play'); if (!isTouch) lockPointer(); }
+  $('btnList').addEventListener('click', function () { if (state === 'play') openList(); });
+  $('lClose').addEventListener('click', closeList);
+
+  /* ---------- selesaikan ujian ---------- */
+  function openFinish() {
+    if (state !== 'play') return;
+    releaseLock(); setState('confirm');
+    $('kMsg').textContent = 'Baru ' + done + ' dari ' + N + ' soal yang dijawab benar. Soal yang belum dijawab dihitung 0 poin. Yakin ingin menyelesaikan ujian dan melihat nilaimu?';
+    $('konfirm').hidden = false; $('kcard').focus();
+  }
+  function closeFinish() { $('konfirm').hidden = true; setState('play'); if (!isTouch) lockPointer(); }
+  $('btnFinish').addEventListener('click', openFinish);
+  $('kNo').addEventListener('click', closeFinish);
+  $('kYes').addEventListener('click', function () { $('konfirm').hidden = true; showResults(); });
+
+  /* ---------- results ---------- */
+  function showResults() {
+    releaseLock(); setState('end'); $('hud').hidden = true; $('prompt').hidden = true; $('toast').hidden = true;
+    finished = true; save();
+    var first = res.filter(function (r) { return r && r.tries === 1; }).length, wrongs = att.reduce(function (x, y) { return x + y; }, 0), avg = Math.round(score / N);
+    $('rName').textContent = (playerName ? playerName + ' · ' : '') + (done === N ? 'Semua soal terjawab benar' : done + ' dari ' + N + ' soal terjawab benar');
+    $('rTitle').textContent = avg >= 85 ? 'Juara Dokumen!' : (avg >= 65 ? 'Hebat, kamu pantang menyerah!' : 'Kamu berhasil sampai akhir!');
+    $('rMsg').textContent = avg >= 85 ? 'Hampir semua soal benar di percobaan pertama. Kamu paham betul logika IF, AND, dan OR.' : 'Semua guru dan staf sudah kamu bantu dengan jawaban benar. Nilai makin tinggi kalau lebih sedikit salah, jadi coba main lagi!';
+    if (done < N) { $('rTitle').textContent = 'Ujian selesai!'; $('rMsg').textContent = 'Kamu menjawab benar ' + done + ' dari ' + N + ' soal. Soal yang belum dijawab dihitung 0 poin. Main lagi untuk menyelesaikan semuanya!'; }
+    $('rScore').textContent = avg; $('rPerfect').textContent = first + ' / ' + N; $('rPts').textContent = wrongs; $('rStars').textContent = stars + ' / 9';
+    $('rList').innerHTML = NPC.map(function (d, i) {
+      var r = res[i];
+      if (!r) return '<li class="bad"><span class="dot"></span><span class="who"><b>' + d.n + '</b><span>Belum dijawab benar</span></span><span class="p">0</span></li>';
+      var cls = r.tries === 1 ? 'done' : (r.tries <= 3 ? 'part' : 'bad');
+      return '<li class="' + cls + '"><span class="dot"></span><span class="who"><b>' + d.n + '</b><span>Benar di percobaan ke-' + r.tries + '</span></span><span class="p">' + r.pts + '</span></li>';
+    }).join('');
+    show('hasil'); $('hasil').scrollTop = 0;
+    beep(523, .15, 'triangle'); beep(659, .15, 'triangle', .14); beep(784, .15, 'triangle', .28); beep(1047, .3, 'triangle', .42);
+  }
+  $('btnAgain').addEventListener('click', function () { resetGame(); inGame = true; save(); startPlay(); });
+  $('btnReread').addEventListener('click', function () { resetGame(); inGame = false; $('hud').hidden = true; startRead(); });
+
+  /* ---------- awal: cek progres tersimpan ---------- */
+  resetData();
+  var saved = loadSave();
+  if (saved) {
+    restore(saved);
+    $('nama').value = playerName;
+    var jam = Math.max(1, Math.round((DAY_MS - (Date.now() - saved.savedAt)) / 3600000));
+    $('resumeMsg').textContent = (playerName ? playerName + ', ' : '') + (finished ? 'ujianmu sudah selesai dengan ' + done + ' dari ' + N + ' soal benar.' : 'kamu sudah menjawab benar ' + done + ' dari ' + N + ' soal dan mengumpulkan ' + stars + ' bintang.') + ' Progres ini tersimpan sekitar ' + jam + ' jam lagi.';
+    $('btnResume').textContent = finished ? 'Lihat Hasil' : 'Lanjutkan Petualangan';
+    $('resumeBox').hidden = false; $('nameForm').hidden = true;
+  }
+  $('btnResume').addEventListener('click', function () {
+    inGame = true;
+    if (finished) { showResults(); } else { startPlay(); }
+  });
+  var freshArm = false;
+  $('btnFresh').addEventListener('click', function () {
+    if (!freshArm) { freshArm = true; $('btnFresh').textContent = 'Klik lagi untuk menghapus progres'; return; }
+    clearSave(); resetData(); inGame = false; freshArm = false;
+    $('resumeBox').hidden = true; $('nameForm').hidden = false; $('btnFresh').textContent = 'Mulai dari Awal';
+  });
+})();
+</script>
+
+</body>
+</html>
